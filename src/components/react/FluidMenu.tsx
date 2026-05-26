@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const RADIUS = 130;
+const RADIUS = 165;
 
 function getPos(index: number, total: number) {
-  // Arc from 105° (down-left) to 185° (left) — keeps items clear of right viewport edge
-  const startDeg = 105;
-  const endDeg = 185;
+  // Arc from 100° (down-left) to 195° (left) — keeps items clear of right viewport edge
+  const startDeg = 100;
+  const endDeg = 195;
   const deg = startDeg + ((endDeg - startDeg) * index) / (total - 1);
   const rad = (deg * Math.PI) / 180;
   return {
