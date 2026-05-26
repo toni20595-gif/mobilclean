@@ -153,6 +153,15 @@ const currentPath = Astro.url.pathname;
     }
     .nav-phone svg { width: 12px; height: 12px; }
     .header-inner { gap: 8px; }
+  .logo-img {
+    height: 64px;
+    filter:
+      drop-shadow(1px  1px 0 white)
+      drop-shadow(-1px -1px 0 white)
+      drop-shadow(1px -1px 0 white)
+      drop-shadow(-1px  1px 0 white)
+      drop-shadow(0 0 3px white);
+  }
   }
 </style>
 
