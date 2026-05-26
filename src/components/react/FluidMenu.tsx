@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const RADIUS = 165;
 
-function getPos(index: number, total: number) {
+// Desktop: arc circulaire
+function getArcPos(index: number, total: number) {
   const startDeg = 110;
   const endDeg = 175;
   const deg = startDeg + ((endDeg - startDeg) * index) / (total - 1);
@@ -11,6 +12,14 @@ function getPos(index: number, total: number) {
   return {
     x: Math.round(Math.cos(rad) * RADIUS),
     y: Math.round(Math.sin(rad) * RADIUS),
+  };
+}
+
+// Mobile: colonne verticale légèrement décalée à gauche — jamais de chevauchement
+function getMobilePos(index: number) {
+  return {
+    x: -22 - index * 6,   // léger décalage gauche progressif
+    y: 56 + index * 54,   // 54px vertical = toujours espacé (items font 44px)
   };
 }
 
@@ -40,10 +49,6 @@ export default function FluidMenu({ currentPath = "/" }: { currentPath?: string 
     onScroll();
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  useEffect(() => {
-    if (!isMobile && open) close();
-  }, [isMobile]);
 
   const close = () => {
     setOpen(false);
@@ -88,149 +93,64 @@ export default function FluidMenu({ currentPath = "/" }: { currentPath?: string 
         )}
       </AnimatePresence>
 
-      {/* MOBILE — panneau vertical depuis la droite */}
+      {/* Items */}
       <AnimatePresence>
-        {open && isMobile && (
-          <motion.div
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
-            transition={{ type: "spring", stiffness: 320, damping: 32 }}
-            style={{
-              position: "fixed",
-              top: 0,
-              right: 0,
-              bottom: 0,
-              width: "72vw",
-              maxWidth: 280,
-              background: "white",
-              zIndex: 95,
-              display: "flex",
-              flexDirection: "column",
-              paddingTop: 100,
-              paddingBottom: 32,
-              paddingLeft: 28,
-              paddingRight: 28,
-              gap: 8,
-              boxShadow: "-8px 0 40px rgba(13,48,128,0.18)",
-            }}
-          >
-            {links.slice().reverse().map((item, i) => {
-              const isActive = currentPath === item.href;
-              return (
-                <motion.a
-                  key={item.href}
-                  href={item.href}
-                  onClick={close}
-                  initial={{ opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.06, type: "spring", stiffness: 300, damping: 24 }}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    padding: "14px 20px",
-                    borderRadius: 14,
-                    background: isActive ? "#00C896" : "rgba(13,48,128,0.05)",
-                    color: isActive ? "white" : "#0D3080",
-                    fontFamily: "var(--font-corps, 'DM Sans', sans-serif)",
-                    fontSize: "1rem",
-                    fontWeight: 700,
-                    textDecoration: "none",
-                    letterSpacing: "0.01em",
-                    boxShadow: isActive ? "0 4px 16px rgba(0,200,150,0.35)" : "none",
-                  }}
-                >
-                  {item.label}
-                </motion.a>
-              );
-            })}
-
-            {/* Numéro de téléphone en bas du panneau */}
-            <a
-              href="tel:+33644830555"
+        {open && links.map((item, i) => {
+          const pos = isMobile ? getMobilePos(i) : getArcPos(i, links.length);
+          const isActive = currentPath === item.href;
+          return (
+            <motion.a
+              key={item.href}
+              href={item.href}
+              onClick={close}
+              initial={{ opacity: 0, x: 22, y: 22, scale: 0.25 }}
+              animate={{ opacity: 1, x: pos.x + 22, y: pos.y + 22, scale: 1 }}
+              exit={{
+                opacity: 0,
+                x: 22,
+                y: 22,
+                scale: 0.25,
+                transition: {
+                  delay: (links.length - 1 - i) * 0.04,
+                  duration: 0.18,
+                  ease: "easeIn",
+                },
+              }}
+              transition={{
+                type: "spring",
+                stiffness: 400,
+                damping: 24,
+                delay: i * 0.07,
+              }}
               style={{
-                marginTop: "auto",
+                position: "absolute",
+                top: -22,
+                left: -22,
                 display: "flex",
                 alignItems: "center",
-                gap: 10,
-                padding: "14px 20px",
-                borderRadius: 14,
-                background: "rgba(13,48,128,0.05)",
+                justifyContent: "center",
+                height: 44,
+                padding: "0 18px",
+                borderRadius: 22,
+                background: isActive ? "#00C896" : "white",
                 color: "#0D3080",
                 fontFamily: "var(--font-corps, 'DM Sans', sans-serif)",
-                fontSize: "0.95rem",
+                fontSize: isMobile ? "0.82rem" : "0.85rem",
                 fontWeight: 700,
                 textDecoration: "none",
+                whiteSpace: "nowrap",
+                zIndex: 95,
+                boxShadow: isActive
+                  ? "0 6px 24px rgba(0,200,150,0.45)"
+                  : "0 4px 20px rgba(13,48,128,0.18)",
+                letterSpacing: "0.01em",
+                userSelect: "none",
               }}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.37a16 16 0 0 0 6 6l1.27-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
-              </svg>
-              06 44 83 05 55
-            </a>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* DESKTOP — arc fan */}
-      <AnimatePresence>
-        {open && !isMobile &&
-          links.map((item, i) => {
-            const { x, y } = getPos(i, links.length);
-            const isActive = currentPath === item.href;
-            return (
-              <motion.a
-                key={item.href}
-                href={item.href}
-                onClick={close}
-                initial={{ opacity: 0, x: 22, y: 22, scale: 0.25 }}
-                animate={{ opacity: 1, x: x + 22, y: y + 22, scale: 1 }}
-                exit={{
-                  opacity: 0,
-                  x: 22,
-                  y: 22,
-                  scale: 0.25,
-                  transition: {
-                    delay: (links.length - 1 - i) * 0.04,
-                    duration: 0.18,
-                    ease: "easeIn",
-                  },
-                }}
-                transition={{
-                  type: "spring",
-                  stiffness: 400,
-                  damping: 24,
-                  delay: i * 0.07,
-                }}
-                style={{
-                  position: "absolute",
-                  top: -22,
-                  left: -22,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  height: 44,
-                  padding: "0 20px",
-                  borderRadius: 22,
-                  background: isActive ? "#00C896" : "white",
-                  color: "#0D3080",
-                  fontFamily: "var(--font-corps, 'DM Sans', sans-serif)",
-                  fontSize: "0.85rem",
-                  fontWeight: 700,
-                  textDecoration: "none",
-                  whiteSpace: "nowrap",
-                  zIndex: 95,
-                  boxShadow: isActive
-                    ? "0 6px 24px rgba(0,200,150,0.45)"
-                    : "0 4px 20px rgba(13,48,128,0.18)",
-                  letterSpacing: "0.01em",
-                  userSelect: "none",
-                }}
-              >
-                {item.label}
-              </motion.a>
-            );
-          })}
+              {item.label}
+            </motion.a>
+          );
+        })}
       </AnimatePresence>
 
       {/* Bouton toggle */}

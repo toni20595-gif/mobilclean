@@ -143,13 +143,16 @@ const currentPath = Astro.url.pathname;
     .nav-desktop, .nav-cta { display: none; }
     .fluid-menu-wrapper {
       display: flex;
-      margin-left: auto;
     }
     .nav-phone {
-      padding: 8px 10px;
       margin-left: auto;
+      font-size: 0.78rem;
+      padding: 6px 10px;
+      gap: 5px;
+      border-width: 1px;
     }
-    .nav-phone-text { display: none; }
+    .nav-phone svg { width: 12px; height: 12px; }
+    .header-inner { gap: 8px; }
   }
 </style>
 
