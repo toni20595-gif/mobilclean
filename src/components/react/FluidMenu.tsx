@@ -4,9 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 const RADIUS = 165;
 
 function getPos(index: number, total: number) {
-  // Arc from 100° (down-left) to 195° (left) — keeps items clear of right viewport edge
-  const startDeg = 100;
-  const endDeg = 195;
+  const startDeg = 110;
+  const endDeg = 175;
   const deg = startDeg + ((endDeg - startDeg) * index) / (total - 1);
   const rad = (deg * Math.PI) / 180;
   return {
@@ -26,6 +25,14 @@ const links = [
 export default function FluidMenu({ currentPath = "/" }: { currentPath?: string }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
@@ -35,12 +42,8 @@ export default function FluidMenu({ currentPath = "/" }: { currentPath?: string 
   }, []);
 
   useEffect(() => {
-    const onResize = () => {
-      if (window.innerWidth > 768 && open) close();
-    };
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, [open]);
+    if (!isMobile && open) close();
+  }, [isMobile]);
 
   const close = () => {
     setOpen(false);
@@ -62,14 +65,8 @@ export default function FluidMenu({ currentPath = "/" }: { currentPath?: string 
   const btnColor = scrolled ? "#0D3080" : "white";
 
   return (
-    <div
-      style={{
-        position: "relative",
-        width: 44,
-        height: 44,
-        zIndex: 101,
-      }}
-    >
+    <div style={{ position: "relative", width: 44, height: 44, zIndex: 101 }}>
+
       {/* Backdrop */}
       <AnimatePresence>
         {open && (
@@ -91,9 +88,93 @@ export default function FluidMenu({ currentPath = "/" }: { currentPath?: string 
         )}
       </AnimatePresence>
 
-      {/* Menu items — fan out in arc from button center */}
+      {/* MOBILE — panneau vertical depuis la droite */}
       <AnimatePresence>
-        {open &&
+        {open && isMobile && (
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", stiffness: 320, damping: 32 }}
+            style={{
+              position: "fixed",
+              top: 0,
+              right: 0,
+              bottom: 0,
+              width: "72vw",
+              maxWidth: 280,
+              background: "white",
+              zIndex: 95,
+              display: "flex",
+              flexDirection: "column",
+              paddingTop: 100,
+              paddingBottom: 32,
+              paddingLeft: 28,
+              paddingRight: 28,
+              gap: 8,
+              boxShadow: "-8px 0 40px rgba(13,48,128,0.18)",
+            }}
+          >
+            {links.slice().reverse().map((item, i) => {
+              const isActive = currentPath === item.href;
+              return (
+                <motion.a
+                  key={item.href}
+                  href={item.href}
+                  onClick={close}
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.06, type: "spring", stiffness: 300, damping: 24 }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "14px 20px",
+                    borderRadius: 14,
+                    background: isActive ? "#00C896" : "rgba(13,48,128,0.05)",
+                    color: isActive ? "white" : "#0D3080",
+                    fontFamily: "var(--font-corps, 'DM Sans', sans-serif)",
+                    fontSize: "1rem",
+                    fontWeight: 700,
+                    textDecoration: "none",
+                    letterSpacing: "0.01em",
+                    boxShadow: isActive ? "0 4px 16px rgba(0,200,150,0.35)" : "none",
+                  }}
+                >
+                  {item.label}
+                </motion.a>
+              );
+            })}
+
+            {/* Numéro de téléphone en bas du panneau */}
+            <a
+              href="tel:+33644830555"
+              style={{
+                marginTop: "auto",
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "14px 20px",
+                borderRadius: 14,
+                background: "rgba(13,48,128,0.05)",
+                color: "#0D3080",
+                fontFamily: "var(--font-corps, 'DM Sans', sans-serif)",
+                fontSize: "0.95rem",
+                fontWeight: 700,
+                textDecoration: "none",
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.37a16 16 0 0 0 6 6l1.27-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+              06 44 83 05 55
+            </a>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* DESKTOP — arc fan */}
+      <AnimatePresence>
+        {open && !isMobile &&
           links.map((item, i) => {
             const { x, y } = getPos(i, links.length);
             const isActive = currentPath === item.href;
@@ -102,7 +183,6 @@ export default function FluidMenu({ currentPath = "/" }: { currentPath?: string 
                 key={item.href}
                 href={item.href}
                 onClick={close}
-                // Items start collapsed at button center, then spring to arc position
                 initial={{ opacity: 0, x: 22, y: 22, scale: 0.25 }}
                 animate={{ opacity: 1, x: x + 22, y: y + 22, scale: 1 }}
                 exit={{
@@ -153,7 +233,7 @@ export default function FluidMenu({ currentPath = "/" }: { currentPath?: string 
           })}
       </AnimatePresence>
 
-      {/* Toggle button */}
+      {/* Bouton toggle */}
       <motion.button
         onClick={toggle}
         aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
@@ -174,39 +254,23 @@ export default function FluidMenu({ currentPath = "/" }: { currentPath?: string 
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          zIndex: 92,
+          zIndex: 96,
           transition: "background 0.3s, border-color 0.3s, color 0.3s",
           outline: "none",
         }}
       >
-        <svg
-          width="22"
-          height="16"
-          viewBox="0 0 22 16"
-          fill="none"
-          style={{ overflow: "visible" }}
-        >
+        <svg width="22" height="16" viewBox="0 0 22 16" fill="none" style={{ overflow: "visible" }}>
           <motion.line
-            x1="0"
-            y1="2"
-            x2="22"
-            y2="2"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
+            x1="0" y1="2" x2="22" y2="2"
+            stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
             initial={false}
             animate={open ? { rotate: 45, y: 6 } : { rotate: 0, y: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
             style={{ originX: "11px", originY: "2px" }}
           />
           <motion.line
-            x1="0"
-            y1="14"
-            x2="22"
-            y2="14"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
+            x1="0" y1="14" x2="22" y2="14"
+            stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
             initial={false}
             animate={open ? { rotate: -45, y: -6 } : { rotate: 0, y: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
