@@ -15,10 +15,10 @@ function getArcPos(index: number, total: number) {
   };
 }
 
-// Mobile: colonne verticale légèrement décalée à gauche — jamais de chevauchement
+// Mobile: colonne décalée à gauche — items dans l'écran, jamais de chevauchement
 function getMobilePos(index: number) {
   return {
-    x: -22 - index * 6,   // léger décalage gauche progressif
+    x: -118 - index * 4,  // assez négatif pour que le bord droit reste dans l'écran
     y: 56 + index * 54,   // 54px vertical = toujours espacé (items font 44px)
   };
 }
