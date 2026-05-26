@@ -1,0 +1,424 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import WarpHero from "../components/react/WarpHero.tsx";
+
+const avantages = [
+  {
+    icon: `<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>`,
+    titre: "Devis & facture professionnels",
+    texte: "Nous émettons un devis détaillé et une facture conforme pour chaque intervention. Idéal pour votre comptabilité.",
+  },
+  {
+    icon: `<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>`,
+    titre: "Planification flexible",
+    texte: "Intervention en dehors des heures d'ouverture, le week-end ou selon votre planning. Zéro perturbation pour votre activité.",
+  },
+  {
+    icon: `<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>`,
+    titre: "Tarif dégressif sur volume",
+    texte: "Plus le volume est important, plus le tarif est avantageux. Nous adaptons nos prix à vos besoins et à la fréquence.",
+  },
+  {
+    icon: `<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>`,
+    titre: "Contrat d'entretien régulier",
+    texte: "Établissez un partenariat durable avec Mobil Clean. Interventions mensuelles, trimestrielles ou à la demande.",
+  },
+  {
+    icon: `<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>`,
+    titre: "Réactivité garantie",
+    texte: "Réponse rapide à chaque demande. Pour les contrats récurrents, nous garantissons votre créneau.",
+  },
+  {
+    icon: `<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>`,
+    titre: "Zone Alsace & alentours",
+    texte: "Nous intervenons dans toute l'Alsace et les zones avoisinantes — Haut-Rhin en priorité, déplacement sans frais selon volume.",
+  },
+];
+---
+
+<Layout
+  title="Devis Entreprise - Mobil Clean Alsace"
+  description="Mobil Clean propose des prestations de nettoyage professionnel pour les entreprises en Alsace : hôtels, garages, bureaux. Devis sur mesure, facturation pro, contrat d'entretien."
+>
+  <Header />
+  <main>
+
+    <!-- Hero -->
+    <section class="page-hero">
+      <WarpHero client:only="react" />
+      <div class="page-hero-overlay"></div>
+      <div class="container page-hero-content">
+        <span class="tag">Offre professionnelle</span>
+        <h1>Nettoyage pour<br /><span class="accent">les entreprises</span></h1>
+        <p>Devis personnalisé, facturation professionnelle et interventions planifiées selon vos contraintes. Mobil Clean s'adapte à votre structure.</p>
+        <a href="#devis-pro" class="btn-teal hero-cta">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+          </svg>
+          Demander un devis pro
+        </a>
+      </div>
+    </section>
+
+    <!-- Avantages -->
+    <section class="avantages-section">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="tag">Pourquoi nous choisir</span>
+          <h2>Un service pensé pour les professionnels</h2>
+          <p>Nous travaillons avec des hôtels, garages, concessionnaires, bureaux et tout type de structure qui a besoin d'un nettoyage textile régulier et impeccable.</p>
+        </div>
+
+        <div class="avantages-grid">
+          {avantages.map((a, i) => (
+            <div class={`avantage-card reveal reveal-delay-${i % 3}`}>
+              <div class="avantage-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" set:html={a.icon}/>
+              </div>
+              <h3>{a.titre}</h3>
+              <p>{a.texte}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Exemples d'interventions B2B -->
+    <section class="exemples-section">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="tag">Exemples concrets</span>
+          <h2>On intervient dans tous les secteurs</h2>
+        </div>
+        <div class="exemples-grid reveal">
+          <div class="exemple-card">
+            <div class="exemple-icon">🏨</div>
+            <h3>Hôtels & locations</h3>
+            <p>Nettoyage de matelas, couettes, canapés et fauteuils de chambre. Programme régulier entre deux saisons.</p>
+          </div>
+          <div class="exemple-card">
+            <div class="exemple-icon">🚗</div>
+            <h3>Garages & concessionnaires</h3>
+            <p>Nettoyage intérieur de véhicules d'occasion ou de démonstration en volume. Tarif préférentiel dès 3 véhicules.</p>
+          </div>
+          <div class="exemple-card">
+            <div class="exemple-icon">🏢</div>
+            <h3>Bureaux & espaces de travail</h3>
+            <p>Fauteuils de bureau, canapés de salles de réunion, tapis d'accueil. Intervention le soir ou le week-end.</p>
+          </div>
+          <div class="exemple-card">
+            <div class="exemple-icon">🏠</div>
+            <h3>Gîtes & Airbnb</h3>
+            <p>Entre deux locations : nettoyage complet des textiles. Rapidité d'exécution pour tenir vos délais de remise en état.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Formulaire devis pro -->
+    <section class="devis-section" id="devis-pro">
+      <div class="container devis-grid">
+
+        <div class="devis-form-wrap reveal">
+          <div class="devis-form-header">
+            <h2>Votre devis professionnel</h2>
+            <p>Remplissez le formulaire, nous revenons vers vous sous 24h avec une proposition sur mesure.</p>
+          </div>
+
+          <form
+            name="devis-entreprise"
+            method="POST"
+            data-netlify="true"
+            class="devis-form"
+            novalidate
+          >
+            <input type="hidden" name="form-name" value="devis-entreprise" />
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="entreprise">Nom de l'entreprise <span>*</span></label>
+                <input type="text" id="entreprise" name="entreprise" required placeholder="Hôtel du Parc SAS" />
+              </div>
+              <div class="form-group">
+                <label for="contact">Nom du contact <span>*</span></label>
+                <input type="text" id="contact" name="contact" required placeholder="Jean Dupont" autocomplete="name" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="email-pro">Email professionnel <span>*</span></label>
+                <input type="email" id="email-pro" name="email" required placeholder="contact@entreprise.fr" autocomplete="email" />
+              </div>
+              <div class="form-group">
+                <label for="tel-pro">Téléphone <span>*</span></label>
+                <input type="tel" id="tel-pro" name="telephone" required placeholder="03 00 00 00 00" autocomplete="tel" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="secteur">Secteur d'activité <span>*</span></label>
+                <select id="secteur" name="secteur" required>
+                  <option value="" disabled selected>Choisissez votre secteur</option>
+                  <option value="hotel">Hôtel / Hébergement</option>
+                  <option value="garage">Garage / Concessionnaire auto</option>
+                  <option value="bureau">Bureau / Entreprise générale</option>
+                  <option value="gite">Gîte / Location saisonnière</option>
+                  <option value="autre">Autre</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="frequence">Fréquence souhaitée <span>*</span></label>
+                <select id="frequence" name="frequence" required>
+                  <option value="" disabled selected>Choisissez une fréquence</option>
+                  <option value="ponctuel">Ponctuel (une fois)</option>
+                  <option value="mensuel">Mensuel</option>
+                  <option value="trimestriel">Trimestriel</option>
+                  <option value="indefinir">À définir ensemble</option>
+                </select>
+              </div>
+            </div>
+
+<div class="form-group">
+              <label for="volume">Volume estimé</label>
+              <input type="text" id="volume" name="volume" placeholder="Ex : 10 véhicules/mois, 20 chambres, 5 canapés..." />
+            </div>
+
+            <div class="form-group">
+              <label for="message-pro">Informations complémentaires</label>
+              <textarea id="message-pro" name="message" rows="4" placeholder="Décrivez votre besoin, vos contraintes horaires, la taille de vos locaux..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-primary form-submit">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+              Envoyer ma demande de devis
+            </button>
+            <p class="form-note">Réponse sous 24h — Devis gratuit et sans engagement.</p>
+          </form>
+        </div>
+
+        <aside class="devis-aside reveal reveal-delay-2">
+          <div class="aside-card">
+            <h3>Contact direct</h3>
+            <ul class="aside-list">
+              <li>
+                <div class="aside-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.19 19 19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.37a16 16 0 0 0 6 6l1.27-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+                  </svg>
+                </div>
+                <div>
+                  <strong>Téléphone</strong>
+                  <a href="tel:+33644830555">06 44 83 05 55</a>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <div class="aside-card aside-engagements">
+            <h3>Nos engagements pro</h3>
+            <ul class="engagements-list">
+              <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Devis gratuit et sans engagement
+              </li>
+              <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Facture conforme pour comptabilité
+              </li>
+              <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Produits éco-responsables certifiés
+              </li>
+              <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Résultat garanti ou on revient
+              </li>
+              <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Contrat d'entretien sur mesure
+              </li>
+              <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Intervention flexible hors heures de bureau
+              </li>
+            </ul>
+          </div>
+        </aside>
+
+      </div>
+    </section>
+
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  /* ── Hero ── */
+  .page-hero {
+    position: relative;
+    overflow: hidden;
+    padding: 160px 0 90px;
+  }
+  .page-hero-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(13,48,128,0.88) 0%, rgba(13,48,128,0.62) 60%, rgba(0,200,150,0.22) 100%);
+    z-index: 1;
+  }
+  .page-hero-content {
+    position: relative; z-index: 2;
+    display: flex; flex-direction: column; gap: 24px;
+  }
+  .page-hero .tag { background: rgba(0,200,150,0.2); color: var(--teal-clair); border: 1px solid rgba(0,200,150,0.3); }
+  .page-hero h1 { color: var(--blanc); }
+  .page-hero .accent {
+    background: linear-gradient(90deg, var(--teal), var(--teal-clair));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .page-hero p { color: rgba(255,255,255,0.78); max-width: 540px; }
+  .hero-cta { align-self: flex-start; }
+
+  /* ── Avantages ── */
+  .avantages-section { padding-block: var(--section-gap); background: var(--fond); }
+  .section-head { display: flex; flex-direction: column; gap: 16px; margin-bottom: 52px; max-width: 600px; }
+  .section-head h2 { color: var(--bleu); }
+  .section-head p { color: var(--texte-2); }
+
+  .avantages-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .avantage-card {
+    background: var(--blanc);
+    border-radius: var(--r-xl);
+    padding: 28px;
+    display: flex; flex-direction: column; gap: 14px;
+    box-shadow: 0 4px 20px var(--ombre);
+    border: 1px solid rgba(0,200,150,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .avantage-card:hover { transform: translateY(-4px); box-shadow: 0 12px 36px rgba(13,48,128,0.14); }
+  .avantage-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: var(--teal-pale); color: var(--teal);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .avantage-card h3 { font-size: 1rem; color: var(--bleu); font-weight: 600; }
+  .avantage-card p { font-size: 0.9rem; color: var(--texte-2); line-height: 1.65; }
+
+  /* ── Exemples ── */
+  .exemples-section { padding-block: var(--section-gap); background: var(--blanc); }
+  .exemples-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+  .exemple-card {
+    background: var(--fond);
+    border-radius: var(--r-xl);
+    padding: 28px 24px;
+    display: flex; flex-direction: column; gap: 12px;
+    border: 1px solid rgba(13,48,128,0.07);
+  }
+  .exemple-icon { font-size: 2rem; }
+  .exemple-card h3 { font-size: 1rem; color: var(--bleu); font-weight: 600; }
+  .exemple-card p { font-size: 0.88rem; color: var(--texte-2); line-height: 1.6; }
+
+  /* ── Devis ── */
+  .devis-section {
+    padding-block: var(--section-gap);
+    background: var(--fond);
+  }
+  .devis-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 48px;
+    align-items: start;
+  }
+
+  .devis-form-header { margin-bottom: 32px; }
+  .devis-form-header h2 { color: var(--bleu); margin-bottom: 8px; }
+  .devis-form-header p { color: var(--texte-2); }
+
+  .devis-form {
+    background: var(--blanc);
+    border-radius: var(--r-xl);
+    padding: 40px;
+    box-shadow: 0 4px 24px var(--ombre);
+    display: flex; flex-direction: column; gap: 20px;
+  }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group label { font-size: 0.88rem; font-weight: 600; color: var(--texte); }
+  .form-group label span { color: var(--teal); }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 12px 16px;
+    border: 2px solid rgba(13,48,128,0.12);
+    border-radius: var(--r-md);
+    font-family: var(--font-corps);
+    font-size: 0.95rem;
+    color: var(--texte);
+    background: var(--blanc);
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus { border-color: var(--teal); }
+
+.form-submit { align-self: flex-start; }
+  .form-note { font-size: 0.78rem; color: var(--texte-2); }
+
+  /* ── Aside ── */
+  .devis-aside { display: flex; flex-direction: column; gap: 20px; }
+  .aside-card {
+    background: var(--blanc);
+    border-radius: var(--r-xl);
+    padding: 28px;
+    box-shadow: 0 4px 20px var(--ombre);
+  }
+  .aside-card h3 { color: var(--bleu); margin-bottom: 20px; font-size: 1.1rem; }
+  .aside-list { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+  .aside-list li { display: flex; align-items: center; gap: 12px; }
+  .aside-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: var(--teal-pale); color: var(--teal);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .aside-list strong { display: block; font-size: 0.88rem; color: var(--texte); }
+  .aside-list a { font-size: 1rem; font-weight: 700; color: var(--bleu); }
+
+  .aside-engagements { background: linear-gradient(135deg, var(--bleu), var(--bleu-royal)); }
+  .aside-engagements h3 { color: white; }
+  .engagements-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .engagements-list li {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 0.88rem; color: rgba(255,255,255,0.85);
+  }
+  .engagements-list li svg { color: var(--teal-clair); flex-shrink: 0; }
+
+  /* ── Responsive ── */
+  @media (max-width: 1024px) {
+    .avantages-grid { grid-template-columns: repeat(2, 1fr); }
+    .exemples-grid { grid-template-columns: repeat(2, 1fr); }
+    .devis-grid { grid-template-columns: 1fr; }
+    .devis-aside { flex-direction: row; flex-wrap: wrap; }
+    .aside-card { flex: 1; min-width: 280px; }
+  }
+  @media (max-width: 640px) {
+    .avantages-grid { grid-template-columns: 1fr; }
+    .exemples-grid { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+.devis-form { padding: 24px; }
+    .devis-aside { flex-direction: column; }
+  }
+</style>

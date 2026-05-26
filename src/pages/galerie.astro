@@ -1,0 +1,327 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import WarpHero from "../components/react/WarpHero.tsx";
+
+const photos = [
+  {
+    avant: "/images/galerie/canape-avant.webp",
+    apres: "/images/galerie/canape-apres.jpg",
+    categorie: "canape",
+    label: "Canapé tissu beige - Salissures profondes",
+  },
+  {
+    avant: "/images/galerie/canape-avant-2.png",
+    apres: "/images/galerie/canape-apres-2.png",
+    categorie: "canape",
+    label: "Canapé - Nettoyage en profondeur",
+  },
+  {
+    avant: "/images/galerie/matelas-avant.png",
+    apres: "/images/galerie/matelas-apres.png",
+    categorie: "matelas",
+    label: "Matelas - Traitement anti-acariens",
+  },
+  {
+    avant: "/images/galerie/matelas2-avant.png",
+    apres: "/images/galerie/matelas2-apres.png",
+    categorie: "matelas",
+    label: "Matelas - Désodorisation et nettoyage",
+  },
+  {
+    avant: "/images/galerie/tapis-avant.png",
+    apres: "/images/galerie/tapis-apres.png",
+    categorie: "tapis",
+    label: "Tapis - Nettoyage en profondeur",
+  },
+  {
+    avant: "/images/galerie/tapis-avant-2.png",
+    apres: "/images/galerie/tapis-apres-2.png",
+    categorie: "tapis",
+    label: "Tapis - Remise à neuf",
+  },
+  {
+    avant: "/images/galerie/voiture-avant.png",
+    apres: "/images/galerie/voiture-apres.png",
+    categorie: "voiture",
+    label: "Moquette habitacle - Poussière et débris",
+  },
+  {
+    avant: "/images/galerie/voiture-avant-2.png",
+    apres: "/images/galerie/voiture-apres-2.png",
+    categorie: "voiture",
+    label: "Tapis de sol - Nettoyage complet",
+  },
+  {
+    avant: "/images/galerie/voiture-avant-3.jpg",
+    apres: "/images/galerie/voiture-apres-3.jpg",
+    categorie: "voiture",
+    label: "Intérieur voiture - Remise à neuf",
+  },
+];
+
+const categories = ["tous", "voiture", "canape", "matelas", "tapis"];
+
+const categoryLabels: Record<string, string> = {
+  tous: "Tous",
+  voiture: "Voiture",
+  canape: "Canapé",
+  matelas: "Matelas",
+  tapis: "Tapis",
+};
+---
+
+<Layout
+  title="Galerie Avant/Après - Mobil Clean"
+  description="Découvrez nos vrais résultats en photos avant et après nettoyage professionnel. Photos prises lors de nos interventions en Alsace."
+>
+  <Header />
+  <main>
+    <section class="page-hero">
+      <WarpHero client:only="react" />
+      <div class="page-hero-overlay"></div>
+      <div class="container page-hero-content">
+        <span class="tag">Galerie</span>
+        <h1>Nos vrais résultats</h1>
+        <p>Des photos prises directement chez nos clients. Pas de retouche, pas de mise en scène.</p>
+      </div>
+    </section>
+
+    <section class="galerie-section">
+      <div class="container">
+
+        <div class="filtres reveal" role="group" aria-label="Filtrer par catégorie">
+          {categories.map(cat => (
+            <button class={`filtre-btn ${cat === "tous" ? "active" : ""}`} data-cat={cat}>
+              {categoryLabels[cat] ?? cat}
+            </button>
+          ))}
+        </div>
+
+        <div class="photo-grid" id="photo-grid">
+          {photos.map((photo, i) => (
+            <div class={`photo-card reveal reveal-delay-${i % 3}`} data-cat={photo.categorie}>
+              <div class="avant-apres">
+                <div class="photo-avant">
+                  <img src={photo.avant} alt={`Avant nettoyage - ${photo.label}`} loading="lazy" />
+                  <span class="photo-label avant-label">Avant</span>
+                </div>
+                <div class="photo-apres">
+                  <img src={photo.apres} alt={`Après nettoyage - ${photo.label}`} loading="lazy" />
+                  <span class="photo-label apres-label">Après</span>
+                </div>
+                <div class="divider-line"></div>
+              </div>
+              <div class="photo-footer">
+                <p class="photo-legende">{photo.label}</p>
+                <span class="photo-badge">Mobil Clean</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div class="galerie-cta reveal">
+          <p>Tu as vu nos résultats. Tu veux le même pour ton véhicule, canapé ou matelas ?</p>
+          <a href="/contact" class="btn-primary">Demander un devis gratuit</a>
+        </div>
+
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .page-hero {
+    position: relative;
+    overflow: hidden;
+    padding: 160px 0 80px;
+  }
+  .page-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(13,48,128,0.85) 0%, rgba(13,48,128,0.6) 60%, rgba(0,200,150,0.2) 100%);
+    z-index: 1;
+  }
+  .page-hero-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .page-hero .tag { background: rgba(0,200,150,0.2); color: var(--teal-clair); border: 1px solid rgba(0,200,150,0.3); }
+  .page-hero h1 { color: var(--blanc); }
+  .page-hero p { color: rgba(255,255,255,0.75); max-width: 480px; }
+
+  .galerie-section { padding-block: var(--section-gap); background: #F8FAFF; }
+
+  .filtres {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 48px;
+  }
+
+  .filtre-btn {
+    padding: 10px 24px;
+    border-radius: var(--r-full);
+    border: 2px solid rgba(13,48,128,0.15);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--texte-2);
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: var(--font-corps);
+  }
+  .filtre-btn:hover { border-color: var(--teal); color: var(--teal); }
+  .filtre-btn.active { background: var(--bleu); color: white; border-color: var(--bleu); }
+
+  .photo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 28px;
+    margin-bottom: 64px;
+  }
+  .photo-card[data-cat].hidden { display: none; }
+
+  .photo-card {
+    border-radius: 20px;
+    overflow: hidden;
+    background: var(--blanc);
+    box-shadow: 0 2px 12px rgba(13,48,128,0.08), 0 8px 32px rgba(13,48,128,0.06);
+    transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), box-shadow 0.35s;
+  }
+  .photo-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 4px 24px rgba(13,48,128,0.12), 0 16px 48px rgba(13,48,128,0.1);
+  }
+
+  .avant-apres {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    height: 260px;
+    position: relative;
+  }
+
+  .photo-avant, .photo-apres {
+    position: relative;
+    overflow: hidden;
+  }
+  .photo-avant img, .photo-apres img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 0.5s ease;
+  }
+  .photo-card:hover .photo-avant img,
+  .photo-card:hover .photo-apres img { transform: scale(1.04); }
+
+  .photo-label {
+    position: absolute;
+    bottom: 10px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: var(--r-full);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .avant-label { left: 10px; background: rgba(0,0,0,0.55); color: white; }
+  .apres-label { right: 10px; background: var(--teal); color: var(--bleu); }
+
+  .divider-line {
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 3px;
+    background: white;
+    z-index: 2;
+    box-shadow: 0 0 12px rgba(0,0,0,0.3);
+  }
+  .divider-line::after {
+    content: '↔';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 28px;
+    height: 28px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    color: var(--bleu);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    line-height: 28px;
+    text-align: center;
+  }
+
+  .photo-footer {
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .photo-legende {
+    font-size: 0.875rem;
+    color: var(--texte-2);
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  .photo-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--teal);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    opacity: 0.8;
+  }
+
+  .galerie-cta {
+    background: var(--bleu);
+    border-radius: var(--r-xl);
+    padding: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .galerie-cta p {
+    font-family: var(--font-titre);
+    font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+    font-weight: 700;
+    color: white;
+    max-width: 460px;
+    line-height: 1.3;
+  }
+
+  @media (max-width: 600px) {
+    .photo-grid { grid-template-columns: 1fr; }
+    .galerie-cta { flex-direction: column; align-items: flex-start; padding: 32px; }
+  }
+</style>
+
+<script>
+  document.querySelectorAll(".filtre-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const cat = (btn as HTMLElement).dataset.cat!;
+      document.querySelectorAll(".filtre-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      document.querySelectorAll<HTMLElement>(".photo-card").forEach((card) => {
+        card.classList.toggle("hidden", cat !== "tous" && card.dataset.cat !== cat);
+      });
+    });
+  });
+</script>

@@ -1,0 +1,156 @@
+---
+import FluidMenu from "./react/FluidMenu.tsx";
+
+const navLinks = [
+  { href: "/", label: "Accueil" },
+  { href: "/services", label: "Prestations" },
+  { href: "/galerie", label: "Galerie" },
+  { href: "/entreprises", label: "Entreprises" },
+  { href: "/contact", label: "Contact" },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="site-header" id="site-header">
+  <div class="container header-inner">
+    <a href="/" class="logo-link" aria-label="Mobil Clean - Accueil">
+      <img src="/logo.png" alt="Mobil Clean" class="logo-img" />
+    </a>
+
+    <nav class="nav-desktop" aria-label="Navigation principale">
+      {navLinks.map(({ href, label }) => (
+        <a
+          href={href}
+          class={`nav-link ${currentPath === href ? "active" : ""}`}
+          aria-current={currentPath === href ? "page" : undefined}
+        >
+          {label}
+        </a>
+      ))}
+    </nav>
+
+    <a href="tel:+33644830555" class="nav-phone">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.37a16 16 0 0 0 6 6l1.27-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+      </svg>
+      06 44 83 05 55
+    </a>
+
+    <a href="/contact" class="btn-primary nav-cta">Devis gratuit</a>
+
+    <div class="fluid-menu-wrapper">
+      <FluidMenu client:load currentPath={currentPath} />
+    </div>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    transition: background 0.4s ease, box-shadow 0.4s ease;
+  }
+  .site-header.scrolled {
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 1px 0 rgba(13,48,128,0.08), 0 4px 24px rgba(13,48,128,0.06);
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    height: 96px;
+  }
+
+  .logo-link {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .logo-img {
+    height: 90px;
+    width: auto;
+    object-fit: contain;
+    filter:
+      drop-shadow(0.6px  0.6px 0 white)
+      drop-shadow(-0.6px -0.6px 0 white)
+      drop-shadow(0.6px -0.6px 0 white)
+      drop-shadow(-0.6px  0.6px 0 white);
+  }
+
+  .nav-desktop {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+  }
+
+  .nav-link {
+    padding: 8px 16px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.9);
+    border-radius: var(--r-full);
+    transition: color 0.2s, background 0.2s;
+  }
+  .site-header.scrolled .nav-link { color: var(--texte); }
+  .nav-link:hover, .nav-link.active {
+    background: rgba(255,255,255,0.15);
+    color: white;
+  }
+  .site-header.scrolled .nav-link:hover,
+  .site-header.scrolled .nav-link.active {
+    background: var(--teal-pale);
+    color: var(--bleu);
+  }
+
+  .nav-cta { font-size: 0.9rem; padding: 10px 22px; }
+
+  .nav-phone {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+    padding: 8px 16px;
+    border-radius: var(--r-full);
+    border: 1px solid rgba(255,255,255,0.25);
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    white-space: nowrap;
+  }
+  .nav-phone:hover {
+    background: rgba(255,255,255,0.12);
+    color: white;
+  }
+  .site-header.scrolled .nav-phone {
+    color: var(--bleu);
+    border-color: rgba(13,48,128,0.2);
+  }
+  .site-header.scrolled .nav-phone:hover {
+    background: var(--teal-pale);
+  }
+
+  .fluid-menu-wrapper {
+    display: none;
+    align-items: center;
+  }
+
+  @media (max-width: 768px) {
+    .nav-desktop, .nav-cta { display: none; }
+    .fluid-menu-wrapper {
+      display: flex;
+      margin-left: auto;
+    }
+  }
+</style>
+
+<script>
+  const header = document.getElementById("site-header");
+  window.addEventListener("scroll", () => {
+    header?.classList.toggle("scrolled", window.scrollY > 60);
+  });
+</script>

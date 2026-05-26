@@ -1,0 +1,174 @@
+/* ================================================
+   MOBIL CLEAN — Styles globaux
+   Design brief : B2C vitrine nettoyage mobile
+   VARIANCE:7 | MOTION:6 | DENSITY:4
+   ================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap');
+
+/* Reset */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow-x: hidden; }
+img, video { display: block; max-width: 100%; }
+button { cursor: pointer; border: none; background: none; }
+a { text-decoration: none; color: inherit; }
+
+:root {
+  /* Couleurs extraites du logo */
+  --bleu:         #0D3080;
+  --bleu-royal:   #1A56CC;
+  --teal:         #00C896;
+  --teal-clair:   #4DCFB0;
+  --teal-pale:    #E0FAF4;
+  --fond:         #F4F8FF;
+  --blanc:        #FFFFFF;
+  --texte:        #0D1B3E;
+  --texte-2:      #4A6080;
+  --gris:         #8FA3C0;
+  --ombre:        rgba(13, 48, 128, 0.12);
+
+  /* Typographie */
+  --font-titre:   'Syne', sans-serif;
+  --font-corps:   'DM Sans', sans-serif;
+
+  /* Rayons */
+  --r-sm:  8px;
+  --r-md:  16px;
+  --r-lg:  24px;
+  --r-xl:  40px;
+  --r-full: 9999px;
+
+  /* Espacements */
+  --section-gap: clamp(80px, 10vw, 140px);
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-corps);
+  color: var(--texte);
+  background: var(--blanc);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Typographie */
+h1, h2, h3, h4 {
+  font-family: var(--font-titre);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+h1 { font-size: clamp(2.4rem, 6vw, 5rem); font-weight: 800; }
+h2 { font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 700; }
+h3 { font-size: clamp(1.2rem, 2.5vw, 1.6rem); font-weight: 600; }
+p  { font-size: clamp(1rem, 1.5vw, 1.125rem); }
+
+/* Boutons */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 32px;
+  background: var(--bleu);
+  color: var(--blanc);
+  font-family: var(--font-corps);
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: var(--r-full);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  box-shadow: 0 4px 20px rgba(13, 48, 128, 0.3);
+}
+.btn-primary:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 32px rgba(13, 48, 128, 0.4);
+  background: var(--bleu-royal);
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  background: transparent;
+  color: var(--blanc);
+  font-family: var(--font-corps);
+  font-size: 1rem;
+  font-weight: 500;
+  border: 2px solid rgba(255,255,255,0.5);
+  border-radius: var(--r-full);
+  backdrop-filter: blur(8px);
+  transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+.btn-outline:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255,255,255,0.9);
+  background: rgba(255,255,255,0.15);
+}
+
+.btn-teal {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 32px;
+  background: var(--teal);
+  color: var(--bleu);
+  font-family: var(--font-corps);
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: var(--r-full);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 4px 20px rgba(0, 200, 150, 0.35);
+}
+.btn-teal:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 32px rgba(0, 200, 150, 0.5);
+}
+
+/* Reveal animation (Intersection Observer) */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+/* Utilitaires */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: clamp(20px, 5vw, 60px);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--teal-pale);
+  color: var(--teal);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-radius: var(--r-full);
+}
+
+/* Focus visible */
+*:focus-visible {
+  outline: 3px solid var(--teal);
+  outline-offset: 4px;
+  border-radius: 4px;
+}

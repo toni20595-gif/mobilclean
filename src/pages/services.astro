@@ -1,0 +1,163 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { services } from "../data/services";
+import WarpHero from "../components/react/WarpHero.tsx";
+---
+
+<Layout
+  title="Prestations - Mobil Clean"
+  description="Découvrez toutes nos prestations de nettoyage professionnel : voiture, matelas et canapé. Tarifs, méthodes et garanties."
+>
+  <Header />
+  <main>
+    <!-- Page hero -->
+    <section class="page-hero">
+      <WarpHero client:only="react" />
+      <div class="page-hero-overlay"></div>
+      <div class="container page-hero-content">
+        <span class="tag">Nos prestations</span>
+        <h1>Nettoyage sur-mesure<br /><span class="accent">pour chaque besoin</span></h1>
+        <p>Equipement professionnel, produits certifiés, techniciens formés. Devis gratuit et intervention sous 48h.</p>
+      </div>
+    </section>
+
+    <!-- Services détaillés -->
+    <section class="services-detail">
+      <div class="container">
+        {services.map((service, i) => (
+          <article id={service.id} class={`service-article ${i % 2 !== 0 ? "reverse" : ""} reveal`}>
+            <div class="service-img">
+              <img src={service.image} alt={service.alt} loading="lazy" />
+              {service.tarif && (
+                <div class="service-tarif-badge">
+                  <strong>{service.tarif}</strong>
+                  {service.duree && <span>Durée : {service.duree}</span>}
+                </div>
+              )}
+              {!service.tarif && (
+                <div class="service-tarif-badge service-tarif-devis">
+                  <strong>Tarif sur devis</strong>
+                  <span>Personnalisé selon vos besoins</span>
+                </div>
+              )}
+            </div>
+            <div class="service-info">
+              <h2>{service.titre}</h2>
+              <p>{service.description}</p>
+              <ul class="service-checklist">
+                {service.details.map(d => (
+                  <li>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    {d}
+                  </li>
+                ))}
+              </ul>
+              <a href="/contact" class="btn-primary">Demander un devis</a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .page-hero {
+    position: relative;
+    overflow: hidden;
+    padding: 160px 0 80px;
+  }
+  .page-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(13,48,128,0.85) 0%, rgba(13,48,128,0.6) 60%, rgba(0,200,150,0.2) 100%);
+    z-index: 1;
+  }
+  .page-hero-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .page-hero .tag {
+    background: rgba(0,200,150,0.2);
+    color: var(--teal-clair);
+    border: 1px solid rgba(0,200,150,0.3);
+  }
+  .page-hero h1 { color: var(--blanc); }
+  .page-hero .accent {
+    background: linear-gradient(90deg, var(--teal), var(--teal-clair));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .page-hero p { color: rgba(255,255,255,0.75); max-width: 540px; }
+
+  .services-detail { padding-block: var(--section-gap); }
+
+  .service-article {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: center;
+    padding-block: 64px;
+    border-bottom: 1px solid rgba(13,48,128,0.08);
+  }
+  .service-article:last-child { border-bottom: none; }
+  .service-article.reverse { direction: rtl; }
+  .service-article.reverse > * { direction: ltr; }
+
+  .service-img {
+    position: relative;
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    box-shadow: 0 16px 48px var(--ombre);
+  }
+  .service-img img { width: 100%; height: 380px; object-fit: cover; }
+
+  .service-tarif-badge {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background: var(--bleu);
+    color: white;
+    border-radius: var(--r-lg);
+    padding: 12px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .service-tarif-badge strong { font-size: 1.1rem; font-family: var(--font-titre); }
+  .service-tarif-badge span { font-size: 0.78rem; opacity: 0.75; }
+  .service-tarif-devis { background: var(--teal); color: var(--bleu); }
+
+  .service-info { display: flex; flex-direction: column; gap: 20px; }
+  .service-info h2 { color: var(--bleu); }
+  .service-info p { color: var(--texte-2); line-height: 1.75; }
+
+  .service-checklist {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .service-checklist li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+    color: var(--texte-2);
+  }
+  .service-checklist li svg { color: var(--teal); flex-shrink: 0; }
+
+  @media (max-width: 768px) {
+    .service-article { grid-template-columns: 1fr; gap: 32px; }
+    .service-article.reverse { direction: ltr; }
+  }
+</style>
