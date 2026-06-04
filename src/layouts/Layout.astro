@@ -10,6 +10,11 @@ const {
   description = "Mobil Clean - Nettoyage professionnel de voitures, matelas et canapés. Service mobile, rapide et impeccable.",
   ogImage = "/logo.png",
 } = Astro.props;
+
+// URLs absolues pour le SEO, construites à partir du domaine défini
+// dans astro.config.mjs (https://mobilclean.fr)
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImageURL = new URL(ogImage, Astro.site);
 ---
 
 <!doctype html>
@@ -19,16 +24,19 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <meta name="robots" content="index, follow" />
+    <link rel="canonical" href={canonicalURL} />
 
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={ogImage} />
+    <meta property="og:image" content={ogImageURL} />
+    <meta property="og:url" content={canonicalURL} />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="fr_FR" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageURL} />
 
     <link rel="icon" type="image/png" href="/logo.png" />
     <title>{title}</title>
