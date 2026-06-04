@@ -1,0 +1,7 @@
+# Robots.txt — Mobil Clean
+# Autorise tous les moteurs de recherche à explorer le site
+User-agent: *
+Allow: /
+
+# Emplacement du plan du site (sitemap)
+Sitemap: https://mobilclean.fr/sitemap-index.xml
