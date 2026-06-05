@@ -22,7 +22,7 @@ export default function ScrollShowcaseFull() {
     { num: "Alsace", label: "Zone d'intervention" },
     { num: "100%", label: "Résultat garanti" },
     { num: "48h", label: "Délai moyen" },
-    { num: "Éco", label: "Produits biodégradables" },
+    { num: "99%", label: "Bactéries éliminées" },
   ];
 
   return (
