@@ -1,0 +1,159 @@
+---
+// Hygiène & santé — met en avant l'efficacité assainissante de la méthode
+// (99,9 % des bactéries éliminées, anti-acariens, anti-odeurs, produits sains).
+// Le 1er élément est la "preuve" chiffrée mise en valeur ; les suivants sont les bénéfices.
+const points = [
+  {
+    titre: "Anti-acariens",
+    desc: "Matelas, canapés et tissus assainis en profondeur — un vrai plus pour les personnes sensibles ou allergiques.",
+    // sparkles
+    icon: `<path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/>`,
+  },
+  {
+    titre: "Anti-odeurs",
+    desc: "Les mauvaises odeurs sont neutralisées à la source, pas simplement masquées. Fraîcheur durable garantie.",
+    // wind
+    icon: `<path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/>`,
+  },
+  {
+    titre: "Sans allergènes",
+    desc: "Produits biodégradables, sans composant nocif — sûrs pour vos enfants et vos animaux.",
+    // leaf
+    icon: `<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/>`,
+  },
+];
+---
+
+<section class="hygiene-section" id="hygiene">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="tag">Hygiène &amp; santé</span>
+      <h2>Pas seulement propre, <span class="accent-h2">vraiment sain</span></h2>
+      <p>
+        Notre méthode par injection-extraction haute pression va bien au-delà du nettoyage de surface :
+        elle assainit en profondeur matelas, canapés, tapis et habitacles, là où la poussière et les
+        bactéries s'accumulent.
+      </p>
+    </div>
+
+    <div class="hygiene-grid">
+      <!-- Preuve chiffrée mise en avant -->
+      <div class="hygiene-card hygiene-card-stat reveal">
+        <div class="hygiene-icon hygiene-icon-stat" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+        </div>
+        <strong class="hygiene-number">99,9 %</strong>
+        <span class="hygiene-number-label">des bactéries éliminées</span>
+      </div>
+
+      <!-- Bénéfices -->
+      {points.map((p, i) => (
+        <div class={`hygiene-card reveal reveal-delay-${i + 1}`}>
+          <div class="hygiene-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={p.icon} />
+          </div>
+          <h3>{p.titre}</h3>
+          <p>{p.desc}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .hygiene-section {
+    padding-block: var(--section-gap);
+    background: var(--blanc);
+  }
+
+  .section-head {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 48px;
+    max-width: 620px;
+  }
+  .section-head h2 { color: var(--bleu); }
+  .section-head p { color: var(--texte-2); line-height: 1.75; }
+  .accent-h2 {
+    background: linear-gradient(90deg, var(--teal), var(--teal-clair));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hygiene-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+
+  .hygiene-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 28px 26px;
+    background: var(--blanc);
+    border: 1px solid rgba(13, 48, 128, 0.08);
+    border-radius: var(--r-lg);
+    box-shadow: 0 4px 24px var(--ombre);
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s;
+  }
+  .hygiene-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 48px rgba(13, 48, 128, 0.18);
+  }
+
+  .hygiene-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: var(--teal-pale);
+    color: var(--teal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .hygiene-card h3 { color: var(--bleu); font-size: 1.15rem; }
+  .hygiene-card p { color: var(--texte-2); font-size: 0.92rem; line-height: 1.6; }
+
+  /* Carte "preuve" 99,9 % — fond plein pour la mettre en avant */
+  .hygiene-card-stat {
+    background: linear-gradient(150deg, var(--bleu) 0%, var(--bleu-royal) 100%);
+    border-color: transparent;
+    justify-content: center;
+    gap: 8px;
+  }
+  .hygiene-card-stat:hover {
+    box-shadow: 0 16px 48px rgba(13, 48, 128, 0.35);
+  }
+  .hygiene-icon-stat {
+    background: rgba(0, 200, 150, 0.2);
+    color: var(--teal-clair);
+    margin-bottom: 4px;
+  }
+  .hygiene-number {
+    font-family: var(--font-titre);
+    font-size: clamp(2.4rem, 4vw, 3rem);
+    font-weight: 800;
+    color: var(--teal-clair);
+    line-height: 1;
+  }
+  .hygiene-number-label {
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  @media (max-width: 900px) {
+    .hygiene-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 540px) {
+    .hygiene-grid { grid-template-columns: 1fr; }
+  }
+</style>

@@ -6,7 +6,6 @@ export const services = [
     image: "/images/galerie/voiture-acceuil.png",
     alt: "Nettoyage intérieur habitacle de voiture",
     tarif: "A partir de 89€",
-    duree: "2-3h",
     details: ["Aspiration complete", "Nettoyage vapeur", "Traitement cuir ou tissu", "Desodorisation", "Vitres intérieures"],
   },
   {
@@ -16,7 +15,6 @@ export const services = [
     image: "/images/galerie/matelas-acceuil.png",
     alt: "Nettoyage de matelas professionnel",
     tarif: "A partir de 69€",
-    duree: "1-2h",
     details: ["Anti-acariens certifié", "Desodorisation bio", "Séchage rapide", "Traitement antibacterien", "Résultat durable 6 mois"],
   },
   {
@@ -26,7 +24,6 @@ export const services = [
     image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80",
     alt: "Nettoyage canapé tissu professionnel",
     tarif: "A partir de 79€",
-    duree: "2h",
     details: ["Injection-extraction", "Compatible tous tissus", "Traitement détachant", "Desodorisation", "Protection anti-tache optionnelle"],
   },
   {
@@ -36,7 +33,6 @@ export const services = [
     image: "/images/galerie/tapis-service.png",
     alt: "Nettoyage de tapis professionnel",
     tarif: "12€/m²",
-    duree: "1-2h",
     details: ["Injection-extraction", "Anti-acariens certifié", "Traitement détachant", "Desodorisation bio", "Séchage rapide"],
   },
   {
@@ -46,7 +42,6 @@ export const services = [
     image: "/images/galerie/fauteuil-service.png",
     alt: "Nettoyage fauteuil professionnel",
     tarif: "45€",
-    duree: "1h",
     details: ["Compatible tous tissus", "Injection-extraction", "Traitement taches", "Desodorisation", "Séchage rapide"],
   },
   {
@@ -56,7 +51,6 @@ export const services = [
     image: "/images/galerie/salon.png",
     alt: "Nettoyage complet salon canapé fauteuil tapis",
     tarif: "",
-    duree: "",
     details: ["Canapé + fauteuil(s)", "Tapis inclus possible", "Matelas inclus possible", "Tarif groupé avantageux", "1 seule intervention"],
   },
 ];
