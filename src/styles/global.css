@@ -172,3 +172,6 @@ p  { font-size: clamp(1rem, 1.5vw, 1.125rem); }
   outline-offset: 4px;
   border-radius: 4px;
 }
+
+/* Fix: prevent .form-group display:flex from overriding [hidden] */
+[hidden] { display: none !important; }

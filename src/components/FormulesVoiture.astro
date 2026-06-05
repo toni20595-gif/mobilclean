@@ -1,0 +1,234 @@
+---
+const formules = [
+  {
+    id: "or",
+    nom: "Or",
+    prix: "À partir de 89€",
+    couleur: "#C9920E",
+    fondClair: "#FFFBEC",
+    fondHeader: "rgba(201,146,14,0.10)",
+    bordure: "rgba(201,146,14,0.28)",
+    inclus: [
+      "Aspiration complète de l'habitacle",
+      "Entretien des plastiques",
+      "Nettoyage tableau de bord & console",
+      "99% des bactéries éliminées à la vapeur",
+    ],
+  },
+  {
+    id: "diamant",
+    nom: "Diamant",
+    prix: "À partir de 139€",
+    couleur: "#2563EB",
+    fondClair: "#EFF6FF",
+    fondHeader: "rgba(37,99,235,0.08)",
+    bordure: "rgba(37,99,235,0.25)",
+    badge: "Tout inclus",
+    herite: "Tout le Or, plus :",
+    inclus: [
+      "Traitement anti-odeur",
+      "Shampouinage sièges en profondeur",
+      "Nettoyage moquettes en profondeur",
+      "Traitement anti-acariens",
+      "Vitres & miroirs",
+    ],
+  },
+];
+---
+
+<div class="formules-wrapper">
+  {formules.map(f => (
+    <div
+      class={`formule-card formule-${f.id}`}
+      style={`--fc:${f.couleur};--fb:${f.fondClair};--fh:${f.fondHeader};--fbr:${f.bordure};`}
+    >
+      {f.id === 'diamant' && (
+        <div class="formule-popular-banner" aria-label="Formule la plus choisie">
+          🔥 Le plus choisi
+        </div>
+      )}
+      <div class="formule-header">
+        <div class="formule-name-group">
+          <span class="formule-star" aria-hidden="true">
+            {f.id === 'diamant' ? (
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6.5 2h11l4.5 6-10 14L2 8z"/>
+                <polyline points="2 8 12 8 17.5 2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+            ) : (
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            )}
+          </span>
+          <strong class="formule-nom">{f.nom}</strong>
+          {f.badge && <span class="formule-badge">{f.badge}</span>}
+        </div>
+        <span class="formule-prix">{f.prix}</span>
+      </div>
+
+      <div class="formule-body">
+        {f.herite && (
+          <p class="formule-herite">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <polyline points="17 11 12 6 7 11"/><line x1="12" y1="18" x2="12" y2="6"/>
+            </svg>
+            {f.herite}
+          </p>
+        )}
+        <ul class="formule-list">
+          {f.inclus.map(item => (
+            <li>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <a href={`/contact?prestation=voiture&formule=${f.id}`} class="formule-cta" aria-label={`Demander un devis formule ${f.nom}`}>
+        Choisir {f.nom}
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </a>
+    </div>
+  ))}
+</div>
+
+<style>
+  .formules-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .formule-card {
+    background: var(--fb);
+    border: 1.5px solid var(--fbr);
+    border-radius: var(--r-md);
+    overflow: hidden;
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+  }
+  .formule-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px var(--fbr);
+  }
+
+  .formule-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--fh);
+    border-bottom: 1px solid var(--fbr);
+  }
+
+  .formule-name-group {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .formule-star {
+    color: var(--fc);
+    display: flex;
+    align-items: center;
+  }
+
+  .formule-nom {
+    font-family: var(--font-titre);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--texte);
+  }
+
+  .formule-badge {
+    background: var(--fc);
+    color: #fff;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 20px;
+    line-height: 1.6;
+  }
+
+  .formule-prix {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--fc);
+    white-space: nowrap;
+  }
+
+  .formule-body {
+    padding: 10px 14px 4px;
+  }
+
+  .formule-herite {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--fc);
+    margin-bottom: 6px;
+    opacity: 0.8;
+  }
+
+  .formule-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .formule-list li {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.82rem;
+    color: var(--texte-2);
+    line-height: 1.4;
+  }
+
+  .formule-list li svg {
+    color: var(--fc);
+    flex-shrink: 0;
+  }
+
+  .formule-cta {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 5px;
+    padding: 9px 14px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--fc);
+    text-decoration: none;
+    transition: gap 0.18s ease;
+    border-top: 1px solid var(--fbr);
+    margin-top: 6px;
+  }
+  .formule-cta:hover { gap: 9px; }
+  .formule-cta:focus-visible { outline-color: var(--fc); }
+
+  .formule-popular-banner {
+    background: linear-gradient(90deg, #EF4444, #F97316);
+    color: #fff;
+    font-size: 0.63rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 5px 8px;
+  }
+
+  .formule-diamant {
+    border-color: rgba(239,68,68,0.32);
+  }
+</style>

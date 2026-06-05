@@ -4,6 +4,7 @@ import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import { services } from "../data/services";
 import WarpHero from "../components/react/WarpHero.tsx";
+import FormulesVoiture from "../components/FormulesVoiture.astro";
 ---
 
 <Layout
@@ -27,36 +28,55 @@ import WarpHero from "../components/react/WarpHero.tsx";
     <section class="services-detail">
       <div class="container">
         {services.map((service, i) => (
-          <article id={service.id} class={`service-article ${i % 2 !== 0 ? "reverse" : ""} reveal`}>
-            <div class="service-img">
-              <img src={service.image} alt={service.alt} loading="lazy" />
-              {service.tarif && (
-                <div class="service-tarif-badge">
-                  <strong>{service.tarif}</strong>
+          <article id={service.id} class={`service-article ${service.id === 'voiture' ? 'has-formules' : ''} ${i % 2 !== 0 ? "reverse" : ""} reveal`}>
+            {service.id === 'voiture' ? (
+              <div class="service-left">
+                <div class="service-img">
+                  <img src={service.image} alt={service.alt} loading="lazy" />
+                  <div class="service-tarif-badge service-tarif-formules">
+                    <strong>2 formules</strong>
+                    <span>Or · Diamant</span>
+                  </div>
                 </div>
-              )}
-              {!service.tarif && (
-                <div class="service-tarif-badge service-tarif-devis">
-                  <strong>Tarif sur devis</strong>
-                  <span>Personnalisé selon vos besoins</span>
-                </div>
-              )}
-            </div>
-            <div class="service-info">
-              <h2>{service.titre}</h2>
-              <p>{service.description}</p>
-              <ul class="service-checklist">
-                {service.details.map(d => (
-                  <li>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                      <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                    {d}
-                  </li>
-                ))}
-              </ul>
-              <a href="/contact" class="btn-primary">Demander un devis</a>
-            </div>
+                <p class="voiture-tagline">Il n'y a rien que Mobil Clean ne puisse nettoyer&nbsp;!</p>
+              </div>
+            ) : (
+              <div class="service-img">
+                <img src={service.image} alt={service.alt} loading="lazy" />
+                {service.tarif ? (
+                  <div class="service-tarif-badge">
+                    <strong>{service.tarif}</strong>
+                  </div>
+                ) : (
+                  <div class="service-tarif-badge service-tarif-devis">
+                    <strong>Tarif sur devis</strong>
+                    <span>Personnalisé selon vos besoins</span>
+                  </div>
+                )}
+              </div>
+            )}
+            {service.id === 'voiture' ? (
+              <div class="service-info">
+                <h2>{service.titre}</h2>
+                <FormulesVoiture />
+              </div>
+            ) : (
+              <div class="service-info">
+                <h2>{service.titre}</h2>
+                <p>{service.description}</p>
+                <ul class="service-checklist">
+                  {service.details.map(d => (
+                    <li>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                      {d}
+                    </li>
+                  ))}
+                </ul>
+                <a href="/contact" class="btn-primary">Demander un devis</a>
+              </div>
+            )}
           </article>
         ))}
       </div>
@@ -135,6 +155,25 @@ import WarpHero from "../components/react/WarpHero.tsx";
   .service-tarif-badge strong { font-size: 1.1rem; font-family: var(--font-titre); }
   .service-tarif-badge span { font-size: 0.78rem; opacity: 0.75; }
   .service-tarif-devis { background: var(--teal); color: var(--bleu); }
+  .service-tarif-formules {
+    background: var(--bleu);
+    color: #fff;
+  }
+  .service-article.has-formules { align-items: start; }
+
+  .service-left {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .voiture-tagline {
+    text-align: center;
+    font-size: 0.92rem;
+    font-style: italic;
+    font-weight: 500;
+    color: var(--texte-2);
+    padding: 0 8px;
+  }
 
   .service-info { display: flex; flex-direction: column; gap: 20px; }
   .service-info h2 { color: var(--bleu); }

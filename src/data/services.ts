@@ -41,7 +41,7 @@ export const services = [
     description: "Nettoyage complet de vos fauteuils quel que soit le tissu : velours, microfibre, cuir synthétique. Résultat propre, sans résidu, séchage rapide.",
     image: "/images/galerie/fauteuil-service.png",
     alt: "Nettoyage fauteuil professionnel",
-    tarif: "45€",
+    tarif: "55€",
     details: ["Compatible tous tissus", "Injection-extraction", "Traitement taches", "Desodorisation", "Séchage rapide"],
   },
   {
