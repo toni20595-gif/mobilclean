@@ -1,131 +1,114 @@
 ---
-const reviews = [
-  {
-    nom: "Sophie M.",
-    initiale: "S",
-    note: 5,
-    date: "il y a 2 semaines",
-    texte: "Résultat vraiment impressionnant sur mon canapé en tissu ! Les taches disparues, l'odeur fraîche... Je recommande vivement, très professionnel et rapide.",
-  },
-  {
-    nom: "Karim B.",
-    initiale: "K",
-    note: 5,
-    date: "il y a 1 mois",
-    texte: "Nettoyage de l'intérieur de ma voiture, c'est comme si elle sortait du concessionnaire. Intervention à domicile, rapide et soignée. Parfait !",
-  },
-  {
-    nom: "Isabelle R.",
-    initiale: "I",
-    note: 5,
-    date: "il y a 3 semaines",
-    texte: "Matelas traité anti-acariens, résultat impeccable. Mon fils allergique dort beaucoup mieux depuis. Produits éco-responsables, c'est un vrai plus.",
-  },
-  {
-    nom: "Thomas L.",
-    initiale: "T",
-    note: 5,
-    date: "il y a 2 mois",
-    texte: "Super service, très à l'écoute et efficace. Mon tapis en laine avait des taches tenaces, il est comme neuf. Je ferai appel à eux sans hésiter.",
-  },
-];
+// ════════════════════════════════════════════════════════════════════════
+//  Lien vers la fiche Google Business de Mobil Clean
+//  👉 À REMPLACER par le lien EXACT de la fiche (ou le lien d'avis court
+//     "g.page/r/...") dès qu'il est disponible.
+//  Pour l'instant : recherche Google sur le nom (fonctionne en attendant).
+// ════════════════════════════════════════════════════════════════════════
+const GOOGLE_AVIS_URL =
+  "https://www.google.com/maps/search/?api=1&query=Mobil%20Clean%20Alsace";
 ---
 
 <section class="avis-section" id="avis">
   <div class="container">
     <div class="section-head reveal">
       <span class="tag">Avis clients</span>
-      <h2>Ce que disent nos clients</h2>
-      <p class="section-sub">Avis Google vérifiés — directement depuis notre fiche établissement.</p>
+      <h2>Votre satisfaction, notre priorité</h2>
+      <p class="section-sub">
+        Tous nos avis sont publiés sur notre fiche Google, sans filtre. Vous avez
+        fait appel à nous ? Votre retour aide les prochains clients à nous faire
+        confiance.
+      </p>
     </div>
 
-    <div class="google-reviews-widget reveal">
+    <!--
+      ════════════════════════════════════════════════════════════════════
+       EMPLACEMENT DU WIDGET D'AVIS GOOGLE  (auto — via Featurable, gratuit)
+      ────────────────────────────────────────────────────────────────────
+       À activer quand la fiche aura quelques avis :
+         1. Créer un compte gratuit sur https://featurable.com
+         2. Connecter la fiche Google Business « Mobil Clean »
+         3. Créer un widget, copier son identifiant
+         4. Coller ICI le <div> + le <script> fournis par Featurable,
+            puis SUPPRIMER le bloc « avis-invite » juste en dessous.
+       Exemple de code Featurable :
+         <div id="featurable-XXXXXXXX" data-featurable-async></div>
+         <script src="https://featurable.com/assets/js/widget.js" async></script>
+      ════════════════════════════════════════════════════════════════════
+    -->
 
-      <!-- En-tête widget -->
-      <div class="widget-header">
-        <div class="widget-brand">
-          <!-- Logo Google -->
-          <svg width="80" height="26" viewBox="0 0 80 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <text x="0" y="20" font-family="Arial,sans-serif" font-size="22" font-weight="bold">
-              <tspan fill="#4285F4">G</tspan><tspan fill="#EA4335">o</tspan><tspan fill="#FBBC05">o</tspan><tspan fill="#4285F4">g</tspan><tspan fill="#34A853">l</tspan><tspan fill="#EA4335">e</tspan>
-            </text>
-          </svg>
-          <span class="widget-label">Avis</span>
-        </div>
-        <div class="widget-score">
-          <span class="score-big">5.0</span>
-          <div class="score-stars-row">
-            {Array.from({ length: 5 }).map(() => (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="#FBBC05">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/>
-              </svg>
-            ))}
-          </div>
-          <span class="score-count">Basé sur nos derniers avis</span>
-        </div>
-        <a
-          href="https://www.google.com/maps/search/Mobil+Clean+Alsace"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="widget-cta"
-        >
-          Voir tous les avis
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M7 17L17 7M17 7H7M17 7v10"/>
-          </svg>
-        </a>
-      </div>
+    <!-- État actuel : fiche neuve → invitation à laisser le premier avis -->
+    <div class="avis-invite reveal">
+      <!-- Logo Google -->
+      <svg
+        class="invite-google"
+        width="92"
+        height="30"
+        viewBox="0 0 92 30"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-label="Google"
+      >
+        <text x="0" y="23" font-family="Arial,sans-serif" font-size="26" font-weight="bold">
+          <tspan fill="#4285F4">G</tspan><tspan fill="#EA4335">o</tspan><tspan
+            fill="#FBBC05">o</tspan><tspan fill="#4285F4">g</tspan><tspan
+            fill="#34A853">l</tspan><tspan fill="#EA4335">e</tspan>
+        </text>
+      </svg>
 
-      <!-- Cartes d'avis -->
-      <div class="reviews-grid">
-        {reviews.map((r) => (
-          <div class="review-card">
-            <div class="review-top">
-              <div class="review-avatar">{r.initiale}</div>
-              <div class="review-meta">
-                <strong class="review-name">{r.nom}</strong>
-                <span class="review-date">{r.date}</span>
-              </div>
-              <svg class="google-g" width="18" height="18" viewBox="0 0 48 48">
-                <path fill="#4285F4" d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z"/>
-              </svg>
-            </div>
-            <div class="review-stars">
-              {Array.from({ length: r.note }).map(() => (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="#FBBC05">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                </svg>
-              ))}
-            </div>
-            <p class="review-text">{r.texte}</p>
-          </div>
+      <!-- 5 étoiles "à remplir" (contour) : invite à noter -->
+      <div class="invite-stars" aria-hidden="true">
+        {Array.from({ length: 5 }).map(() => (
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FBBC05" stroke-width="1.5">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z" />
+          </svg>
         ))}
       </div>
 
+      <h3>Soyez le premier à laisser un avis</h3>
+      <p>
+        Notre fiche Google vient d'ouvrir. Si notre intervention vous a plu, un
+        petit avis nous aiderait énormément — ça prend moins d'une minute.
+      </p>
+
+      <a
+        href={GOOGLE_AVIS_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="invite-cta"
+      >
+        <!-- "G" Google multicolore -->
+        <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true">
+          <path fill="#4285F4" d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z"/>
+          <path fill="#34A853" d="M6.3 14.7l7 5.1C15.1 16.1 19.2 13 24 13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 15.4 2 8 6.9 6.3 14.7z" opacity="0"/>
+        </svg>
+        Laisser un avis sur Google
+      </a>
     </div>
 
+    <!-- Bloc de confiance -->
     <div class="avis-trust reveal">
       <div class="trust-item">
         <div class="trust-icon">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
           </svg>
         </div>
         <div>
-          <strong>Avis certifiés Google</strong>
-          <span>Vérifiés et non modifiés</span>
+          <strong>Avis 100 % Google</strong>
+          <span>Publiés directement sur notre fiche</span>
         </div>
       </div>
       <div class="trust-sep"></div>
       <div class="trust-item">
         <div class="trust-icon">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
           </svg>
         </div>
         <div>
-          <strong>Vrais clients</strong>
+          <strong>De vrais clients</strong>
           <span>Interventions réelles en Alsace</span>
         </div>
       </div>
@@ -133,7 +116,7 @@ const reviews = [
       <div class="trust-item">
         <div class="trust-icon">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
           </svg>
         </div>
         <div>
@@ -142,7 +125,6 @@ const reviews = [
         </div>
       </div>
     </div>
-
   </div>
 </section>
 
@@ -159,126 +141,63 @@ const reviews = [
     margin-bottom: 48px;
   }
   .section-head h2 { color: var(--bleu); }
-  .section-sub { color: var(--texte-2); max-width: 480px; }
+  .section-sub { color: var(--texte-2); max-width: 520px; }
 
-  /* Widget Google Reviews */
-  .google-reviews-widget {
+  /* Carte d'invitation à laisser un avis */
+  .avis-invite {
     background: var(--blanc);
     border-radius: var(--r-xl);
-    padding: 32px;
+    padding: 48px 32px;
     box-shadow: 0 4px 24px var(--ombre);
     margin-bottom: 40px;
-  }
-
-  .widget-header {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 24px;
-    flex-wrap: wrap;
-    padding-bottom: 24px;
-    border-bottom: 1px solid rgba(13,48,128,0.08);
-    margin-bottom: 24px;
-  }
-
-  .widget-brand {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .widget-label {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--texte);
-  }
-
-  .widget-score {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  .score-big {
-    font-family: var(--font-titre);
-    font-size: 2rem;
-    font-weight: 800;
-    color: var(--bleu);
-    line-height: 1;
-  }
-  .score-stars-row {
-    display: flex;
-    gap: 2px;
-  }
-  .score-count {
-    font-size: 0.8rem;
-    color: var(--texte-2);
-    white-space: nowrap;
-  }
-
-  .widget-cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-left: auto;
-    padding: 10px 20px;
-    border-radius: var(--r-full);
-    background: rgba(66,133,244,0.1);
-    color: #4285F4;
-    font-size: 0.88rem;
-    font-weight: 600;
-    transition: background 0.2s;
-    white-space: nowrap;
-  }
-  .widget-cta:hover { background: rgba(66,133,244,0.2); }
-
-  /* Grille des avis */
-  .reviews-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    text-align: center;
     gap: 16px;
   }
 
-  .review-card {
-    background: var(--fond);
-    border-radius: var(--r-lg);
-    padding: 20px;
+  .invite-google { display: block; }
+
+  .invite-stars {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
-    border: 1px solid rgba(13,48,128,0.06);
+    gap: 4px;
   }
 
-  .review-top {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  .avis-invite h3 {
+    font-family: var(--font-titre);
+    font-size: clamp(1.25rem, 3vw, 1.6rem);
+    color: var(--bleu);
+    margin: 0;
   }
-  .review-avatar {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--bleu), var(--bleu-royal));
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 0.9rem;
-    flex-shrink: 0;
-  }
-  .review-meta { flex: 1; }
-  .review-name { display: block; font-size: 0.9rem; font-weight: 600; color: var(--texte); }
-  .review-date { font-size: 0.75rem; color: var(--texte-2); }
 
-  .google-g { margin-left: auto; flex-shrink: 0; }
-
-  .review-stars { display: flex; gap: 2px; }
-
-  .review-text {
-    font-size: 0.88rem;
+  .avis-invite p {
     color: var(--texte-2);
+    max-width: 440px;
     line-height: 1.65;
-    font-style: italic;
+    margin: 0;
   }
+
+  .invite-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+    padding: 14px 28px;
+    border-radius: var(--r-full);
+    background: #4285F4;
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    box-shadow: 0 4px 14px rgba(66, 133, 244, 0.35);
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+  }
+  .invite-cta:hover {
+    background: #3367d6;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(66, 133, 244, 0.45);
+  }
+  .invite-cta svg path { fill: #fff; }
 
   /* Bloc de confiance */
   .avis-trust {
@@ -286,6 +205,7 @@ const reviews = [
     align-items: center;
     gap: 32px;
     flex-wrap: wrap;
+    justify-content: center;
     background: var(--blanc);
     border-radius: var(--r-xl);
     padding: 28px 40px;
@@ -299,13 +219,11 @@ const reviews = [
   }
   .trust-item strong { display: block; font-size: 0.95rem; color: var(--texte); font-weight: 600; }
   .trust-item span { font-size: 0.82rem; color: var(--texte-2); }
-  .trust-sep { width: 1px; height: 48px; background: rgba(13,48,128,0.1); flex-shrink: 0; }
+  .trust-sep { width: 1px; height: 48px; background: rgba(13, 48, 128, 0.1); flex-shrink: 0; }
 
   @media (max-width: 768px) {
-    .reviews-grid { grid-template-columns: 1fr; }
-    .widget-cta { margin-left: 0; }
-    .avis-trust { flex-direction: column; align-items: flex-start; }
+    .avis-invite { padding: 36px 22px; }
+    .avis-trust { flex-direction: column; align-items: flex-start; padding: 24px; }
     .trust-sep { width: 100%; height: 1px; }
-    .avis-trust { padding: 24px; }
   }
 </style>
