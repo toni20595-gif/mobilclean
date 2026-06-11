@@ -1,10 +1,26 @@
 ---
 // ════════════════════════════════════════════════════════════════════════
-//  Lien vers la fiche Google Business de Mobil Clean
-//  👉 À REMPLACER par le lien EXACT de la fiche (ou le lien d'avis court
-//     "g.page/r/...") dès qu'il est disponible.
-//  Pour l'instant : recherche Google sur le nom (fonctionne en attendant).
+//  WIDGET D'AVIS GOOGLE — Mobil Clean   (auto-actualisé, gratuit, via Featurable)
+//  ──────────────────────────────────────────────────────────────────────
+//  Le widget Featurable affiche automatiquement les avis de la fiche Google
+//  Business et SE MET À JOUR TOUT SEUL (~1×/jour). Aucun redéploiement, aucun
+//  avis saisi à la main : tout vient en direct de Google.
+//
+//  POUR L'ACTIVER — une seule étape côté code :
+//    1. Créer un compte gratuit sur https://featurable.com
+//    2. Connecter la fiche Google Business « Mobil Clean »
+//    3. Créer un widget → copier son identifiant
+//       (il se trouve dans le code d'intégration, juste après "featurable-",
+//        ex.  <div id="featurable-Wd8c0xk2..."  →  l'ID est  "Wd8c0xk2...")
+//    4. Coller cet identifiant ci-dessous, entre les guillemets. C'est tout.
+//
+//  ⤵  Tant que cette valeur est VIDE, le site affiche une invitation à laisser
+//     le premier avis (rien n'est inventé). Dès qu'elle est remplie, le vrai
+//     widget Google s'affiche à la place, automatiquement.
 // ════════════════════════════════════════════════════════════════════════
+const FEATURABLE_WIDGET_ID = "8df78142-04ac-4c20-a746-83a4a5f7b3fe"; // widget « MobilClean » (Featurable)
+
+// Lien de secours vers la fiche Google (bouton « laisser un avis »).
 const GOOGLE_AVIS_URL =
   "https://www.google.com/maps/search/?api=1&query=Mobil%20Clean%20Alsace";
 ---
@@ -21,23 +37,13 @@ const GOOGLE_AVIS_URL =
       </p>
     </div>
 
-    <!--
-      ════════════════════════════════════════════════════════════════════
-       EMPLACEMENT DU WIDGET D'AVIS GOOGLE  (auto — via Featurable, gratuit)
-      ────────────────────────────────────────────────────────────────────
-       À activer quand la fiche aura quelques avis :
-         1. Créer un compte gratuit sur https://featurable.com
-         2. Connecter la fiche Google Business « Mobil Clean »
-         3. Créer un widget, copier son identifiant
-         4. Coller ICI le <div> + le <script> fournis par Featurable,
-            puis SUPPRIMER le bloc « avis-invite » juste en dessous.
-       Exemple de code Featurable :
-         <div id="featurable-XXXXXXXX" data-featurable-async></div>
-         <script src="https://featurable.com/assets/js/widget.js" async></script>
-      ════════════════════════════════════════════════════════════════════
-    -->
-
-    <!-- État actuel : fiche neuve → invitation à laisser le premier avis -->
+    {FEATURABLE_WIDGET_ID ? (
+      <!-- ══ Widget Google live, alimenté et actualisé automatiquement ══ -->
+      <div class="avis-widget reveal">
+        <div id={`featurable-${FEATURABLE_WIDGET_ID}`} data-featurable-async></div>
+      </div>
+    ) : (
+    <!-- ══ Repli : fiche neuve → invitation à laisser le premier avis ══ -->
     <div class="avis-invite reveal">
       <!-- Logo Google -->
       <svg
@@ -85,6 +91,7 @@ const GOOGLE_AVIS_URL =
         Laisser un avis sur Google
       </a>
     </div>
+    )}
 
     <!-- Bloc de confiance -->
     <div class="avis-trust reveal">
@@ -128,6 +135,11 @@ const GOOGLE_AVIS_URL =
   </div>
 </section>
 
+{/* Script Featurable : chargé seulement quand le widget est activé. */}
+{FEATURABLE_WIDGET_ID && (
+  <script is:inline defer charset="UTF-8" src="https://featurable.com/assets/bundle.js"></script>
+)}
+
 <style>
   .avis-section {
     padding-block: var(--section-gap);
@@ -142,6 +154,14 @@ const GOOGLE_AVIS_URL =
   }
   .section-head h2 { color: var(--bleu); }
   .section-sub { color: var(--texte-2); max-width: 520px; }
+
+  /* Conteneur du widget Google live (Featurable) */
+  .avis-widget {
+    margin-bottom: 40px;
+  }
+  .avis-widget :global([id^="featurable-"]) {
+    min-height: 120px; /* évite le saut de mise en page pendant le chargement */
+  }
 
   /* Carte d'invitation à laisser un avis */
   .avis-invite {
