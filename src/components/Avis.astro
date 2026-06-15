@@ -20,9 +20,9 @@
 // ════════════════════════════════════════════════════════════════════════
 const FEATURABLE_WIDGET_ID = "8df78142-04ac-4c20-a746-83a4a5f7b3fe"; // widget « MobilClean » (Featurable)
 
-// Lien de secours vers la fiche Google (bouton « laisser un avis »).
-const GOOGLE_AVIS_URL =
-  "https://www.google.com/maps/search/?api=1&query=Mobil%20Clean%20Alsace";
+// Lien direct vers la fiche Google (bouton « laisser un avis »).
+// Lien de partage officiel fourni par l'utilisateur → mène à la fiche MobilClean.
+const GOOGLE_AVIS_URL = "https://share.google/ApsMCWECCMibAbFYM";
 ---
 
 <section class="avis-section" id="avis">
@@ -92,6 +92,16 @@ const GOOGLE_AVIS_URL =
       </a>
     </div>
     )}
+
+    <!-- CTA toujours visible : laisser un avis (le widget masque le bloc invitation) -->
+    <div class="avis-review-cta-wrap reveal">
+      <a href={GOOGLE_AVIS_URL} target="_blank" rel="noopener noreferrer" class="invite-cta">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+        </svg>
+        Laisser un avis sur Google
+      </a>
+    </div>
 
     <!-- Bloc de confiance -->
     <div class="avis-trust reveal">
@@ -218,6 +228,12 @@ const GOOGLE_AVIS_URL =
     box-shadow: 0 6px 20px rgba(66, 133, 244, 0.45);
   }
   .invite-cta svg path { fill: #fff; }
+
+  .avis-review-cta-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
+  }
 
   /* Bloc de confiance */
   .avis-trust {
