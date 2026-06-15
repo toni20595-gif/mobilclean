@@ -15,6 +15,66 @@ const {
 // dans astro.config.mjs (https://mobilclean.fr)
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const ogImageURL = new URL(ogImage, Astro.site);
+
+// Données structurées Schema.org (LocalBusiness) — aide Google à comprendre
+// l'entreprise pour le référencement local (fiche, rich results).
+// NB : entreprise mobile (service à domicile) → zone desservie, pas d'adresse de rue.
+// Pas d'aggregateRating tant qu'il n'y a pas d'avis réels (ne rien inventer).
+const schemaLD = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "@id": "https://mobilclean.fr/#business",
+  name: "Mobil Clean",
+  image: "https://mobilclean.fr/logo.png",
+  logo: "https://mobilclean.fr/logo.png",
+  url: "https://mobilclean.fr",
+  telephone: "+33644830555",
+  email: "Mobilclean68@gmail.com",
+  description:
+    "Nettoyage professionnel mobile en Alsace : intérieur de voiture, matelas, canapés et tissus d'ameublement. Service à domicile, résultat garanti, 7j/7.",
+  priceRange: "€€",
+  currenciesAccepted: "EUR",
+  paymentAccepted: "Espèces, Carte bancaire, Virement",
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Mulhouse",
+    addressRegion: "Grand Est",
+    addressCountry: "FR",
+  },
+  geo: {
+    "@type": "GeoCoordinates",
+    latitude: 47.7508,
+    longitude: 7.3359,
+  },
+  areaServed: [
+    { "@type": "City", name: "Mulhouse" },
+    { "@type": "AdministrativeArea", name: "Haut-Rhin" },
+    { "@type": "AdministrativeArea", name: "Alsace" },
+  ],
+  openingHoursSpecification: [
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      opens: "09:30",
+      closes: "20:00",
+    },
+  ],
+  sameAs: [
+    "https://www.facebook.com/profile.php?id=61590462539125",
+    "https://www.instagram.com/mobilclean_",
+  ],
+  hasOfferCatalog: {
+    "@type": "OfferCatalog",
+    name: "Prestations de nettoyage",
+    itemListElement: [
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Nettoyage intérieur de voiture" } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Nettoyage de matelas" } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Nettoyage de canapé" } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Nettoyage de tapis" } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Nettoyage de fauteuil" } },
+    ],
+  },
+};
 ---
 
 <!doctype html>
@@ -40,9 +100,23 @@ const ogImageURL = new URL(ogImage, Astro.site);
 
     <link rel="icon" type="image/png" href="/logo.png" />
     <title>{title}</title>
+
+    <!-- Données structurées entreprise locale (SEO local / rich results) -->
+    <script type="application/ld+json" set:html={JSON.stringify(schemaLD)} />
   </head>
   <body>
     <slot />
+
+    <!-- Bouton d'appel flottant (priorité conversion, surtout mobile) -->
+    <a
+      href="tel:+33644830555"
+      class="call-btn"
+      aria-label="Appeler Mobil Clean au 06 44 83 05 55"
+    >
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+      </svg>
+    </a>
 
     <!-- Bouton Instagram flottant -->
     <a
@@ -62,9 +136,41 @@ const ogImageURL = new URL(ogImage, Astro.site);
     <style is:global>
       @import url('/src/styles/global.css');
 
-      .insta-btn {
+      /* Bouton d'appel : action primaire, en bas à droite, pastille teal de la marque */
+      .call-btn {
         position: fixed;
         bottom: 28px;
+        right: 28px;
+        z-index: 999;
+        width: 56px;
+        height: 56px;
+        background: var(--teal);
+        color: var(--blanc);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 20px rgba(0, 200, 150, 0.45);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        animation: callPulse 2.4s ease-out infinite;
+      }
+      .call-btn:hover {
+        transform: scale(1.12);
+        box-shadow: 0 8px 32px rgba(0, 200, 150, 0.6);
+      }
+      @keyframes callPulse {
+        0%   { box-shadow: 0 4px 20px rgba(0,200,150,0.45), 0 0 0 0 rgba(0,200,150,0.45); }
+        70%  { box-shadow: 0 4px 20px rgba(0,200,150,0.45), 0 0 0 16px rgba(0,200,150,0); }
+        100% { box-shadow: 0 4px 20px rgba(0,200,150,0.45), 0 0 0 0 rgba(0,200,150,0); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .call-btn { animation: none; }
+      }
+
+      /* Bouton Instagram : empilé au-dessus du bouton d'appel */
+      .insta-btn {
+        position: fixed;
+        bottom: 96px;
         right: 28px;
         z-index: 999;
         width: 56px;
