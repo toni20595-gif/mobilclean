@@ -19,7 +19,16 @@ import { services } from "../data/services";
             <div class="bento-overlay"></div>
           </div>
           <div class="bento-content">
-            <span class="bento-tag">{service.tarif || "Sur devis"}</span>
+            {service.tarifPromo ? (
+              <span class="bento-tag bento-tag-promo">
+                <span class="bt-pct">-20%</span>
+                <span class="bt-prefix">{service.tarifPrefix}</span>
+                <s class="bt-barre">{service.tarifBarre}</s>
+                <span class="bt-promo">{service.tarifPromo}</span>
+              </span>
+            ) : (
+              <span class="bento-tag">{service.tarif || "Sur devis"}</span>
+            )}
             <h3>{service.titre}</h3>
             <p class="bento-desc-short">{service.description}</p>
             <a href={`/services#${service.id}`} class="bento-link">
@@ -103,6 +112,34 @@ import { services } from "../data/services";
     border-radius: var(--r-full);
     letter-spacing: 0.04em;
     width: fit-content;
+  }
+
+  .bento-tag-promo {
+    align-items: center;
+    gap: 6px;
+    padding-left: 5px;
+  }
+  .bt-pct {
+    background: #E0322D;
+    color: #fff;
+    font-size: 0.66rem;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: var(--r-full);
+  }
+  .bt-prefix {
+    color: var(--teal);
+    font-weight: 600;
+  }
+  .bt-barre {
+    color: #6B7280;
+    text-decoration: line-through;
+    opacity: 0.8;
+    font-weight: 600;
+  }
+  .bt-promo {
+    color: var(--teal);
+    font-weight: 800;
   }
 
   .bento-content h3 {

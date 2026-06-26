@@ -4,6 +4,7 @@ const formules = [
     id: "or",
     nom: "Or",
     prix: "89€",
+    prixPromo: "71€",
     couleur: "#C9920E",
     fondClair: "#FFFBEC",
     fondHeader: "rgba(201,146,14,0.10)",
@@ -20,6 +21,7 @@ const formules = [
     id: "diamant",
     nom: "Diamant",
     prix: "129€",
+    prixPromo: "103€",
     couleur: "#2563EB",
     fondClair: "#EFF6FF",
     fondHeader: "rgba(37,99,235,0.08)",
@@ -64,7 +66,15 @@ const formules = [
           <strong class="formule-nom">{f.nom}</strong>
           {f.badge && <span class="formule-badge">{f.badge}</span>}
         </div>
-        <span class="formule-prix">{f.prix}</span>
+        {f.prixPromo ? (
+          <span class="formule-prix-group">
+            <span class="formule-prix-pct">-20%</span>
+            <span class="formule-prix-barre">{f.prix}</span>
+            <span class="formule-prix-promo">{f.prixPromo}</span>
+          </span>
+        ) : (
+          <span class="formule-prix">{f.prix}</span>
+        )}
       </div>
 
       <div class="formule-body">
@@ -162,6 +172,40 @@ const formules = [
     font-weight: 700;
     color: var(--fc);
     white-space: nowrap;
+  }
+
+  .formule-prix-group {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  .formule-prix-pct {
+    align-self: center;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #fff;
+    background: #E0322D;
+    padding: 1px 6px;
+    border-radius: 20px;
+    line-height: 1.6;
+  }
+
+  .formule-prix-barre {
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--texte-2);
+    text-decoration: line-through;
+    text-decoration-color: rgba(0, 0, 0, 0.4);
+    opacity: 0.7;
+  }
+
+  .formule-prix-promo {
+    font-size: 0.98rem;
+    font-weight: 800;
+    color: var(--fc);
   }
 
   .formule-body {
