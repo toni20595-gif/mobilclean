@@ -1,0 +1,467 @@
+---
+/*
+  CreneauxPicker.astro — Sélecteur de créneaux « réservation express »
+  --------------------------------------------------------------------
+  Modèle validé : le client choisit 1 à 3 créneaux qui l'arrangent,
+  Mobil Clean confirme le bon (on garde la main sur le prix + la tournée).
+
+  UX (capture de réf. Antoine) :
+    1) « Choisissez votre date » = vrai champ CALENDRIER (input date).
+    2) En dessous, « Créneaux disponibles le <date> » + les heures du jour
+       en BOUTONS PLEINS (bleu plein/texte blanc = dispo, teal + ✓ = choisi,
+       gris barré = déjà réservé).
+
+  DISPONIBILITÉS (script google-apps-script/dispos-agenda.gs)
+      créneaux cochés dans la Sheet "Dispos"  (= quand Mobil Clean veut bosser)
+    – créneaux occupés dans l'agenda Google   (= déjà pris / indispo perso)
+    = ce qu'on affiche comme réservable ; le reste est grisé et barré.
+    Antoine coche ses jours chaque semaine dans la Sheet ; l'agenda bloque
+    tout seul (choix : blocage À LA CONFIRMATION, pas à la demande).
+    ⚠️ Repli volontaire : URL vide, réponse `null` ou appel en échec => on
+    considère TOUT disponible (mieux vaut un doublon à arbitrer qu'une
+    réservation impossible).
+
+  ⚠️ IMPORTANT — les boutons de créneaux sont rendus DANS LE TEMPLATE (et non
+  créés en JS). Les styles d'un composant Astro sont scopés : un élément créé
+  via document.createElement() ne reçoit PAS l'attribut de scope, donc le CSS
+  ne s'y applique jamais. Le JS ne fait que piloter l'ÉTAT.
+  Les puces du récap restent dynamiques -> sélecteurs :global().
+
+  Le champ caché #creneaux-input est dans le <form> parent -> capté par Netlify.
+*/
+
+// Créneaux proposés chaque jour. `debut` sert de clé stable avec l'agenda.
+const HORAIRES = [
+  { label: "10h – 12h", debut: 10 },
+  { label: "14h – 16h", debut: 14 },
+  { label: "17h – 19h", debut: 17 },
+];
+---
+
+<div class="creneaux" id="creneaux" role="group" aria-labelledby="creneaux-lbl">
+  <span class="creneaux-label" id="creneaux-lbl">
+    Vos créneaux souhaités <span class="req" aria-hidden="true">*</span>
+  </span>
+  <p class="creneaux-sub">
+    Choisissez jusqu'à <strong>3 créneaux</strong> qui vous arrangent — on vous
+    confirme le bon très vite, souvent en moins de 2&nbsp;h en journée.
+  </p>
+
+  <!-- 1) Le calendrier -->
+  <div class="date-row">
+    <span class="date-label">Choisissez votre date</span>
+    <label class="date-field" for="date-picker">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <input type="date" id="date-picker" aria-label="Choisissez votre date" />
+    </label>
+  </div>
+
+  <!-- 2) Les créneaux du jour choisi -->
+  <div class="cal-head">
+    <button type="button" class="cal-nav" id="jour-prev" aria-label="Jour précédent">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+      <span id="prev-label"></span>
+    </button>
+    <p class="cal-title">Créneaux disponibles le <strong id="date-courante">—</strong></p>
+    <button type="button" class="cal-nav" id="jour-next" aria-label="Jour suivant">
+      <span id="next-label"></span>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </div>
+
+  <div class="horaires" id="horaires">
+    {HORAIRES.map((h) => (
+      <button type="button" class="creneau-chip" data-slot={h.label} data-debut={h.debut} aria-pressed="false">
+        <span class="chk" aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>
+        </span>
+        {h.label}
+      </button>
+    ))}
+  </div>
+
+  <p class="horaires-msg" id="horaires-msg" hidden></p>
+  <p class="dispo-status" id="dispo-status" hidden>Vérification des disponibilités…</p>
+
+  <!-- Récapitulatif (tous jours confondus) -->
+  <div class="recap" id="recap" hidden>
+    <div class="recap-head">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+      Vos créneaux <span class="recap-count" id="recap-count">0/3</span>
+    </div>
+    <ul class="recap-chips" id="recap-chips"></ul>
+  </div>
+
+  <input type="hidden" name="creneaux" id="creneaux-input" />
+</div>
+
+<style>
+  .creneaux {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    background: var(--blanc);
+    border: 2px solid rgba(13, 48, 128, 0.12);
+    border-radius: var(--r-md);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .creneaux.error { border-color: #e53e3e; box-shadow: 0 0 0 4px rgba(229, 62, 62, 0.08); }
+
+  .creneaux-label { font-size: 0.875rem; font-weight: 600; color: var(--texte); }
+  .creneaux-label .req { color: var(--teal); }
+  .creneaux-sub { font-size: 0.8rem; color: var(--texte-2); line-height: 1.5; margin-top: -6px; }
+  .creneaux-sub strong { color: var(--texte); }
+
+  /* 1) Calendrier */
+  .date-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+    padding: 12px 14px;
+    background: var(--fond);
+    border-radius: var(--r-sm);
+  }
+  .date-label { font-family: var(--font-titre); font-size: 0.95rem; font-weight: 700; color: var(--bleu); }
+  .date-field {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin-left: auto;
+    padding: 9px 14px;
+    background: var(--teal);
+    color: var(--bleu);
+    border-radius: var(--r-full);
+    cursor: pointer;
+    transition: filter 0.15s, transform 0.12s;
+  }
+  .date-field:hover { transform: translateY(-1px); filter: brightness(0.97); }
+  .date-field svg { flex-shrink: 0; }
+  .date-field input[type="date"] {
+    border: none;
+    background: transparent;
+    color: var(--bleu);
+    font-family: var(--font-corps);
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    outline: none;
+    padding: 0;
+  }
+  .date-field input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.7; }
+
+  /* En-tête + raccourci jour précédent / suivant */
+  .cal-head { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; margin-top: 2px; }
+  .cal-title { text-align: center; font-size: 0.92rem; color: var(--texte-2); line-height: 1.35; }
+  .cal-title strong { display: block; font-family: var(--font-titre); font-size: 1.02rem; font-weight: 700; color: var(--bleu); }
+  .cal-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 7px 11px;
+    border: none;
+    border-radius: var(--r-full);
+    background: var(--teal);
+    color: var(--bleu);
+    font-family: var(--font-corps);
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: filter 0.15s, transform 0.12s, opacity 0.15s;
+  }
+  .cal-nav:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(0.96); }
+  .cal-nav:disabled { opacity: 0.3; cursor: not-allowed; }
+  .cal-nav svg { flex-shrink: 0; }
+
+  /* 2) Créneaux — vrais boutons pleins */
+  .horaires { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+  .creneau-chip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 15px 12px;
+    border: 2px solid var(--bleu);
+    border-radius: var(--r-sm);
+    background: var(--bleu);
+    color: #fff;
+    font-family: var(--font-corps);
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: filter 0.15s, transform 0.1s;
+  }
+  .creneau-chip:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.18); }
+  .creneau-chip.selected { background: var(--teal); border-color: var(--teal); color: var(--bleu); }
+  .creneau-chip .chk { display: none; align-items: center; }
+  .creneau-chip.selected .chk { display: inline-flex; }
+  .creneau-chip:disabled { cursor: not-allowed; }
+  .creneau-chip:disabled:not(.indispo) { opacity: 0.45; }
+
+  /* Créneau déjà réservé (présent dans l'agenda) */
+  .creneau-chip.indispo {
+    background: #E8ECF3;
+    border-color: #E8ECF3;
+    color: var(--gris);
+    text-decoration: line-through;
+    transform: none;
+    filter: none;
+  }
+
+  .horaires-msg { font-size: 0.82rem; color: var(--texte-2); text-align: center; padding: 4px 8px; }
+  .dispo-status { font-size: 0.74rem; color: var(--gris); text-align: center; }
+
+  /* Récapitulatif — les puces sont créées en JS -> :global() obligatoire */
+  .recap { display: flex; flex-direction: column; gap: 9px; padding-top: 12px; margin-top: 2px; border-top: 1px dashed rgba(13, 48, 128, 0.16); }
+  .recap-head { display: flex; align-items: center; gap: 7px; font-size: 0.78rem; font-weight: 700; color: var(--bleu); }
+  .recap-head svg { color: var(--teal); flex-shrink: 0; }
+  .recap-count { margin-left: auto; font-size: 0.72rem; color: var(--texte-2); font-weight: 600; }
+  .recap-chips { list-style: none; display: flex; flex-wrap: wrap; gap: 7px; }
+  .recap-chips :global(.recap-chip) {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px 6px 12px;
+    background: var(--teal-pale);
+    color: var(--bleu);
+    border-radius: var(--r-full);
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+  .recap-chips :global(.recap-chip button) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: rgba(13, 48, 128, 0.1);
+    color: var(--bleu);
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: background 0.16s, color 0.16s;
+  }
+  .recap-chips :global(.recap-chip button:hover) { background: var(--bleu); color: #fff; }
+
+  @media (max-width: 520px) {
+    .cal-head { grid-template-columns: 1fr 1fr; }
+    .cal-title { grid-column: 1 / -1; order: -1; }
+    .date-field { margin-left: 0; }
+  }
+</style>
+
+<script>
+  const root = document.getElementById("creneaux");
+
+  if (root) {
+    const picker = document.getElementById("date-picker") as HTMLInputElement;
+    const dateField = root.querySelector(".date-field") as HTMLLabelElement;
+    const horairesEl = document.getElementById("horaires")!;
+    const horairesMsg = document.getElementById("horaires-msg")!;
+    const dispoStatus = document.getElementById("dispo-status")!;
+    const dateCourante = document.getElementById("date-courante")!;
+    const btnPrev = document.getElementById("jour-prev") as HTMLButtonElement;
+    const btnNext = document.getElementById("jour-next") as HTMLButtonElement;
+    const prevLabel = document.getElementById("prev-label")!;
+    const nextLabel = document.getElementById("next-label")!;
+    const recapEl = document.getElementById("recap")!;
+    const recapChips = document.getElementById("recap-chips")!;
+    const recapCount = document.getElementById("recap-count")!;
+    const input = document.getElementById("creneaux-input") as HTMLInputElement;
+    const chips = Array.from(root.querySelectorAll<HTMLButtonElement>(".creneau-chip"));
+
+    // ─────────── CONFIG ───────────
+    const MAX = 3;                 // nb max de créneaux choisis
+    const NB_JOURS = 14;           // fenêtre de réservation (jours à l'avance)
+    const JOURS_FERMES: number[] = []; // ex : [0] pour fermer le dimanche
+
+    // URL du script Google qui renvoie les créneaux réservables (voir
+    // google-apps-script/dispos-agenda.gs). Vide = filtre désactivé,
+    // tous les créneaux sont proposés.
+    const DISPOS_URL = "https://script.google.com/macros/s/AKfycbzDHuDHYBns10FWQFdvxoNYR2Y384ur6j-a5AphWUWszcqGcjIssyU8A23cIJvc8foUoQ/exec";
+    // ──────────────────────────────
+
+    const WD = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+    const MO = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+
+    type Creneau = { key: string; disp: string; slot: string; debut: string };
+
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const iso = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    const disp = (d: Date) => `${WD[d.getDay()]} ${d.getDate()} ${MO[d.getMonth()]}`;
+    const clone = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
+    const today = new Date();
+    const minDate = clone(today); minDate.setDate(minDate.getDate() + 1);   // dès demain
+    const maxDate = clone(today); maxDate.setDate(maxDate.getDate() + NB_JOURS);
+    let viewed = clone(minDate);
+
+    const selected: Creneau[] = [];
+    // Créneaux réservables renvoyés par le script Google (clés "AAAA-MM-JJ|heure").
+    // null = aucun filtre connu -> on laisse tout disponible (repli sûr).
+    let disponibles: Set<string> | null = null;
+
+    const isSel = (key: string, slot: string) => selected.some(s => s.key === key && s.slot === slot);
+    const estDispo = (key: string, debut: string) => disponibles === null || disponibles.has(`${key}|${debut}`);
+
+    picker.min = iso(minDate);
+    picker.max = iso(maxDate);
+
+    function clamp(d: Date) {
+      if (d < minDate) return clone(minDate);
+      if (d > maxDate) return clone(maxDate);
+      return d;
+    }
+
+    function renderHead() {
+      picker.value = iso(viewed);
+      dateCourante.textContent = disp(viewed);
+      const prev = clone(viewed); prev.setDate(prev.getDate() - 1);
+      const next = clone(viewed); next.setDate(next.getDate() + 1);
+      const prevOk = prev >= minDate;
+      const nextOk = next <= maxDate;
+      btnPrev.disabled = !prevOk;
+      btnNext.disabled = !nextOk;
+      prevLabel.textContent = prevOk ? disp(prev) : "";
+      nextLabel.textContent = nextOk ? disp(next) : "";
+    }
+
+    // Met à jour l'état des boutons pour la date affichée
+    function syncChips() {
+      const ferme = JOURS_FERMES.includes(viewed.getDay());
+      horairesEl.hidden = ferme;
+      if (ferme) {
+        horairesMsg.textContent = "Fermé ce jour-là — choisissez une autre date.";
+        horairesMsg.hidden = false;
+        return;
+      }
+
+      const key = iso(viewed);
+      let libres = 0;
+
+      chips.forEach(chip => {
+        const slot = chip.dataset.slot || "";
+        const debut = chip.dataset.debut || "";
+        const pris = !estDispo(key, debut);
+        const sel = !pris && isSel(key, slot);
+
+        chip.classList.toggle("indispo", pris);
+        chip.classList.toggle("selected", sel);
+        chip.disabled = pris || (selected.length >= MAX && !sel);
+        chip.setAttribute("aria-pressed", String(sel));
+        if (pris) chip.title = "Créneau non disponible";
+        else chip.removeAttribute("title");
+        if (!pris) libres++;
+      });
+
+      if (libres === 0) {
+        horairesMsg.textContent = "Plus aucun créneau disponible ce jour-là — choisissez une autre date.";
+        horairesMsg.hidden = false;
+      } else {
+        horairesMsg.hidden = true;
+      }
+    }
+
+    function toggle(slot: string, debut: string) {
+      const key = iso(viewed);
+      if (!estDispo(key, debut)) return;
+      const idx = selected.findIndex(s => s.key === key && s.slot === slot);
+      if (idx >= 0) {
+        selected.splice(idx, 1);
+      } else {
+        if (selected.length >= MAX) return;
+        selected.push({ key, disp: disp(viewed), slot, debut });
+      }
+      root!.classList.remove("error");
+      syncChips();
+      renderRecap();
+      syncInput();
+    }
+
+    function renderRecap() {
+      recapCount.textContent = `${selected.length}/${MAX}`;
+      recapEl.hidden = selected.length === 0;
+      recapChips.innerHTML = "";
+      selected.forEach(s => {
+        const li = document.createElement("li");
+        li.className = "recap-chip";
+        li.innerHTML =
+          `${s.disp} · ${s.slot} ` +
+          `<button type="button" aria-label="Retirer ${s.disp} ${s.slot}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>`;
+        li.querySelector("button")!.addEventListener("click", () => {
+          const i = selected.indexOf(s);
+          if (i >= 0) selected.splice(i, 1);
+          syncChips();
+          renderRecap();
+          syncInput();
+        });
+        recapChips.appendChild(li);
+      });
+    }
+
+    function syncInput() {
+      input.value = selected.map(s => `${s.disp} (${s.slot})`).join(", ");
+    }
+
+    // Récupère les créneaux déjà pris dans l'agenda.
+    // Repli volontaire : en cas d'échec, on laisse tout disponible.
+    async function chargerDispos() {
+      if (!DISPOS_URL) return;
+      dispoStatus.hidden = false;
+      try {
+        const ctrl = new AbortController();
+        const t = setTimeout(() => ctrl.abort(), 6000);
+        const res = await fetch(DISPOS_URL, { signal: ctrl.signal });
+        clearTimeout(t);
+        if (!res.ok) return;
+        const data = await res.json();
+        // null = pas encore configuré côté Google -> on laisse tout disponible
+        if (data.disponibles === null || !Array.isArray(data.disponibles)) return;
+
+        disponibles = new Set<string>(data.disponibles);
+
+        // Un créneau déjà choisi n'est plus proposé -> on le retire
+        for (let i = selected.length - 1; i >= 0; i--) {
+          if (!estDispo(selected[i].key, selected[i].debut)) selected.splice(i, 1);
+        }
+        syncChips();
+        renderRecap();
+        syncInput();
+      } catch (_) {
+        /* silencieux : mieux vaut un doublon à arbitrer qu'une vente perdue */
+      } finally {
+        dispoStatus.hidden = true;
+      }
+    }
+
+    chips.forEach(chip => {
+      chip.addEventListener("click", () => toggle(chip.dataset.slot || "", chip.dataset.debut || ""));
+    });
+
+    // Ouvre le calendrier natif au clic sur toute la pastille
+    dateField.addEventListener("click", (e) => {
+      if (e.target !== picker && typeof picker.showPicker === "function") {
+        try { picker.showPicker(); } catch (_) { picker.focus(); }
+      }
+    });
+
+    picker.addEventListener("change", () => {
+      const parts = picker.value.split("-").map(Number);
+      if (parts.length === 3) {
+        viewed = clamp(new Date(parts[0], parts[1] - 1, parts[2]));
+        renderHead();
+        syncChips();
+      }
+    });
+
+    btnPrev.addEventListener("click", () => { const d = clone(viewed); d.setDate(d.getDate() - 1); viewed = clamp(d); renderHead(); syncChips(); });
+    btnNext.addEventListener("click", () => { const d = clone(viewed); d.setDate(d.getDate() + 1); viewed = clamp(d); renderHead(); syncChips(); });
+
+    renderHead();
+    syncChips();
+    renderRecap();
+    chargerDispos();
+  }
+</script>
