@@ -40,11 +40,12 @@ const HORAIRES = [
 
 <div class="creneaux" id="creneaux" role="group" aria-labelledby="creneaux-lbl">
   <span class="creneaux-label" id="creneaux-lbl">
-    Vos créneaux souhaités <span class="req" aria-hidden="true">*</span>
+    Vos créneaux souhaités <span class="optionnel">(facultatif)</span>
   </span>
   <p class="creneaux-sub">
-    Choisissez jusqu'à <strong>3 créneaux</strong> qui vous arrangent — on vous
-    confirme le bon très vite, souvent en moins de 2&nbsp;h en journée.
+    Choisissez jusqu'à <strong>3 créneaux</strong> qui vous arrangent pour être
+    servi plus vite. Vous voulez seulement un devis&nbsp;? Laissez vide, on vous
+    répond quand même.
   </p>
 
   <!-- 1) Le calendrier -->
@@ -109,7 +110,7 @@ const HORAIRES = [
   .creneaux.error { border-color: #e53e3e; box-shadow: 0 0 0 4px rgba(229, 62, 62, 0.08); }
 
   .creneaux-label { font-size: 0.875rem; font-weight: 600; color: var(--texte); }
-  .creneaux-label .req { color: var(--teal); }
+  .creneaux-label .optionnel { color: var(--texte-2); font-weight: 500; }
   .creneaux-sub { font-size: 0.8rem; color: var(--texte-2); line-height: 1.5; margin-top: -6px; }
   .creneaux-sub strong { color: var(--texte); }
 
@@ -403,6 +404,12 @@ const HORAIRES = [
 
     function syncInput() {
       input.value = selected.map(s => `${s.disp} (${s.slot})`).join(", ");
+      // Le libellé du bouton s'adapte : réservation si créneaux choisis,
+      // simple demande de devis sinon (les créneaux sont facultatifs).
+      const label = document.getElementById("submit-label");
+      if (label) {
+        label.textContent = selected.length > 0 ? "Réserver mon créneau" : "Envoyer ma demande";
+      }
     }
 
     // Récupère les créneaux déjà pris dans l'agenda.
@@ -462,6 +469,7 @@ const HORAIRES = [
     renderHead();
     syncChips();
     renderRecap();
+    syncInput();
     chargerDispos();
   }
 </script>
