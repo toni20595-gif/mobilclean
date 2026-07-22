@@ -2,14 +2,14 @@ export const services = [
   {
     id: "voiture",
     titre: "Voiture",
-    description: "Nettoyage complet de l'habitacle : sièges, tableau de bord, moquettes, plastiques et vitres. Votre voiture retrouve l'eclat du neuf.",
+    description: "Nettoyage complet de l'habitacle : sièges, tableau de bord, moquettes et plastiques. Votre voiture retrouve l'eclat du neuf.",
     image: "/images/galerie/voiture-acceuil.png",
     alt: "Nettoyage intérieur habitacle de voiture",
     tarif: "A partir de 89€",
     tarifPrefix: "À partir de",
     tarifBarre: "110€",
     tarifPromo: "89€",
-    details: ["Aspiration complete", "Nettoyage vapeur", "Traitement cuir ou tissu", "Desodorisation", "Vitres intérieures"],
+    details: ["Aspiration complete", "Nettoyage vapeur", "Traitement cuir ou tissu", "Desodorisation"],
   },
   {
     id: "matelas",
