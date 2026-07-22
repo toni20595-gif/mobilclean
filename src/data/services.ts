@@ -7,8 +7,8 @@ export const services = [
     alt: "Nettoyage intérieur habitacle de voiture",
     tarif: "A partir de 89€",
     tarifPrefix: "À partir de",
-    tarifBarre: "89€",
-    tarifPromo: "71€",
+    tarifBarre: "110€",
+    tarifPromo: "89€",
     details: ["Aspiration complete", "Nettoyage vapeur", "Traitement cuir ou tissu", "Desodorisation", "Vitres intérieures"],
   },
   {
