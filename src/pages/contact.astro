@@ -529,6 +529,8 @@ import CreneauxPicker from "../components/CreneauxPicker.astro";
         e.preventDefault();
         (form.querySelector(".error") ?? form.querySelector(".error-group"))?.scrollIntoView({ behavior: "smooth", block: "center" });
       }
+      // NB : si le formulaire est valide, la conversion Google Ads est comptée
+      // par le listener global de ConsentBanner.astro (écoute sur document).
     });
 
     form.querySelectorAll("input, select, textarea").forEach((el) => {

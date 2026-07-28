@@ -1,0 +1,225 @@
+---
+/**
+ * Bandeau de consentement cookies + déclencheurs de conversion Google Ads.
+ *
+ * Ne s'affiche QUE si le suivi est configuré (GOOGLE_ADS_ID renseigné).
+ * Tant que ce n'est pas le cas, ce composant ne rend rien du tout.
+ *
+ * Deux conversions sont câblées ici :
+ *  - clic sur n'importe quel lien tel: (bouton flottant, header, footer, CTA…)
+ *  - envoi réussi d'un formulaire, via window.mcTrackFormConversion()
+ *    appelé depuis les pages contact / entreprises.
+ */
+import {
+  GOOGLE_ADS_ID,
+  CONVERSION_LABELS,
+  analyticsEnabled,
+} from "../config/analytics";
+
+const runtime = `
+(function () {
+  var ADS_ID = ${JSON.stringify(GOOGLE_ADS_ID)};
+  var LABELS = ${JSON.stringify(CONVERSION_LABELS)};
+  var KEY = 'mc-consent';
+
+  function sendTo(label) {
+    return label ? ADS_ID + '/' + label : null;
+  }
+
+  // Envoi d'une conversion. Silencieux si le label n'est pas renseigné.
+  function track(label, callback) {
+    var target = sendTo(label);
+    if (!target || typeof window.gtag !== 'function') {
+      if (callback) callback();
+      return;
+    }
+    window.gtag('event', 'conversion', {
+      send_to: target,
+      event_callback: callback,
+    });
+    // Filet de sécurité : ne jamais bloquer la navigation si Google ne répond pas.
+    if (callback) setTimeout(callback, 800);
+  }
+
+  window.mcTrackFormConversion = function () {
+    track(LABELS.formSubmit);
+  };
+
+  // --- Conversion "clic téléphone" -----------------------------------------
+  document.addEventListener('click', function (e) {
+    var link = e.target && e.target.closest ? e.target.closest('a[href^="tel:"]') : null;
+    if (link) track(LABELS.phoneClick);
+  });
+
+  // --- Conversion "formulaire envoyé" --------------------------------------
+  // Écouté sur document (phase de bouillonnement) : les validations posées
+  // sur le <form> lui-même se sont donc déjà exécutées, et defaultPrevented
+  // nous dit si l'envoi a été annulé pour cause de champ manquant.
+  document.addEventListener('submit', function (e) {
+    if (e.defaultPrevented) return;
+    var form = e.target;
+    if (form && form.matches && form.matches('form[name="contact"], form[name="devis-entreprise"]')) {
+      track(LABELS.formSubmit);
+    }
+  });
+
+  // --- Bandeau de consentement ---------------------------------------------
+  var banner = document.getElementById('mc-consent-banner');
+  if (!banner) return;
+
+  var stored = null;
+  try { stored = localStorage.getItem(KEY); } catch (err) {}
+
+  if (!stored) {
+    // Affiché après un court délai pour ne pas gêner le premier coup d'oeil.
+    setTimeout(function () { banner.hidden = false; }, 1200);
+  }
+
+  function choose(value) {
+    try { localStorage.setItem(KEY, value); } catch (err) {}
+    if (typeof window.gtag === 'function') {
+      window.gtag('consent', 'update', {
+        ad_storage: value === 'granted' ? 'granted' : 'denied',
+        ad_user_data: value === 'granted' ? 'granted' : 'denied',
+        ad_personalization: value === 'granted' ? 'granted' : 'denied',
+        analytics_storage: value === 'granted' ? 'granted' : 'denied',
+      });
+    }
+    banner.hidden = true;
+  }
+
+  var accept = document.getElementById('mc-consent-accept');
+  var refuse = document.getElementById('mc-consent-refuse');
+  if (accept) accept.addEventListener('click', function () { choose('granted'); });
+  if (refuse) refuse.addEventListener('click', function () { choose('denied'); });
+})();
+`;
+---
+
+{
+  analyticsEnabled && (
+    <>
+      <div
+        id="mc-consent-banner"
+        class="mc-consent"
+        role="dialog"
+        aria-live="polite"
+        aria-label="Gestion des cookies"
+        hidden
+      >
+        <p class="mc-consent-text">
+          On utilise des cookies de mesure pour savoir si nos publicités
+          amènent vraiment des clients. Rien d'autre, et jamais de revente de
+          données.
+        </p>
+        <div class="mc-consent-actions">
+          <button type="button" id="mc-consent-refuse" class="mc-consent-btn mc-consent-refuse">
+            Refuser
+          </button>
+          <button type="button" id="mc-consent-accept" class="mc-consent-btn mc-consent-accept">
+            Accepter
+          </button>
+        </div>
+      </div>
+
+      <script is:inline set:html={runtime} />
+
+      <style>
+        .mc-consent {
+          position: fixed;
+          left: 16px;
+          right: 16px;
+          bottom: 16px;
+          z-index: 9998;
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 14px;
+          max-width: 720px;
+          margin: 0 auto;
+          padding: 16px 18px;
+          background: var(--blanc, #fff);
+          color: var(--texte, #0d1b3e);
+          border-radius: var(--r-md, 16px);
+          box-shadow: 0 12px 40px var(--ombre, rgba(13, 48, 128, 0.18));
+          font-family: var(--font-corps, system-ui, sans-serif);
+          animation: mc-consent-in 0.35s ease-out both;
+        }
+        .mc-consent[hidden] {
+          display: none;
+        }
+        .mc-consent-text {
+          flex: 1 1 260px;
+          margin: 0;
+          font-size: 0.85rem;
+          line-height: 1.5;
+        }
+        .mc-consent-actions {
+          display: flex;
+          gap: 10px;
+          margin-left: auto;
+        }
+        .mc-consent-btn {
+          padding: 9px 18px;
+          border-radius: var(--r-full, 9999px);
+          border: 1px solid transparent;
+          font-family: inherit;
+          font-size: 0.85rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: transform 0.15s ease, opacity 0.15s ease;
+        }
+        .mc-consent-btn:hover {
+          transform: translateY(-1px);
+        }
+        .mc-consent-btn:focus-visible {
+          outline: 2px solid var(--bleu-royal, #1a56cc);
+          outline-offset: 2px;
+        }
+        .mc-consent-refuse {
+          background: transparent;
+          border-color: var(--gris, #8fa3c0);
+          color: var(--texte, #0d1b3e);
+        }
+        .mc-consent-accept {
+          background: var(--teal, #00c896);
+          color: #04231b;
+        }
+
+        @keyframes mc-consent-in {
+          from {
+            opacity: 0;
+            transform: translateY(12px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .mc-consent {
+            animation: none;
+          }
+          .mc-consent-btn:hover {
+            transform: none;
+          }
+        }
+
+        @media (max-width: 520px) {
+          .mc-consent {
+            /* Laisse la place aux boutons flottants appel / Instagram */
+            bottom: 92px;
+          }
+          .mc-consent-actions {
+            width: 100%;
+            margin-left: 0;
+          }
+          .mc-consent-btn {
+            flex: 1;
+          }
+        }
+      </style>
+    </>
+  )
+}

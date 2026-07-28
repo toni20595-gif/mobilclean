@@ -1,4 +1,7 @@
 ---
+import Analytics from "../components/Analytics.astro";
+import ConsentBanner from "../components/ConsentBanner.astro";
+
 interface Props {
   title: string;
   description?: string;
@@ -103,9 +106,15 @@ const schemaLD = {
 
     <!-- Données structurées entreprise locale (SEO local / rich results) -->
     <script type="application/ld+json" set:html={JSON.stringify(schemaLD)} />
+
+    <!-- Suivi des conversions Google Ads (inactif tant que non configuré) -->
+    <Analytics />
   </head>
   <body>
     <slot />
+
+    <!-- Bandeau cookies + déclencheurs de conversion -->
+    <ConsentBanner />
 
     <!-- Bouton d'appel flottant (priorité conversion, surtout mobile) -->
     <a

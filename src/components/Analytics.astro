@@ -1,0 +1,63 @@
+---
+/**
+ * Balise Google Ads + Consent Mode v2.
+ *
+ * Se place dans le <head>. Ne produit STRICTEMENT RIEN tant que
+ * GOOGLE_ADS_ID n'est pas renseigné dans src/config/analytics.ts.
+ *
+ * Fonctionnement (conforme CNIL) :
+ *  - Au premier chargement, le consentement publicitaire est "denied" :
+ *    gtag.js est chargé mais ne dépose aucun cookie publicitaire et
+ *    n'envoie que des pings anonymes (modélisation Google).
+ *  - Si le visiteur accepte via la bannière, on passe en "granted" et
+ *    la mesure devient nominative.
+ *  - Le choix est mémorisé dans localStorage (clé "mc-consent").
+ */
+import { GOOGLE_ADS_ID, analyticsEnabled } from "../config/analytics";
+
+// Consent Mode v2 : doit s'exécuter AVANT le chargement de gtag.js.
+const consentBootstrap = `
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+window.gtag = gtag;
+
+var stored = null;
+try { stored = localStorage.getItem('mc-consent'); } catch (e) {}
+
+gtag('consent', 'default', {
+  ad_storage: 'denied',
+  ad_user_data: 'denied',
+  ad_personalization: 'denied',
+  analytics_storage: 'denied',
+  wait_for_update: 500
+});
+
+if (stored === 'granted') {
+  gtag('consent', 'update', {
+    ad_storage: 'granted',
+    ad_user_data: 'granted',
+    ad_personalization: 'granted',
+    analytics_storage: 'granted'
+  });
+}
+`;
+
+const gtagInit = `
+gtag('js', new Date());
+gtag('config', ${JSON.stringify(GOOGLE_ADS_ID)});
+`;
+---
+
+{
+  analyticsEnabled && (
+    <>
+      <script is:inline set:html={consentBootstrap} />
+      <script
+        is:inline
+        async
+        src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}`}
+      />
+      <script is:inline set:html={gtagInit} />
+    </>
+  )
+}
