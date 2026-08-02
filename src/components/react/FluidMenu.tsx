@@ -26,6 +26,7 @@ function getMobilePos(index: number) {
 const links = [
   { href: "/contact", label: "Contact" },
   { href: "/entreprises", label: "Entreprises" },
+  { href: "/boutique", label: "Boutique" },
   { href: "/galerie", label: "Galerie" },
   { href: "/services", label: "Prestations" },
   { href: "/", label: "Accueil" },
