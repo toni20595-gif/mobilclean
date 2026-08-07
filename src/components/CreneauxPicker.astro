@@ -30,11 +30,14 @@
   Le champ caché #creneaux-input est dans le <form> parent -> capté par Netlify.
 */
 
-// Créneaux proposés chaque jour. `debut` sert de clé stable avec l'agenda.
+// Créneaux proposés chaque jour (2 h 30 chacun).
+// ⚠️ `debut` sert de CLÉ COMMUNE avec google-apps-script/dispos-agenda.gs :
+// les deux listes doivent rester identiques, sinon l'agenda ne reconnaît plus
+// aucun créneau. Format "HH:MM" pour gérer les demi-heures.
 const HORAIRES = [
-  { label: "10h – 12h", debut: 10 },
-  { label: "14h – 16h", debut: 14 },
-  { label: "17h – 19h", debut: 17 },
+  { label: "9h30 – 12h", debut: "09:30" },
+  { label: "13h – 15h30", debut: "13:00" },
+  { label: "16h30 – 19h", debut: "16:30" },
 ];
 ---
 
@@ -426,6 +429,22 @@ const HORAIRES = [
         const data = await res.json();
         // null = pas encore configuré côté Google -> on laisse tout disponible
         if (data.disponibles === null || !Array.isArray(data.disponibles)) return;
+
+        // Filet de sécurité anti-désynchronisation : si le script Google tourne
+        // encore avec d'anciens horaires, AUCUNE clé ne correspondrait et tous
+        // les créneaux s'afficheraient comme non disponibles (= réservation
+        // impossible). Dans ce cas précis on ignore le filtre.
+        // NB : une liste VIDE est légitime (14 jours complets) -> on la garde.
+        const clesAttendues = chips.map(c => c.dataset.debut || "");
+        const formatReconnu = data.disponibles.some(
+          (k: string) => clesAttendues.includes(String(k).split("|")[1])
+        );
+        if (data.disponibles.length > 0 && !formatReconnu) {
+          console.warn(
+            "[créneaux] Horaires désynchronisés avec dispos-agenda.gs : filtre agenda ignoré."
+          );
+          return;
+        }
 
         disponibles = new Set<string>(data.disponibles);
 

@@ -36,6 +36,10 @@ import CreneauxPicker from "../components/CreneauxPicker.astro";
           >
             <input type="hidden" name="form-name" value="contact" />
 
+            {/* Renseignés automatiquement par Provenance.astro — invisibles pour le client */}
+            <input type="hidden" name="provenance" />
+            <input type="hidden" name="page_arrivee" />
+
             <div class="form-row">
               <div class="form-group">
                 <label for="nom">Nom complet <span aria-hidden="true">*</span></label>

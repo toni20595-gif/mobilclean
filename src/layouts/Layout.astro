@@ -1,6 +1,7 @@
 ---
 import Analytics from "../components/Analytics.astro";
 import ConsentBanner from "../components/ConsentBanner.astro";
+import Provenance from "../components/Provenance.astro";
 
 interface Props {
   title: string;
@@ -109,6 +110,9 @@ const schemaLD = {
 
     <!-- Suivi des conversions Google Ads (inactif tant que non configuré) -->
     <Analytics />
+
+    <!-- Provenance du visiteur -> champs cachés des formulaires (invisible côté client) -->
+    <Provenance />
   </head>
   <body>
     <slot />

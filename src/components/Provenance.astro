@@ -1,0 +1,83 @@
+---
+/**
+ * Provenance.astro — d'où vient le visiteur ?
+ *
+ * Objectif : qu'Antoine lise directement dans l'e-mail Netlify si la demande
+ * vient de la publicité Google Ads, du référencement naturel, des réseaux ou
+ * d'un accès direct — sans dépendre de Google Ads ni de ses délais.
+ *
+ * Fonctionnement :
+ *  1. À la PREMIÈRE page vue de la visite, on déduit la provenance (marqueur
+ *     `gclid` laissé par Google Ads dans l'URL, sinon le site référent).
+ *  2. On la garde en sessionStorage : elle survit à la navigation interne
+ *     (accueil -> services -> contact) mais disparaît à la fermeture de l'onglet.
+ *  3. On la recopie dans les champs cachés `provenance` / `page_arrivee` des
+ *     formulaires -> Netlify les enregistre comme n'importe quel champ.
+ *
+ * Vie privée : sessionStorage uniquement (pas de cookie, pas de suivi entre
+ * sites, aucun envoi à un tiers). L'info ne part que dans le formulaire que
+ * le visiteur remplit volontairement. Rien à ajouter au bandeau de consentement.
+ *
+ * ⚠️ Le visiteur ne voit RIEN : les champs sont de type hidden, le formulaire
+ * est visuellement identique et ne demande pas une saisie de plus.
+ */
+
+const script = `
+(function () {
+  var CLE = 'mc-provenance';
+  var CLE_PAGE = 'mc-page-arrivee';
+
+  function lire(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
+  function ecrire(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} }
+
+  // 1) Déterminer la provenance UNE SEULE FOIS par visite.
+  if (!lire(CLE)) {
+    var p = new URLSearchParams(location.search);
+    var libelle = '';
+
+    if (p.get('gclid') || p.get('gbraid') || p.get('wbraid')) {
+      // Marqueur ajouté par Google au clic sur une annonce : fiable à 100 %.
+      libelle = 'Publicité Google Ads';
+    } else if (p.get('utm_source')) {
+      libelle = 'Campagne : ' + String(p.get('utm_source')).slice(0, 40);
+    } else {
+      var ref = document.referrer || '';
+      var hote = '';
+      try { hote = ref ? new URL(ref).hostname.replace(/^www\\./, '') : ''; } catch (e) {}
+      var moi = location.hostname.replace(/^www\\./, '');
+
+      if (!hote) libelle = 'Accès direct';
+      else if (hote === moi) libelle = ''; // navigation interne : on n'écrase pas
+      else if (/(^|\\.)google\\./.test(hote)) libelle = 'Google (recherche ou fiche Business)';
+      else if (/(^|\\.)(facebook|fb)\\./.test(hote)) libelle = 'Facebook';
+      else if (/(^|\\.)instagram\\./.test(hote)) libelle = 'Instagram';
+      else if (/(^|\\.)bing\\./.test(hote)) libelle = 'Recherche Bing';
+      else libelle = 'Autre site : ' + hote.slice(0, 60);
+    }
+
+    if (libelle) {
+      ecrire(CLE, libelle);
+      ecrire(CLE_PAGE, location.pathname);
+    }
+  }
+
+  // 2) Recopier dans les champs cachés des formulaires.
+  function remplir() {
+    var prov = lire(CLE) || 'Non déterminée';
+    var page = lire(CLE_PAGE) || location.pathname;
+    var champsProv = document.querySelectorAll('input[name="provenance"]');
+    var champsPage = document.querySelectorAll('input[name="page_arrivee"]');
+    for (var i = 0; i < champsProv.length; i++) champsProv[i].value = prov;
+    for (var j = 0; j < champsPage.length; j++) champsPage[j].value = page;
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', remplir);
+  } else {
+    remplir();
+  }
+})();
+`;
+---
+
+<script is:inline set:html={script} />

@@ -28,8 +28,8 @@
  *       • Qui a accès        : Tout le monde
  *  6. Copier l'URL qui finit par /exec -> la transmettre à Claude
  *
- * Réponse : {"disponibles":["2026-07-21|10","2026-07-21|14"]}
- * Clé      : AAAA-MM-JJ|heureDeDebut
+ * Réponse : {"disponibles":["2026-07-21|09:30","2026-07-21|13:00"]}
+ * Clé      : AAAA-MM-JJ|HH:MM (heure de début du créneau)
  * Si l'agenda est introuvable -> {"disponibles":null} = le site laisse tout
  * disponible (on ne coupe jamais les réservations par accident).
  */
@@ -39,10 +39,13 @@ var CALENDAR_ID = 'mobilclean68@gmail.com';   // agenda source de vérité
 var NB_JOURS = 14;                            // fenêtre de réservation
 var CACHE_SECONDES = 120;                     // le site voit tes changements sous ~2 min
 
-var HORAIRES = [                              // doit rester aligné avec le site
-  { debut: 10, fin: 12 },
-  { debut: 14, fin: 16 },
-  { debut: 17, fin: 19 }
+// Créneaux de 2 h 30. `cle` est la CLÉ COMMUNE avec le site :
+// elle doit rester STRICTEMENT identique au champ `debut` de
+// src/components/CreneauxPicker.astro, sinon le site ne reconnaît plus rien.
+var HORAIRES = [
+  { debut: 9,  debutMin: 30, fin: 12, finMin: 0,  cle: '09:30' },  // 9h30 – 12h
+  { debut: 13, debutMin: 0,  fin: 15, finMin: 30, cle: '13:00' },  // 13h – 15h30
+  { debut: 16, debutMin: 30, fin: 19, finMin: 0,  cle: '16:30' }   // 16h30 – 19h
 ];
 // ──────────────────────────────────────────────────────
 
@@ -81,10 +84,10 @@ function _calculerDisponibles() {
 
     for (var j = 0; j < HORAIRES.length; j++) {
       var h = HORAIRES[j];
-      var deb = new Date(jour); deb.setHours(h.debut, 0, 0, 0);
-      var fin = new Date(jour); fin.setHours(h.fin, 0, 0, 0);
+      var deb = new Date(jour); deb.setHours(h.debut, h.debutMin, 0, 0);
+      var fin = new Date(jour); fin.setHours(h.fin, h.finMin, 0, 0);
       if (_chevauche(events, deb, fin)) continue;   // occupé -> pas proposé
-      dispos.push(cle + '|' + h.debut);
+      dispos.push(cle + '|' + h.cle);
     }
   }
   return dispos;
