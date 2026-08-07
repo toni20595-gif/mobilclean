@@ -22,14 +22,14 @@
  */
 
 /** Identifiant du compte Google Ads, format "AW-XXXXXXXXX". Vide = suivi désactivé. */
-export const GOOGLE_ADS_ID = "";
+export const GOOGLE_ADS_ID = "AW-18221889469";
 
 /** Labels des actions de conversion (partie après le "/" du send_to). */
 export const CONVERSION_LABELS = {
-  /** Clic sur un numéro de téléphone (lien tel:) */
-  phoneClick: "",
-  /** Envoi réussi d'un formulaire de contact ou de devis entreprise */
-  formSubmit: "",
+  /** Clic sur un numéro de téléphone (lien tel:) — action "Contact telephone" */
+  phoneClick: "yYhxCIKsz90cEL3v7_BD",
+  /** Envoi réussi d'un formulaire de contact ou de devis entreprise — action "Envoi de formulaire de lead" */
+  formSubmit: "J2AcCP-rz90cEL3v7_BD",
 };
 
 /** Le suivi n'est actif que si un identifiant a été renseigné. */
