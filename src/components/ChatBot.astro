@@ -584,6 +584,24 @@ const donnees = {
       }
     }
 
+    // Le lanceur masquait le bouton « Réserver un créneau » dès l'arrivée sur
+    // les pages prestation (constaté en capture mobile). Il apparaît donc une
+    // fois que le visiteur a commencé à lire — ou au bout de quelques
+    // secondes, pour les pages courtes où l'on ne défile pas.
+    let apparu = false;
+    function faireApparaitre() {
+      if (apparu) return;
+      apparu = true;
+      lanceur.classList.add("cb-lanceur-visible");
+      window.removeEventListener("scroll", surDefilement);
+    }
+    function surDefilement() {
+      if (window.scrollY > 240) faireApparaitre();
+    }
+    window.addEventListener("scroll", surDefilement, { passive: true });
+    setTimeout(faireApparaitre, 6000);
+    surDefilement();
+
     lanceur.addEventListener("click", () => basculer());
     el("cb-fermer").addEventListener("click", () => basculer(false));
     form.addEventListener("submit", (e) => { e.preventDefault(); envoyer(input.value); });
@@ -623,7 +641,20 @@ const donnees = {
     box-shadow: 0 6px 24px rgba(13, 48, 128, 0.35);
     transition: transform 0.25s ease, box-shadow 0.25s ease;
   }
-  .cb-lanceur:hover {
+  /* Masqué tant que le visiteur n'a pas commencé à lire : le premier écran
+     appartient au bouton « Réserver ». */
+  .cb-lanceur {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(12px);
+    transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s;
+  }
+  .cb-lanceur-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  .cb-lanceur-visible:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 32px rgba(13, 48, 128, 0.48);
   }

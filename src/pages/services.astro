@@ -102,6 +102,12 @@ import FormulesVoiture from "../components/FormulesVoiture.astro";
     margin-top: 8px;
   }
   .service-lien-resa {
+    /* Zone tactile confortable : c'est un lien de conversion, il faisait
+       24 px de haut au test mobile — trop juste pour le pouce. */
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding-inline: 4px;
     font-size: 0.95rem;
     font-weight: 600;
     color: var(--bleu-royal);
