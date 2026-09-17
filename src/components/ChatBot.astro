@@ -1,0 +1,644 @@
+---
+// ════════════════════════════════════════════════════════════════════════
+//  CHATBOT — sans abonnement, sans serveur, sans clé API
+//  ──────────────────────────────────────────────────────────────────────
+//  Pourquoi pas d'IA : le site est statique (Astro), hébergé sur Netlify.
+//  Brancher un modèle demanderait une fonction serveur, une clé API et un
+//  coût mensuel à l'usage. Or sur une activité de proximité, les questions
+//  sont très répétitives : tarif, zone, durée, séchage, réservation. Une
+//  base de connaissances construite depuis les données du site couvre
+//  l'essentiel, répond instantanément et ne coûte rien.
+//
+//  La base est générée AU BUILD depuis prestations.ts, zones.ts et faq.ts :
+//  corriger un tarif dans les données corrige le chatbot. Aucune réponse
+//  n'est écrite en double ici.
+//
+//  Quand le bot ne sait pas, il ne bricole pas : il donne le numéro.
+//  C'est volontaire — un faux renseignement coûte plus cher qu'un appel.
+// ════════════════════════════════════════════════════════════════════════
+import { prestations } from "../data/prestations";
+import { zones, secteurs, nbCommunes } from "../data/zones";
+import { faq } from "../data/faq";
+
+const TEL = "+33768445293";
+const TEL_AFFICHE = "07 68 44 52 93";
+
+// ── Base de connaissances : chaque entrée = une réponse possible ──
+type Entree = { q: string; r: string; cles: string[]; lien?: string };
+
+const base: Entree[] = [];
+
+// 1. FAQ générale
+for (const bloc of faq) {
+  for (const item of bloc.questions) {
+    base.push({
+      q: item.question,
+      r: item.reponse,
+      cles: [...(item.motsCles ?? []), bloc.categorie],
+      lien: "/faq",
+    });
+  }
+}
+
+// 2. FAQ de chaque prestation, avec le contexte de la prestation
+for (const p of prestations) {
+  base.push({
+    q: `${p.nom} : en quoi ça consiste ?`,
+    r: `${p.reponseCourte} Ce qui est inclus : ${p.inclus.join(", ").toLowerCase()}.`,
+    cles: [p.nom, p.slug.replace(/-/g, " "), "prestation", "consiste", "comprend", "inclus"],
+    lien: `/services/${p.slug}`,
+  });
+  base.push({
+    q: `Combien coûte le ${p.nom.toLowerCase()} ?`,
+    r: `${p.nom} : ${p.tarif}. ${p.tarifDetail}`,
+    cles: [p.nom, "prix", "tarif", "cout", "coute", "combien", "euro", "devis", "cher"],
+    lien: `/services/${p.slug}`,
+  });
+  base.push({
+    q: `Combien de temps pour le ${p.nom.toLowerCase()} ?`,
+    r: `${p.nom} : ${p.duree}. La durée exacte vous est confirmée au devis, selon la taille et l'état.`,
+    cles: [p.nom, "duree", "temps", "combien de temps", "long", "rapide", "heure"],
+    lien: `/services/${p.slug}`,
+  });
+  for (const item of p.faq) {
+    base.push({
+      q: item.question,
+      r: item.reponse,
+      cles: [p.nom, p.slug.replace(/-/g, " ")],
+      lien: `/services/${p.slug}`,
+    });
+  }
+}
+
+// 3. Les étapes de méthode : répond à « c'est quoi l'injection-extraction ? »,
+//    « vous faites comment pour le cuir ? », « et les acariens ? »
+for (const p of prestations) {
+  for (const etape of p.methode) {
+    base.push({
+      q: `${etape.titre} (${p.nom.toLowerCase()})`,
+      r: etape.texte,
+      cles: [etape.titre, p.nom, "methode", "comment", "technique", "procede"],
+      lien: `/services/${p.slug}`,
+    });
+  }
+}
+
+// 4. Tableau récapitulatif des tarifs
+base.push({
+  q: "Quels sont vos tarifs ?",
+  r:
+    "Nos tarifs de départ : " +
+    prestations.map((p) => `${p.nom.toLowerCase()} ${p.tarif.toLowerCase()}`).join(", ") +
+    ". Le prix final dépend de la taille et de l'état, et vous est confirmé au devis — gratuit et sans engagement.",
+  cles: ["tarif", "tarifs", "prix", "combien", "cout", "coute", "cher", "devis", "grille"],
+  lien: "/services",
+});
+
+// ── Communes couvertes, pour répondre « intervenez-vous à X ? » ──
+const communes = [
+  ...zones.map((z) => ({ nom: z.ville, page: `/zones/${z.slug}`, distance: z.distance })),
+  ...secteurs.flatMap((s) =>
+    s.communes.map((c) => ({ nom: c, page: null as string | null, distance: null as string | null }))
+  ),
+];
+
+const donnees = {
+  base,
+  communes,
+  nbCommunes,
+  prestations: prestations.map((p) => ({ nom: p.nom, slug: p.slug, tarif: p.tarif })),
+  tel: TEL,
+  telAffiche: TEL_AFFICHE,
+};
+---
+
+<!-- Bouton d'ouverture -->
+<button
+  class="cb-bulle"
+  id="cb-bulle"
+  type="button"
+  aria-label="Ouvrir l'assistant Mobil Clean"
+  aria-expanded="false"
+  aria-controls="cb-panneau"
+>
+  <svg class="cb-ico-chat" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/>
+  </svg>
+  <svg class="cb-ico-fermer" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+    <path d="M18 6 6 18M6 6l12 12"/>
+  </svg>
+</button>
+
+<!-- Panneau -->
+<div class="cb-panneau" id="cb-panneau" role="dialog" aria-modal="false" aria-label="Assistant Mobil Clean" hidden>
+  <header class="cb-entete">
+    <div class="cb-entete-txt">
+      <strong>Assistant Mobil Clean</strong>
+      <span>Réponse immédiate · 7j/7 9h30–21h</span>
+    </div>
+    <button class="cb-fermer" id="cb-fermer" type="button" aria-label="Fermer l'assistant">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <path d="M18 6 6 18M6 6l12 12"/>
+      </svg>
+    </button>
+  </header>
+
+  <div class="cb-messages" id="cb-messages" aria-live="polite" aria-atomic="false"></div>
+
+  <div class="cb-suggestions" id="cb-suggestions"></div>
+
+  <form class="cb-saisie" id="cb-form" autocomplete="off">
+    <label class="cb-sr" for="cb-input">Votre question</label>
+    <input
+      type="text"
+      id="cb-input"
+      name="question"
+      placeholder="Posez votre question…"
+      maxlength="200"
+    />
+    <button type="submit" aria-label="Envoyer">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+      </svg>
+    </button>
+  </form>
+</div>
+
+<script type="application/json" id="cb-donnees" set:html={JSON.stringify(donnees)} />
+
+<script is:inline>
+  (() => {
+    const el = (id) => document.getElementById(id);
+    const noeudDonnees = el("cb-donnees");
+    if (!noeudDonnees) return;
+
+    const D = JSON.parse(noeudDonnees.textContent);
+    const bulle = el("cb-bulle");
+    const panneau = el("cb-panneau");
+    const messages = el("cb-messages");
+    const zoneSugg = el("cb-suggestions");
+    const form = el("cb-form");
+    const input = el("cb-input");
+
+    // ── Normalisation : minuscules, sans accents, sans ponctuation ──
+    const norm = (s) =>
+      s
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[̀-ͯ]/g, "")
+        .replace(/[^a-z0-9\s]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+    // Mots trop courants pour peser dans le score
+    const VIDES = new Set(
+      ("le la les un une des du de d a au aux et ou est ce cette ces mon ma mes votre vos" +
+        " je tu il elle nous vous ils pour avec sans sur dans par que qui quoi quel quelle" +
+        " combien comment quand ou est il y a t on se sa son leur en plus moins tres" +
+        " bonjour bonsoir salut merci svp s'il plait vous pouvez peut etre faire fait").split(" ")
+    );
+
+    // Racine grossière : « entreprises » -> « entreprise », « taches » -> « tache ».
+    // Suffisant pour du français courant, sans embarquer de bibliothèque.
+    const racine = (m) =>
+      m.length > 4 ? m.replace(/(aux|eaux|ions|ees|es|s|x)$/, "") : m;
+
+    const mots = (s) =>
+      norm(s)
+        .split(" ")
+        .filter((m) => m.length > 2 && !VIDES.has(m))
+        .map(racine);
+
+    // Index pré-calculé
+    const index = D.base.map((e) => ({
+      ...e,
+      tokens: new Set([...mots(e.q), ...e.cles.flatMap(mots)]),
+    }));
+
+    const communesNorm = D.communes.map((c) => ({ ...c, n: norm(c.nom) }));
+
+    // ── Villes connues juste hors rayon : mieux vaut une réponse honnête ──
+    const HORS_ZONE = ["colmar", "saint louis", "st louis", "basel", "bale", "belfort", "selestat", "huningue", "ferrette"];
+
+    // ── Recherche de la meilleure réponse ──
+    function repondre(question) {
+      const q = norm(question);
+      const tk = mots(question);
+      const a = (motif) => motif.test(q);
+
+      // Prestation évoquée dans la question ?
+      const presta = D.prestations.find((p) => {
+        const n = norm(p.nom);
+        return q.includes(n) || (n === "intérieur de voiture" && a(/voiture|vehicule|auto|habitacle|siege/));
+      }) || (a(/voiture|vehicule|auto|habitacle|siege|moquette/) ? D.prestations.find((p) => p.slug.includes("voiture")) : null)
+         || (a(/salon|plusieurs|tout|ensemble|multi/) ? D.prestations.find((p) => p.slug.includes("multi")) : null);
+
+      // ── Intention SÉCHAGE — AVANT le tarif : « ça sèche en combien de
+      //    temps » contient « combien » et partait sinon sur la grille. ──
+      if (a(/\b(sech|seche|secher|sechage|humide|mouill|trempe)\w*\b/)) {
+        return {
+          texte: `Comptez quelques heures dans une pièce aérée. L'injection-extraction réaspire l'eau immédiatement : le textile est légèrement humide au toucher juste après notre passage, jamais détrempé. Pour un matelas, prenez un créneau en matinée pour être tranquille au coucher.`,
+          lien: "/faq",
+          libelleLien: "Toutes les questions",
+        };
+      }
+
+      // ── Intention DURÉE — également avant le tarif, même raison ──
+      if (a(/\b(duree|longtemps|minute)\b/) || a(/combien de temp|temp (faut|prend)/)) {
+        if (presta) {
+          const e = index.find(
+            (x) => x.q.startsWith("Combien de temps") && x.q.toLowerCase().includes(presta.nom.toLowerCase())
+          );
+          if (e) return { texte: e.r, lien: e.lien, libelleLien: `Voir ${presta.nom.toLowerCase()}` };
+        }
+        return {
+          texte: `Nos créneaux sont de 2h30. Un matelas seul prend environ une heure, un canapé une à deux heures selon la taille, un intérieur de voiture complet environ 2h30. Pour plusieurs meubles, comptez une demi-journée.`,
+          lien: "/faq",
+          libelleLien: "Toutes les questions",
+        };
+      }
+
+      // ── Intention TARIF ──
+      if (a(/\b(prix|tarif|cout|coute|combien|cher|budget|euro|devis)\b/)) {
+        if (presta) {
+          const e = index.find((x) => x.q.startsWith("Combien coûte") && x.q.toLowerCase().includes(presta.nom.toLowerCase()));
+          if (e) return { texte: e.r, lien: e.lien, libelleLien: `Voir ${presta.nom.toLowerCase()}` };
+        }
+        const t = index.find((x) => x.q === "Quels sont vos tarifs ?");
+        if (t) return { texte: t.r, lien: "/services", libelleLien: "Voir les prestations" };
+      }
+
+      // ── Intention HORAIRES ──
+      if (a(/\b(horaire|heure|ouvert|ferme|dimanche|samedi|weekend|week end|soir|soiree|matin|jour|7j|bossez|travaillez)\b/)) {
+        return {
+          texte: `Nous intervenons sept jours sur sept, de 9h30 à 21h — dimanche compris. Les créneaux durent 2h30 ; ceux du soir et du week-end partent vite, réservez quelques jours à l'avance.`,
+          lien: "/contact",
+          libelleLien: "Voir les créneaux",
+        };
+      }
+
+      // ── Intention PAIEMENT ──
+      if (a(/\b(payer|paye|paiement|regle|regler|carte|cb|espece|liquide|virement|cheque|facture)\b/)) {
+        return {
+          texte: `Nous acceptons les espèces, la carte bancaire et le virement. Le règlement se fait à la fin de l'intervention, une fois le résultat validé avec vous. Facturation professionnelle possible pour les entreprises.`,
+          lien: "/faq",
+          libelleLien: "Toutes les questions",
+        };
+      }
+
+      // ── Intention ZONE : nom de commune reconnu ──
+      const trouvee = communesNorm.find((c) => q.includes(c.n) && c.n.length > 3);
+      if (trouvee) {
+        if (trouvee.page) {
+          return {
+            texte: `Oui, nous intervenons à ${trouvee.nom}. ${trouvee.distance ? trouvee.distance + "." : ""} Toutes nos prestations y sont disponibles au même tarif.`,
+            lien: trouvee.page,
+            libelleLien: `Voir la page ${trouvee.nom}`,
+          };
+        }
+        return {
+          texte: `Oui, ${trouvee.nom} fait partie de notre zone — nous couvrons ${D.nbCommunes} communes dans un rayon d'environ 30 km autour de Wittenheim et Mulhouse. Appelez-nous pour réserver.`,
+          lien: "/zones",
+          libelleLien: "Voir toutes les communes",
+        };
+      }
+
+      // ── Ville connue juste au-delà du rayon : on le dit franchement ──
+      const hors = HORS_ZONE.find((v) => q.includes(v));
+      if (hors) {
+        return {
+          texte: `Cette commune est juste au-delà de notre rayon habituel d'environ 30 km. On s'y déplace parfois, quand il y a plusieurs pièces à traiter — appelez le ${D.telAffiche}, on vous répond franchement.`,
+          lien: `tel:${D.tel}`,
+          libelleLien: `Appeler le ${D.telAffiche}`,
+        };
+      }
+
+      // ── Intention ZONE générique ──
+      if (a(/\b(zone|secteur|deplac|intervenez|venez|loin|km|kilometre|commune|ville)\b/)) {
+        return {
+          texte: `Nous nous déplaçons dans un rayon d'environ 30 km autour de Wittenheim et Mulhouse, soit ${D.nbCommunes} communes du Haut-Rhin. Dites-moi le nom de votre commune et je vous confirme.`,
+          lien: "/zones",
+          libelleLien: "Voir toutes les communes",
+        };
+      }
+
+      // ── Intention ANNULATION (avant réservation, sinon confusion) ──
+      if (a(/\b(annul|report|decal|change|modifi)\w*\b/)) {
+        return {
+          texte: `Pas de problème : appelez-nous au ${D.telAffiche} dès que vous le savez et nous trouvons un autre créneau. Plus vous prévenez tôt, plus c'est facile de vous replacer rapidement.`,
+          lien: `tel:${D.tel}`,
+          libelleLien: `Appeler le ${D.telAffiche}`,
+        };
+      }
+
+      // ── Intention RÉSERVATION ──
+      if (a(/\b(reserv|rendez|rdv|dispo|creneau|prendre|commander|booking|inscri)\w*\b/)) {
+        return {
+          texte: `Vous choisissez vos disponibilités en ligne et nous confirmons le créneau sous 24 heures. Les créneaux durent 2h30, de 9h30 à 21h, sept jours sur sept. Pour aller plus vite, appelez le ${D.telAffiche}.`,
+          lien: "/contact",
+          libelleLien: "Réserver un créneau",
+        };
+      }
+
+      // ── Intention ENTREPRISE ──
+      if (a(/\b(entrepris|professionn|societ|hotel|garage|bureau|flotte|camping|locati)\w*\b/)) {
+        return {
+          texte: `Oui : hôtels, garages, bureaux, locaux professionnels et flottes de véhicules, avec facturation professionnelle et possibilité de contrat d'entretien.`,
+          lien: "/entreprises",
+          libelleLien: "Voir l'offre Entreprises",
+        };
+      }
+
+      // ── Recherche par recouvrement de mots, avec racines ──
+      let meilleur = null;
+      let meilleurScore = 0;
+      for (const e of index) {
+        let score = 0;
+        for (const m of tk) {
+          if (e.tokens.has(m)) score += 2;
+          else {
+            for (const t of e.tokens) {
+              if (t.length > 3 && m.length > 3 && (t.startsWith(m.slice(0, 4)) || m.startsWith(t.slice(0, 4)))) {
+                score += 1;
+                break;
+              }
+            }
+          }
+        }
+        // Bonus si la prestation évoquée correspond
+        if (presta && e.cles.some((c) => norm(c) === norm(presta.nom))) score += 1;
+        if (score > meilleurScore) {
+          meilleurScore = score;
+          meilleur = e;
+        }
+      }
+
+      // Seuil adaptatif : une question d'un seul mot utile ne peut pas
+      // atteindre 3 points. Sinon le bot renvoie au téléphone pour rien.
+      const seuil = tk.length <= 1 ? 2 : tk.length === 2 ? 2 : 3;
+      if (meilleur && meilleurScore >= seuil) {
+        return { texte: meilleur.r, lien: meilleur.lien, libelleLien: "En savoir plus" };
+      }
+
+      // Pas de réponse fiable : on donne le numéro plutôt qu'une approximation
+      return {
+        texte: `Je préfère ne pas vous répondre à côté. Appelez-nous au ${D.telAffiche}, on répond directement. Sinon, essayez : tarifs, zone d'intervention, durée, séchage, ou réservation.`,
+        lien: `tel:${D.tel}`,
+        libelleLien: `Appeler le ${D.telAffiche}`,
+      };
+    }
+
+    // ── Affichage ──
+    function ajouter(role, texte, lien, libelleLien) {
+      const d = document.createElement("div");
+      d.className = `cb-msg cb-msg-${role}`;
+      const p = document.createElement("p");
+      p.textContent = texte;
+      d.appendChild(p);
+      if (lien) {
+        const a = document.createElement("a");
+        a.href = lien;
+        a.className = "cb-msg-lien";
+        a.textContent = libelleLien || "En savoir plus";
+        d.appendChild(a);
+      }
+      messages.appendChild(d);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    const SUGGESTIONS = [
+      "Quels sont vos tarifs ?",
+      "Intervenez-vous à Wittenheim ?",
+      "Combien de temps pour un matelas ?",
+      "Combien de temps pour le séchage ?",
+      "Comment réserver ?",
+      "Nettoyage intérieur de voiture",
+    ];
+
+    function afficherSuggestions() {
+      zoneSugg.innerHTML = "";
+      for (const s of SUGGESTIONS) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "cb-sugg";
+        b.textContent = s;
+        b.addEventListener("click", () => envoyer(s));
+        zoneSugg.appendChild(b);
+      }
+    }
+
+    function envoyer(question) {
+      const q = question.trim();
+      if (!q) return;
+      ajouter("user", q);
+      input.value = "";
+      // Petite latence : une réponse instantanée donne l'impression d'un bug
+      setTimeout(() => {
+        const r = repondre(q);
+        ajouter("bot", r.texte, r.lien, r.libelleLien);
+      }, 320);
+    }
+
+    let ouvert = false;
+    function basculer(forcer) {
+      ouvert = forcer !== undefined ? forcer : !ouvert;
+      panneau.hidden = !ouvert;
+      bulle.classList.toggle("cb-bulle-ouverte", ouvert);
+      bulle.setAttribute("aria-expanded", String(ouvert));
+      if (ouvert) {
+        if (!messages.children.length) {
+          ajouter(
+            "bot",
+            "Bonjour ! Je réponds aux questions sur nos prestations, nos tarifs et notre zone d'intervention. Que puis-je vous dire ?"
+          );
+          afficherSuggestions();
+        }
+        input.focus();
+      }
+    }
+
+    bulle.addEventListener("click", () => basculer());
+    el("cb-fermer").addEventListener("click", () => basculer(false));
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      envoyer(input.value);
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && ouvert) basculer(false);
+    });
+  })();
+</script>
+
+<style>
+  .cb-sr {
+    position: absolute;
+    width: 1px; height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* ── Bouton : à GAUCHE, pour ne pas s'empiler avec appel + Instagram ── */
+  .cb-bulle {
+    position: fixed;
+    bottom: 28px;
+    left: 28px;
+    z-index: 999;
+    width: 56px;
+    height: 56px;
+    background: var(--bleu);
+    color: var(--blanc);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(13, 48, 128, 0.4);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .cb-bulle:hover { transform: scale(1.08); box-shadow: 0 8px 32px rgba(13, 48, 128, 0.55); }
+  .cb-ico-fermer { display: none; }
+  .cb-bulle-ouverte .cb-ico-chat { display: none; }
+  .cb-bulle-ouverte .cb-ico-fermer { display: block; }
+
+  /* ── Panneau ── */
+  .cb-panneau {
+    position: fixed;
+    bottom: 96px;
+    left: 28px;
+    z-index: 1000;
+    width: min(380px, calc(100vw - 40px));
+    max-height: min(560px, calc(100vh - 140px));
+    display: flex;
+    flex-direction: column;
+    background: var(--blanc);
+    border-radius: var(--r-lg);
+    box-shadow: 0 20px 60px rgba(13, 48, 128, 0.25);
+    overflow: hidden;
+  }
+  .cb-panneau[hidden] { display: none; }
+
+  .cb-entete {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 18px;
+    background: linear-gradient(135deg, var(--bleu) 0%, var(--bleu-royal) 100%);
+    color: var(--blanc);
+  }
+  .cb-entete-txt { display: flex; flex-direction: column; }
+  .cb-entete strong { font-family: var(--font-titre); font-size: 0.98rem; }
+  .cb-entete span { font-size: 0.75rem; color: rgba(255, 255, 255, 0.75); }
+  .cb-fermer { color: var(--blanc); opacity: 0.8; display: flex; }
+  .cb-fermer:hover { opacity: 1; }
+
+  .cb-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--fond);
+  }
+  .cb-msg { max-width: 88%; }
+  .cb-msg p {
+    padding: 11px 15px;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    border-radius: var(--r-md);
+  }
+  .cb-msg-bot { align-self: flex-start; }
+  .cb-msg-bot p {
+    background: var(--blanc);
+    color: var(--texte);
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 2px 10px rgba(13, 48, 128, 0.07);
+  }
+  .cb-msg-user { align-self: flex-end; }
+  .cb-msg-user p {
+    background: var(--bleu);
+    color: var(--blanc);
+    border-bottom-right-radius: 4px;
+  }
+  .cb-msg-lien {
+    display: inline-block;
+    margin-top: 7px;
+    margin-left: 4px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--bleu-royal);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .cb-msg-lien:hover { color: var(--teal); }
+
+  .cb-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    padding: 0 18px 12px;
+    background: var(--fond);
+  }
+  .cb-suggestions:empty { display: none; }
+  .cb-sugg {
+    padding: 7px 13px;
+    background: var(--blanc);
+    color: var(--bleu);
+    font-family: var(--font-corps);
+    font-size: 0.78rem;
+    font-weight: 500;
+    border: 1px solid rgba(13, 48, 128, 0.12);
+    border-radius: var(--r-full);
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+  .cb-sugg:hover { border-color: var(--teal); transform: translateY(-1px); }
+
+  .cb-saisie {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px;
+    border-top: 1px solid rgba(13, 48, 128, 0.1);
+    background: var(--blanc);
+  }
+  .cb-saisie input {
+    flex: 1;
+    padding: 11px 14px;
+    font-family: var(--font-corps);
+    font-size: 0.88rem;
+    color: var(--texte);
+    background: var(--fond);
+    border: 1px solid transparent;
+    border-radius: var(--r-full);
+    outline: none;
+  }
+  .cb-saisie input:focus { border-color: var(--teal); }
+  .cb-saisie button {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--teal);
+    color: var(--bleu);
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+  }
+  .cb-saisie button:hover { transform: scale(1.08); }
+
+  @media (max-width: 560px) {
+    .cb-bulle { bottom: 24px; left: 20px; width: 50px; height: 50px; }
+    .cb-panneau {
+      left: 12px;
+      right: 12px;
+      width: auto;
+      bottom: 84px;
+      max-height: calc(100vh - 120px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cb-bulle, .cb-sugg, .cb-saisie button { transition: none; }
+  }
+</style>

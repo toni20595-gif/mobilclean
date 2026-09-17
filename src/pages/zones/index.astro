@@ -4,7 +4,7 @@
 import Layout from "../../layouts/Layout.astro";
 import Header from "../../components/Header.astro";
 import Footer from "../../components/Footer.astro";
-import { zones } from "../../data/zones";
+import { zones, secteurs, nbCommunes } from "../../data/zones";
 import { prestations } from "../../data/prestations";
 
 const schemaFilAriane = {
@@ -41,10 +41,11 @@ const schemaFilAriane = {
         <span class="tag">Zone d'intervention</span>
         <h1>Nous venons chez vous, dans tout le Haut-Rhin</h1>
         <p class="zones-reponse">
-          Mobil Clean est basé à Mulhouse et intervient à domicile dans toute
-          l'agglomération et le Haut-Rhin. Nettoyage de voiture, matelas,
-          canapé, tapis et fauteuil chez vous, sans rien déplacer. Sur
-          rendez-vous 7j/7 de 9h30 à 21h, devis gratuit au 07 68 44 52 93.
+          Mobil Clean se déplace dans un rayon d'environ 30 km autour de
+          Wittenheim et Mulhouse, soit {nbCommunes} communes du Haut-Rhin.
+          Nettoyage d'intérieur de voiture, matelas, canapé, tapis et fauteuil
+          chez vous, sans rien déplacer. Sur rendez-vous 7j/7 de 9h30 à 21h,
+          devis gratuit au 07 68 44 52 93.
         </p>
       </div>
     </section>
@@ -105,6 +106,37 @@ const schemaFilAriane = {
             </li>
           ))}
         </ul>
+      </div>
+    </section>
+
+    <!-- ══ Couverture exhaustive : les 100 % de communes, par secteur ══ -->
+    <section class="zones-toutes">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="tag">Couverture complète</span>
+          <h2>Les {nbCommunes} communes où nous nous déplaçons</h2>
+          <p class="section-sub">
+            Rayon d'environ 30 km autour de Wittenheim et Mulhouse. Si votre
+            commune est dans cette liste, nous venons chez vous.
+          </p>
+        </div>
+
+        <div class="secteurs-grid">
+          {secteurs.map((secteur) => (
+            <div class="secteur-bloc reveal">
+              <h3>{secteur.nom}</h3>
+              <span class="secteur-nb">{secteur.communes.length} communes</span>
+              <p class="secteur-liste">{secteur.communes.join(" · ")}</p>
+            </div>
+          ))}
+        </div>
+
+        <p class="zones-hors-liste">
+          Votre commune n'est pas dans la liste ?
+          <a href="tel:+33768445293">Appelez-nous au 07 68 44 52 93</a> — juste
+          au-delà du rayon, nous nous déplaçons souvent quand plusieurs pièces
+          sont à traiter.
+        </p>
       </div>
     </section>
 
@@ -259,6 +291,33 @@ const schemaFilAriane = {
   }
   .zones-presta-liens strong { color: var(--bleu); font-weight: 600; }
   .zones-presta-liens span { font-size: 0.85rem; color: var(--teal); font-weight: 600; }
+
+  .zones-toutes { padding-block: var(--section-gap); }
+  .secteurs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 22px;
+  }
+  .secteur-bloc {
+    padding: 24px;
+    background: var(--fond);
+    border-radius: var(--r-lg);
+  }
+  .secteur-bloc h3 { color: var(--bleu); font-size: 1.1rem; }
+  .secteur-nb {
+    display: inline-block;
+    margin: 6px 0 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--teal);
+  }
+  .secteur-liste {
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: var(--texte-2);
+  }
 
   .zones-cta {
     padding-block: var(--section-gap);

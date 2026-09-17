@@ -2,6 +2,7 @@
 import Analytics from "../components/Analytics.astro";
 import ConsentBanner from "../components/ConsentBanner.astro";
 import Provenance from "../components/Provenance.astro";
+import ChatBot from "../components/ChatBot.astro";
 
 interface Props {
   title: string;
@@ -125,6 +126,9 @@ const schemaLD = {
   </head>
   <body>
     <slot />
+
+    <!-- Assistant : répond depuis les données du site, sans serveur ni abonnement -->
+    <ChatBot />
 
     <!-- Bandeau cookies + déclencheurs de conversion -->
     <ConsentBanner />

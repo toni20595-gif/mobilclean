@@ -47,6 +47,14 @@ export interface Prestation {
   casTypiques: string[];
   /** FAQ propre à la prestation → balisage FAQPage */
   faq: { question: string; reponse: string }[];
+  /**
+   * Les autres noms sous lesquels les clients cherchent cette prestation.
+   * Objectif : couvrir les formulations réelles (« pressing auto »,
+   * « shampouinage »…) sans empiler des mots-clés — elles sont expliquées
+   * dans un vrai paragraphe, pas listées bêtement.
+   */
+  appellations: string[];
+  noteVocabulaire: string;
   /** Maillage interne : slugs des prestations liées */
   liees: string[];
 }
@@ -55,7 +63,7 @@ export const prestations: Prestation[] = [
   {
     slug: "nettoyage-interieur-voiture",
     nom: "Intérieur de voiture",
-    titreSeo: "Nettoyage intérieur de voiture à domicile — Mulhouse et Haut-Rhin | Mobil Clean",
+    titreSeo: "Nettoyage intérieur de voiture — Mulhouse, Wittenheim, Haut-Rhin | Mobil Clean",
     metaDescription:
       "Nettoyage complet de l'habitacle à domicile, à Mulhouse et dans le Haut-Rhin : sièges, moquettes, tableau de bord, coffre. À partir de 79 €, en 2h30. Devis gratuit, 7j/7 de 9h30 à 21h.",
     h1: "Nettoyage intérieur de voiture à domicile",
@@ -147,13 +155,29 @@ export const prestations: Prestation[] = [
           "Oui, du moment que le véhicule est stationné et accessible. Beaucoup de clients nous font intervenir pendant leurs heures de bureau, sur le parking de leur entreprise.",
       },
     ],
+    appellations: [
+      "pressing auto",
+      "pressing automobile",
+      "shampouinage des sièges",
+      "nettoyage d'habitacle",
+      "lavage intérieur de voiture",
+      "détailing intérieur",
+      "entretien intérieur de véhicule",
+      "nettoyage de sièges de voiture",
+      "shampouineuse voiture",
+      "remise en état d'habitacle",
+      "nettoyage de moquette de voiture",
+      "désinfection d'habitacle",
+    ],
+    noteVocabulaire:
+      "Vous cherchez peut-être un « pressing auto », un « shampouinage de sièges » ou du « détailing intérieur » : ce sont des appellations différentes pour le même travail. Le terme technique est l'injection-extraction — on pulvérise une solution dans le tissu et on la réaspire aussitôt avec les salissures. « Pressing » vient du fait que le résultat sur un tissu ressemble à celui d'un pressing textile. Peu importe le mot que vous employez en nous appelant : décrivez simplement l'état de votre habitacle.",
     liees: ["nettoyage-canape", "nettoyage-tapis"],
   },
 
   {
     slug: "nettoyage-matelas",
     nom: "Matelas",
-    titreSeo: "Nettoyage de matelas à domicile — Mulhouse et Haut-Rhin | Mobil Clean",
+    titreSeo: "Nettoyage de matelas à domicile — Mulhouse, Wittenheim, Haut-Rhin | Mobil Clean",
     metaDescription:
       "Nettoyage de matelas à domicile à Mulhouse et dans le Haut-Rhin : traitement anti-acariens, désodorisation, séchage rapide. À partir de 69 €. Idéal en cas d'allergies. Devis gratuit, 7j/7.",
     h1: "Nettoyage de matelas à domicile",
@@ -241,13 +265,25 @@ export const prestations: Prestation[] = [
           "Une à deux fois par an pour un adulte sans problème particulier, davantage en cas d'allergies, de jeunes enfants ou d'animaux qui dorment sur le lit.",
       },
     ],
+    appellations: [
+      "shampouinage de matelas",
+      "désinfection de matelas",
+      "nettoyage de literie",
+      "traitement anti-acariens",
+      "détachage de matelas",
+      "nettoyage de sommier",
+      "nettoyer un matelas taché",
+      "nettoyage matelas urine",
+    ],
+    noteVocabulaire:
+      "« Shampouinage de matelas », « désinfection de matelas », « traitement anti-acariens » : ces demandes correspondent toutes à la même intervention chez nous. La méthode est l'injection-extraction, suivie d'un traitement anti-acariens. Attention à un abus de langage courant : un nettoyage professionnel n'est pas une stérilisation. On retire les acariens et leurs déjections — ce qui soulage réellement les allergies — mais ils reviennent avec le temps, d'où l'intérêt d'un passage une à deux fois par an.",
     liees: ["nettoyage-canape", "nettoyage-multi-meubles"],
   },
 
   {
     slug: "nettoyage-canape",
     nom: "Canapé",
-    titreSeo: "Nettoyage de canapé à domicile — Mulhouse et Haut-Rhin | Mobil Clean",
+    titreSeo: "Nettoyage de canapé à domicile — Mulhouse, Wittenheim, Haut-Rhin | Mobil Clean",
     metaDescription:
       "Nettoyage de canapé à domicile à Mulhouse et dans le Haut-Rhin : tissu, velours, microfibre ou cuir. Injection-extraction, détachage, désodorisation. À partir de 79 €. Devis gratuit, 7j/7.",
     h1: "Nettoyage de canapé à domicile",
@@ -335,13 +371,25 @@ export const prestations: Prestation[] = [
           "Oui, et c'est plus avantageux : la formule multi-meubles regroupe canapé, fauteuils, tapis et matelas en une seule intervention, à tarif groupé.",
       },
     ],
+    appellations: [
+      "shampouinage de canapé",
+      "pressing de canapé",
+      "nettoyage de salon en tissu",
+      "détachage de canapé",
+      "nettoyage de textile d'ameublement",
+      "nettoyer un canapé en tissu",
+      "nettoyage de canapé en cuir",
+      "shampouineuse canapé",
+    ],
+    noteVocabulaire:
+      "« Shampouinage de canapé », « pressing de canapé », « nettoyage de salon en tissu » désignent la même prestation. Le nom technique est l'injection-extraction, parfois appelée shampouinage par extraction. Une précision utile : le cuir ne se traite jamais ainsi. Si votre canapé est en cuir, on utilise un nettoyant puis un soin nourrissant — un professionnel qui vous propose de « shampouiner » du cuir n'a pas compris la matière.",
     liees: ["nettoyage-fauteuil", "nettoyage-multi-meubles"],
   },
 
   {
     slug: "nettoyage-tapis",
     nom: "Tapis",
-    titreSeo: "Nettoyage de tapis à domicile — Mulhouse et Haut-Rhin | Mobil Clean",
+    titreSeo: "Nettoyage de tapis à domicile — Mulhouse, Wittenheim, Haut-Rhin | Mobil Clean",
     metaDescription:
       "Nettoyage de tapis à domicile à Mulhouse et dans le Haut-Rhin : injection-extraction, anti-acariens, détachage, séchage rapide. 12 €/m². Devis gratuit, intervention 7j/7 de 9h30 à 21h.",
     h1: "Nettoyage de tapis à domicile",
@@ -429,13 +477,24 @@ export const prestations: Prestation[] = [
           "Sur les dimensions réelles du tapis, à 12 € le mètre carré. Donnez-nous les mesures approximatives à la réservation et vous connaissez le prix avant qu'on se déplace.",
       },
     ],
+    appellations: [
+      "shampouinage de tapis",
+      "nettoyage de moquette",
+      "lavage de tapis",
+      "détachage de tapis",
+      "nettoyer un tapis à domicile",
+      "nettoyage de tapis de salon",
+      "nettoyage de grand tapis",
+    ],
+    noteVocabulaire:
+      "« Shampouinage de tapis », « lavage de tapis », « nettoyage de moquette » : même travail, noms différents. La différence qui compte n'est pas le vocabulaire mais la méthode — un tapis détrempé puis mal séché rétrécit ou déteint, alors que l'injection-extraction réaspire l'eau immédiatement. C'est aussi ce qui permet de travailler chez vous sans emporter le tapis en atelier.",
     liees: ["nettoyage-canape", "nettoyage-multi-meubles"],
   },
 
   {
     slug: "nettoyage-fauteuil",
     nom: "Fauteuil",
-    titreSeo: "Nettoyage de fauteuil à domicile — Mulhouse et Haut-Rhin | Mobil Clean",
+    titreSeo: "Nettoyage de fauteuil à domicile — Mulhouse, Wittenheim et Haut-Rhin | Mobil Clean",
     metaDescription:
       "Nettoyage de fauteuil à domicile à Mulhouse et dans le Haut-Rhin : velours, microfibre, cuir synthétique. Injection-extraction, détachage, séchage rapide. 55 €. Devis gratuit, 7j/7.",
     h1: "Nettoyage de fauteuil à domicile",
@@ -507,6 +566,16 @@ export const prestations: Prestation[] = [
           "Le devis est gratuit et vous connaissez le montant total avant qu'on se déplace. Pour une seule petite pièce, il est souvent plus intéressant de grouper avec un canapé, un tapis ou un matelas.",
       },
     ],
+    appellations: [
+      "shampouinage de fauteuil",
+      "nettoyage de chaise en tissu",
+      "nettoyage de siège de bureau",
+      "détachage de fauteuil",
+      "nettoyage d'assise en tissu",
+      "nettoyage de fauteuil en velours",
+    ],
+    noteVocabulaire:
+      "« Shampouinage de fauteuil », « nettoyage d'assise », « nettoyage de siège de bureau » relèvent de la même prestation. Les chaises de salle à manger en tissu et les fauteuils de bureau se traitent exactement comme un fauteuil de salon : le dossier en résille et la mousse d'assise retiennent la transpiration, et c'est là que se loge l'odeur.",
     liees: ["nettoyage-canape", "nettoyage-multi-meubles"],
   },
 
@@ -596,6 +665,17 @@ export const prestations: Prestation[] = [
           "Oui. Pour les entreprises, hôtels, garages et locaux professionnels, nous avons une page dédiée avec facturation pro et possibilité de contrat d'entretien.",
       },
     ],
+    appellations: [
+      "nettoyage de salon complet",
+      "nettoyage textile de la maison",
+      "pressing à domicile",
+      "nettoyage de plusieurs meubles",
+      "grand nettoyage textile",
+      "nettoyage canapé et tapis",
+      "remise en état d'un logement",
+    ],
+    noteVocabulaire:
+      "Certains parlent de « pressing à domicile », d'autres de « grand nettoyage textile » ou simplement de « tout mon salon ». C'est la même chose : une seule intervention, plusieurs pièces, un tarif groupé. L'intérêt n'est pas que technique — il n'y a qu'un déplacement et qu'une installation du matériel, et c'est ce qui fait baisser le prix par pièce.",
     liees: ["nettoyage-canape", "nettoyage-matelas", "nettoyage-tapis"],
   },
 ];

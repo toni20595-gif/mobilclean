@@ -322,6 +322,418 @@ export const zones: Zone[] = [
       },
     ],
   },
+
+  {
+    slug: "wittelsheim",
+    ville: "Wittelsheim",
+    codePostal: "68310",
+    titreSeo: "Nettoyage à domicile à Wittelsheim — voiture, matelas, canapé | Mobil Clean",
+    metaDescription:
+      "Nettoyage à domicile à Wittelsheim, Graffenwald et Amélie : intérieur de voiture, matelas, canapé, tapis. Mobil Clean se déplace chez vous. Devis gratuit, 7j/7 de 9h30 à 21h.",
+    h1: "Nettoyage à domicile à Wittelsheim",
+    reponseCourte:
+      "Mobil Clean intervient à Wittelsheim et dans ses hameaux — Graffenwald, Amélie — pour le nettoyage à domicile de voitures, matelas, canapés, tapis et fauteuils. Commune voisine de notre secteur, déplacement rapide. Devis gratuit, sur rendez-vous 7j/7 de 9h30 à 21h.",
+    distance: "Environ 4 km de Wittenheim, 8 minutes de trajet",
+    secteurs: ["Wittelsheim centre", "Graffenwald", "Cité Amélie", "Secteur de la Thur"],
+    contexteLocal:
+      "Wittelsheim a une particularité qui compte pour nous : la commune est éclatée en plusieurs entités bien distinctes — le centre, Graffenwald, la cité Amélie — parfois séparées de plusieurs kilomètres. Donner l'adresse précise et le hameau à la réservation n'est donc pas un détail, ça évite qu'on cherche. Pour le reste, l'habitat est proche de celui de Wittenheim : anciennes maisons de cité potassique et lotissements plus récents, avec du mobilier textile utilisé au quotidien.",
+    pratique: [
+      {
+        titre: "Précisez le hameau",
+        texte:
+          "Centre, Graffenwald ou Amélie : indiquez-le à la réservation. La commune est étendue et ça nous permet de caler le créneau au plus juste.",
+      },
+      {
+        titre: "Maisons de cité",
+        texte:
+          "Pièces de taille modeste, passage parfois étroit : le matériel s'installe sans difficulté, il suffit d'un accès dégagé jusqu'à la pièce à traiter.",
+      },
+      {
+        titre: "Grouper les prestations",
+        texte:
+          "Canapé, fauteuils, tapis et matelas en une seule visite coûtent moins cher que des rendez-vous séparés. Le tarif groupé est calculé au devis.",
+      },
+    ],
+  },
+
+  {
+    slug: "lutterbach",
+    ville: "Lutterbach",
+    codePostal: "68460",
+    titreSeo: "Nettoyage à domicile à Lutterbach — voiture, matelas, canapé | Mobil Clean",
+    metaDescription:
+      "Nettoyage à domicile à Lutterbach : intérieur de voiture, matelas, canapé, tapis, fauteuil. Mobil Clean intervient chez vous, à 10 minutes de Wittenheim. Devis gratuit, 7j/7.",
+    h1: "Nettoyage à domicile à Lutterbach",
+    reponseCourte:
+      "Mobil Clean intervient à Lutterbach pour le nettoyage à domicile de voitures, matelas, canapés, tapis et fauteuils. Commune bien desservie, à quelques minutes de notre secteur. Devis gratuit et sans engagement, sur rendez-vous 7j/7 de 9h30 à 21h.",
+    distance: "Environ 5 km de Wittenheim, 10 minutes de trajet",
+    secteurs: ["Lutterbach centre", "Secteur de la gare", "Quartier du canal", "Vers la Doller"],
+    contexteLocal:
+      "Lutterbach est une commune traversée par le canal et la Doller, avec un habitat mixte : maisons de ville, petits collectifs et lotissements. Le tram-train qui la relie à Mulhouse change une chose dans nos demandes : beaucoup de clients s'y déplacent sans voiture au quotidien, et font justement appel à nous parce que le service vient à eux. Pour le nettoyage de véhicule, le stationnement y est généralement plus simple qu'en centre-ville mulhousien.",
+    pratique: [
+      {
+        titre: "Stationnement confortable",
+        texte:
+          "Dans la plupart des rues, on se gare devant chez vous sans contrainte. C'est un vrai plus pour le nettoyage d'un intérieur de véhicule, qui demande de la place autour de la voiture.",
+      },
+      {
+        titre: "Petits collectifs",
+        texte:
+          "Matelas et canapé sont traités dans l'appartement, rien ne descend dans les escaliers. Indiquez simplement l'étage à la réservation.",
+      },
+      {
+        titre: "Créneaux en soirée",
+        texte:
+          "Nous intervenons jusqu'à 21h, ce qui permet de prendre rendez-vous après le travail sans poser d'heures.",
+      },
+    ],
+  },
+
+  {
+    slug: "sausheim",
+    ville: "Sausheim",
+    codePostal: "68390",
+    titreSeo: "Nettoyage à domicile à Sausheim — intérieur de véhicule, canapé | Mobil Clean",
+    metaDescription:
+      "Nettoyage à domicile à Sausheim : intérieur de voiture, matelas, canapé, tapis. Intervention possible sur parking d'entreprise. Mobil Clean, devis gratuit, 7j/7 de 9h30 à 21h.",
+    h1: "Nettoyage à domicile à Sausheim",
+    reponseCourte:
+      "Mobil Clean intervient à Sausheim pour le nettoyage à domicile de voitures, matelas, canapés, tapis et fauteuils, y compris sur parking d'entreprise pendant les heures de bureau. Devis gratuit, sur rendez-vous 7j/7 de 9h30 à 21h au 07 68 44 52 93.",
+    distance: "Environ 6 km de Wittenheim, 12 minutes de trajet",
+    secteurs: ["Sausheim centre", "Quartier de l'Espace Dollfus", "Zone industrielle", "Lotissements nord"],
+    contexteLocal:
+      "Sausheim est marquée par la présence de grands employeurs industriels dans son secteur, et ça oriente très concrètement les demandes : nettoyage d'intérieur de véhicule sur le parking, pendant les heures de travail, pour des salariés qui récupèrent une voiture propre en fin de journée. La partie résidentielle, elle, est essentiellement pavillonnaire, avec des maisons familiales où l'on nous appelle plutôt pour un salon complet.",
+    pratique: [
+      {
+        titre: "Intervention sur le lieu de travail",
+        texte:
+          "Le véhicule doit simplement être stationné et accessible. Beaucoup de clients nous font intervenir sur le parking de leur entreprise pendant leur journée de travail.",
+      },
+      {
+        titre: "Plusieurs véhicules d'un coup",
+        texte:
+          "Pour plusieurs voitures, entre collègues ou pour une flotte, on planifie une demi-journée sur place. Facturation professionnelle possible via notre page Entreprises.",
+      },
+      {
+        titre: "Maisons familiales",
+        texte:
+          "Côté résidentiel, la formule multi-meubles est la plus demandée : canapé, fauteuils et tapis traités en une seule intervention.",
+      },
+    ],
+  },
+
+  {
+    slug: "habsheim",
+    ville: "Habsheim",
+    codePostal: "68440",
+    titreSeo: "Nettoyage à domicile à Habsheim — canapé, matelas, voiture | Mobil Clean",
+    metaDescription:
+      "Nettoyage à domicile à Habsheim : canapé, matelas, tapis, fauteuil, intérieur de voiture. Mobil Clean se déplace chez vous dans le sud-est mulhousien. Devis gratuit, 7j/7.",
+    h1: "Nettoyage à domicile à Habsheim",
+    reponseCourte:
+      "Mobil Clean intervient à Habsheim pour le nettoyage à domicile de canapés, matelas, tapis, fauteuils et intérieurs de voiture. Village résidentiel du sud-est mulhousien, accès simple. Devis gratuit, sur rendez-vous 7j/7 de 9h30 à 21h.",
+    distance: "Environ 12 km de Wittenheim, 18 minutes de trajet",
+    secteurs: ["Habsheim centre", "Secteur de l'aérodrome", "Lotissements est", "Vers Eschentzwiller"],
+    contexteLocal:
+      "Habsheim est un village résidentiel où l'habitat est majoritairement individuel, souvent avec des dépendances : garage, atelier, grange réaménagée. Cela ouvre deux possibilités qu'on n'a pas en ville — traiter un véhicule à l'abri, indépendamment de la météo, et sortir un tapis encombrant dans un espace dégagé plutôt que de travailler entre deux meubles. Les demandes portent souvent sur du mobilier de maison familiale installé depuis longtemps.",
+    pratique: [
+      {
+        titre: "Travail à l'abri",
+        texte:
+          "Garage, atelier ou grange : signalez-le à la réservation. Un véhicule traité à l'abri donne un résultat plus régulier, sans contrainte de pluie ni de vent.",
+      },
+      {
+        titre: "Grands tapis",
+        texte:
+          "Un tapis de grande dimension se traite mieux dans un espace dégagé. Si vous disposez d'un garage ou d'une terrasse couverte, dites-le nous.",
+      },
+      {
+        titre: "Déplacement à planifier",
+        texte:
+          "À une vingtaine de minutes de notre secteur, mieux vaut regrouper plusieurs pièces sur un même rendez-vous que multiplier les visites.",
+      },
+    ],
+  },
+
+  {
+    slug: "ensisheim",
+    ville: "Ensisheim",
+    codePostal: "68190",
+    titreSeo: "Nettoyage à domicile à Ensisheim — canapé, matelas, voiture | Mobil Clean",
+    metaDescription:
+      "Nettoyage à domicile à Ensisheim : canapé, matelas, tapis, fauteuil et intérieur de voiture. Mobil Clean intervient chez vous au nord du bassin potassique. Devis gratuit, 7j/7.",
+    h1: "Nettoyage à domicile à Ensisheim",
+    reponseCourte:
+      "Mobil Clean intervient à Ensisheim pour le nettoyage à domicile de canapés, matelas, tapis, fauteuils et intérieurs de voiture. Commune en croissance au nord du bassin potassique. Devis gratuit, sur rendez-vous 7j/7 de 9h30 à 21h.",
+    distance: "Environ 12 km de Wittenheim, 18 minutes de trajet",
+    secteurs: ["Ensisheim centre", "Lotissements récents", "Secteur de la Nécropole", "Vers Réguisheim"],
+    contexteLocal:
+      "Ensisheim est une commune en forte croissance, avec beaucoup de constructions récentes et de jeunes familles installées dans des lotissements neufs. Ça change la nature du travail : le mobilier est souvent jeune, en bon état, et ce qu'on nous demande relève plutôt de l'entretien préventif que du sauvetage — un canapé clair acheté il y a deux ans qu'on veut garder net, un matelas neuf à protéger, des taches d'enfants à traiter avant qu'elles s'installent. C'est le meilleur moment pour intervenir : une tache récente part presque toujours.",
+    pratique: [
+      {
+        titre: "Entretien préventif",
+        texte:
+          "Sur un textile encore jeune, un passage annuel suffit à éviter l'encrassement définitif. Et une tache traitée dans les jours qui suivent part presque toujours complètement.",
+      },
+      {
+        titre: "Protection anti-tache",
+        texte:
+          "Sur un canapé clair ou récent, le traitement anti-tache optionnel fait que les prochains accidents restent en surface et s'essuient au lieu de pénétrer.",
+      },
+      {
+        titre: "Jeunes enfants",
+        texte:
+          "Produits adaptés à un logement occupé et désodorisation bio, sans parfum entêtant. Signalez-nous allergies et présence d'enfants à la réservation.",
+      },
+    ],
+  },
+
+  {
+    slug: "cernay",
+    ville: "Cernay",
+    codePostal: "68700",
+    titreSeo: "Nettoyage à domicile à Cernay — voiture, canapé, matelas | Mobil Clean",
+    metaDescription:
+      "Nettoyage à domicile à Cernay : intérieur de voiture, canapé, matelas, tapis, fauteuil. Mobil Clean se déplace dans la vallée de la Thur. Devis gratuit, 7j/7 de 9h30 à 21h.",
+    h1: "Nettoyage à domicile à Cernay",
+    reponseCourte:
+      "Mobil Clean intervient à Cernay pour le nettoyage à domicile de voitures, matelas, canapés, tapis et fauteuils. Commune-centre à l'entrée de la vallée de la Thur, dans notre rayon d'intervention. Devis gratuit, sur rendez-vous 7j/7 de 9h30 à 21h.",
+    distance: "Environ 15 km de Wittenheim, 20 minutes de trajet",
+    secteurs: ["Cernay centre", "Quartier Bel-Air", "Secteur des Mines", "Vers Uffholtz et Wattwiller"],
+    contexteLocal:
+      "Cernay est la commune-centre de l'entrée de vallée, avec un habitat majoritairement pavillonnaire et beaucoup de maisons disposant d'un garage ou d'une cour. La position en pied de montagne a un effet très concret sur les véhicules : boue, terre et gravillons rapportés des routes de vallée et des chemins forestiers s'incrustent dans les moquettes et les tapis de sol. C'est le type d'encrassement que l'aspiration seule ne règle pas, et où l'injection-extraction fait la vraie différence.",
+    pratique: [
+      {
+        titre: "Moquettes chargées de terre",
+        texte:
+          "Terre sèche et gravillons descendent au fond de la fibre. On aspire en profondeur avant toute mise en humidité, sinon on transforme la poussière en boue.",
+      },
+      {
+        titre: "Véhicule au garage",
+        texte:
+          "Si vous disposez d'un garage ou d'une cour, le travail se fait à l'abri et le résultat est plus régulier. Signalez-le à la réservation.",
+      },
+      {
+        titre: "Regrouper le rendez-vous",
+        texte:
+          "À vingt minutes de notre secteur, mieux vaut traiter plusieurs pièces sur une même visite. Le tarif groupé est calculé au devis.",
+      },
+    ],
+  },
+
+  {
+    slug: "thann",
+    ville: "Thann",
+    codePostal: "68800",
+    titreSeo: "Nettoyage à domicile à Thann — canapé, matelas, voiture | Mobil Clean",
+    metaDescription:
+      "Nettoyage à domicile à Thann : canapé, matelas, tapis, fauteuil et intérieur de voiture. Mobil Clean intervient dans la vallée de la Thur. Devis gratuit, 7j/7 de 9h30 à 21h.",
+    h1: "Nettoyage à domicile à Thann",
+    reponseCourte:
+      "Mobil Clean intervient à Thann pour le nettoyage à domicile de canapés, matelas, tapis, fauteuils et intérieurs de voiture. Commune de vallée, dans notre rayon d'intervention. Devis gratuit et sans engagement, sur rendez-vous 7j/7 de 9h30 à 21h.",
+    distance: "Environ 22 km de Wittenheim, 25 minutes de trajet",
+    secteurs: ["Thann centre historique", "Quartier de la Collégiale", "Secteur gare", "Vers Vieux-Thann"],
+    contexteLocal:
+      "Thann a un centre historique dense, avec des rues étroites, des immeubles anciens et un stationnement souvent contraint. Deux conséquences pratiques : pour un véhicule, il faut nous indiquer où il sera garé et prévoir une place tenable pendant deux heures et demie ; pour un canapé ou un matelas en appartement ancien, on travaille sur place comme partout, mais il est utile de savoir à l'avance s'il y a un escalier étroit ou un accès délicat au logement. Rien de bloquant, mais autant l'organiser en amont.",
+    pratique: [
+      {
+        titre: "Stationnement du véhicule",
+        texte:
+          "En centre ancien, la place est la principale contrainte. Une cour, un parking ou une place résidentielle nous fait gagner du temps — précisez-le en réservant.",
+      },
+      {
+        titre: "Accès en appartement ancien",
+        texte:
+          "Escalier étroit ou pas d'ascenseur : ce n'est pas un problème, rien ne sort du logement. Mentionnez l'étage pour qu'on prévoie le bon matériel.",
+      },
+      {
+        titre: "Créneaux planifiés",
+        texte:
+          "À vingt-cinq minutes de notre secteur, les créneaux sur Thann se planifient à l'avance plutôt qu'en dernière minute. Appelez-nous pour voir ce qui est libre.",
+      },
+    ],
+  },
+
+  {
+    slug: "guebwiller",
+    ville: "Guebwiller",
+    codePostal: "68500",
+    titreSeo: "Nettoyage à domicile à Guebwiller — canapé, tapis, matelas | Mobil Clean",
+    metaDescription:
+      "Nettoyage à domicile à Guebwiller : canapé, tapis, matelas, fauteuil et intérieur de voiture. Mobil Clean se déplace chez vous. Devis gratuit, 7j/7 de 9h30 à 21h.",
+    h1: "Nettoyage à domicile à Guebwiller",
+    reponseCourte:
+      "Mobil Clean intervient à Guebwiller pour le nettoyage à domicile de canapés, tapis, matelas, fauteuils et intérieurs de voiture. Commune de la Route des Vins, dans notre rayon. Devis gratuit, sur rendez-vous 7j/7 de 9h30 à 21h.",
+    distance: "Environ 20 km de Wittenheim, 25 minutes de trajet",
+    secteurs: ["Guebwiller centre", "Quartier du Florival", "Secteur Notre-Dame", "Vers Buhl"],
+    contexteLocal:
+      "Guebwiller compte un patrimoine bâti ancien important, et avec lui du mobilier qui a de la valeur : tapis noués, fauteuils d'époque, canapés en cuir de belle facture, meubles transmis. C'est le contexte où l'identification du textile avant traitement n'est pas une formalité administrative mais une vraie précaution — un tapis en laine noué main et un tapis synthétique n'acceptent pas la même pression, et le cuir ne passe jamais à l'injection-extraction. Sur une pièce à laquelle vous tenez, on préfère refuser que prendre un risque.",
+    pratique: [
+      {
+        titre: "Tapis anciens et de valeur",
+        texte:
+          "Tapis noué main, en laine ou en soie : envoyez-nous une photo avant la réservation. On vous dira franchement si on peut intervenir sans risque, ou si on préfère ne pas y toucher.",
+      },
+      {
+        titre: "Cuir et velours",
+        texte:
+          "Le cuir reçoit un nettoyant puis un soin nourrissant. Le velours demande une pression et un séchage maîtrisés. Dans les deux cas, on teste sur une zone cachée avant de traiter.",
+      },
+      {
+        titre: "Logements anciens",
+        texte:
+          "Pièces hautes, parquets, accès parfois étroits : on protège les sols et on travaille sur place. Précisez l'étage et l'accès à la réservation.",
+      },
+    ],
+  },
+
+  {
+    slug: "soultz-haut-rhin",
+    ville: "Soultz-Haut-Rhin",
+    codePostal: "68360",
+    titreSeo: "Nettoyage à domicile à Soultz-Haut-Rhin — canapé, matelas | Mobil Clean",
+    metaDescription:
+      "Nettoyage à domicile à Soultz-Haut-Rhin : canapé, matelas, tapis, fauteuil et intérieur de voiture. Mobil Clean intervient chez vous. Devis gratuit, 7j/7 de 9h30 à 21h.",
+    h1: "Nettoyage à domicile à Soultz-Haut-Rhin",
+    reponseCourte:
+      "Mobil Clean intervient à Soultz-Haut-Rhin pour le nettoyage à domicile de canapés, matelas, tapis, fauteuils et intérieurs de voiture. Commune résidentielle du Florival, dans notre rayon. Devis gratuit, 7j/7 de 9h30 à 21h.",
+    distance: "Environ 18 km de Wittenheim, 22 minutes de trajet",
+    secteurs: ["Soultz centre", "Quartier du Vieil-Armand", "Secteur Sainte-Croix", "Vers Wuenheim"],
+    contexteLocal:
+      "Soultz-Haut-Rhin est une commune résidentielle étendue, mêlant vieille ville aux rues étroites et lotissements périphériques plus spacieux. La différence entre les deux est très pratique pour nous : en périphérie, on se gare devant chez vous et le matériel entre sans contrainte ; en vieille ville, l'accès demande d'être anticipé. Les demandes couvrent tout l'éventail, du salon complet de maison familiale à l'intérieur de véhicule avant une revente.",
+    pratique: [
+      {
+        titre: "Deux configurations",
+        texte:
+          "Vieille ville ou lotissement : dites-nous où vous habitez. En centre ancien, on prévoit un accès plus contraint et on adapte le matériel embarqué.",
+      },
+      {
+        titre: "Avant une revente",
+        texte:
+          "Un habitacle remis à neuf change la perception d'un véhicule à la vente. Comptez environ 2h30 pour un intérieur complet.",
+      },
+      {
+        titre: "Grouper avec Guebwiller",
+        texte:
+          "Si des voisins ou de la famille de Guebwiller ou Soultz veulent aussi une intervention, on planifie les rendez-vous à la suite sur une même demi-journée.",
+      },
+    ],
+  },
+
+  {
+    slug: "altkirch",
+    ville: "Altkirch",
+    codePostal: "68130",
+    titreSeo: "Nettoyage à domicile à Altkirch — canapé, matelas, voiture | Mobil Clean",
+    metaDescription:
+      "Nettoyage à domicile à Altkirch et dans le Sundgau : canapé, matelas, tapis, fauteuil, intérieur de voiture. Mobil Clean se déplace chez vous. Devis gratuit, 7j/7.",
+    h1: "Nettoyage à domicile à Altkirch",
+    reponseCourte:
+      "Mobil Clean intervient à Altkirch et dans le Sundgau proche pour le nettoyage à domicile de canapés, matelas, tapis, fauteuils et intérieurs de voiture. Devis gratuit et sans engagement, sur rendez-vous 7j/7 de 9h30 à 21h.",
+    distance: "Environ 25 km de Wittenheim, 30 minutes de trajet",
+    secteurs: ["Altkirch centre", "Quartier de la Hochkirch", "Secteur Carspach", "Vers Aspach et Hirsingue"],
+    contexteLocal:
+      "Altkirch est la porte du Sundgau, une région d'habitat dispersé où les maisons sont souvent grandes, anciennes et éloignées les unes des autres. Deux conséquences concrètes : les interventions y portent fréquemment sur des volumes importants — plusieurs chambres, un grand salon, des tapis de plusieurs mètres — et le déplacement mérite d'être optimisé. Une visite sur Altkirch se planifie donc plutôt comme une demi-journée complète que comme un passage rapide.",
+    pratique: [
+      {
+        titre: "Volumes importants",
+        texte:
+          "Grandes maisons, plusieurs chambres, grands tapis : comptez une demi-journée pour un traitement complet. L'estimation de durée est donnée au devis.",
+      },
+      {
+        titre: "Habitat dispersé",
+        texte:
+          "Donnez-nous l'adresse précise et, si besoin, un point de repère. Dans le Sundgau, les fermes et maisons isolées ne sont pas toujours évidentes à localiser.",
+      },
+      {
+        titre: "Rendez-vous planifié",
+        texte:
+          "À trente minutes de notre secteur, les créneaux sur Altkirch se réservent à l'avance. Appelez-nous pour connaître les disponibilités.",
+      },
+    ],
+  },
 ];
 
 export const getZone = (slug: string) => zones.find((z) => z.slug === slug);
+
+// ════════════════════════════════════════════════════════════════════════
+//  COUVERTURE EXHAUSTIVE — rayon d'environ 30 km autour de Wittenheim
+//  ──────────────────────────────────────────────────────────────────────
+//  Ces communes sont listées sur /zones mais n'ont PAS de page dédiée, et
+//  c'est volontaire : une page par commune sans contenu propre, c'est le
+//  cas d'école que Google sanctionne (« doorway abuse ») et le site entier
+//  serait rétrogradé. Une liste exhaustive sur une page solide couvre la
+//  requête « intervenez-vous à X ? » sans ce risque.
+//
+//  Les communes qui MÉRITENT une page dédiée sont celles où l'activité est
+//  réelle et où il y a quelque chose de vrai à dire. Quand une commune de
+//  cette liste devient un vrai marché, on lui crée sa page : il suffit de
+//  l'ajouter au tableau `zones` ci-dessus.
+//
+//  À AJUSTER PAR MOBIL CLEAN : retirer toute commune où vous ne vous
+//  déplacez pas réellement. Annoncer une couverture qu'on n'assure pas se
+//  paie en appels perdus et en avis négatifs.
+// ════════════════════════════════════════════════════════════════════════
+
+export const secteurs = [
+  {
+    nom: "Agglomération de Mulhouse",
+    communes: [
+      "Mulhouse", "Illzach", "Wittenheim", "Kingersheim", "Pfastatt", "Riedisheim",
+      "Rixheim", "Sausheim", "Lutterbach", "Richwiller", "Baldersheim", "Battenheim",
+      "Ruelisheim", "Brunstatt-Didenheim", "Morschwiller-le-Bas", "Reiningue",
+      "Heimsbrunn", "Galfingue", "Zillisheim", "Flaxlanden", "Bruebach", "Habsheim",
+      "Eschentzwiller", "Zimmersheim", "Dietwiller", "Steinbrunn-le-Bas",
+    ],
+  },
+  {
+    nom: "Bassin potassique et nord",
+    communes: [
+      "Wittelsheim", "Staffelfelden", "Pulversheim", "Bollwiller", "Feldkirch",
+      "Ungersheim", "Berrwiller", "Ensisheim", "Réguisheim", "Meyenheim",
+      "Niederentzen", "Oberentzen", "Munwiller", "Raedersheim",
+    ],
+  },
+  {
+    nom: "Vallée de la Thur et ouest",
+    communes: [
+      "Cernay", "Thann", "Vieux-Thann", "Uffholtz", "Wattwiller", "Steinbach",
+      "Aspach-Michelbach", "Aspach-le-Bas", "Burnhaupt-le-Haut", "Burnhaupt-le-Bas",
+      "Bitschwiller-lès-Thann", "Roderen", "Leimbach", "Schweighouse-Thann",
+    ],
+  },
+  {
+    nom: "Florival et Guebwiller",
+    communes: [
+      "Guebwiller", "Soultz-Haut-Rhin", "Issenheim", "Merxheim", "Gundolsheim",
+      "Bergholtz", "Bergholtzzell", "Orschwihr", "Buhl", "Wuenheim", "Hartmannswiller",
+      "Jungholtz", "Rouffach",
+    ],
+  },
+  {
+    nom: "Sundgau et sud",
+    communes: [
+      "Altkirch", "Carspach", "Aspach", "Illfurth", "Walheim", "Hochstatt",
+      "Spechbach", "Tagsdorf", "Hirsingue", "Emlingen", "Obermorschwiller",
+      "Froeningen", "Heidwiller", "Luemschwiller",
+    ],
+  },
+  {
+    nom: "Bande rhénane et est",
+    communes: [
+      "Ottmarsheim", "Bantzenheim", "Chalampé", "Hombourg", "Niffer", "Petit-Landau",
+      "Rumersheim-le-Haut", "Munchhouse", "Fessenheim", "Balgau", "Nambsheim",
+      "Blodelsheim", "Rustenhart", "Roggenhouse",
+    ],
+  },
+  {
+    nom: "Secteur de Sierentz",
+    communes: [
+      "Sierentz", "Bartenheim", "Kembs", "Landser", "Schlierbach", "Uffheim",
+      "Brinckheim", "Magstatt-le-Bas", "Magstatt-le-Haut", "Helfrantzkirch",
+    ],
+  },
+];
+
+/** Nombre total de communes couvertes — affiché sur /zones */
+export const nbCommunes = secteurs.reduce((n, s) => n + s.communes.length, 0);
