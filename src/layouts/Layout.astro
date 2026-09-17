@@ -214,6 +214,16 @@ const schemaLD = {
         transform: scale(1.12);
         box-shadow: 0 8px 32px rgba(214, 36, 159, 0.6);
       }
+      /* Sur mobile, le bandeau cookies occupe le bas de l'écran et recouvrait
+         les boutons flottants : au test, le clic partait sur son bouton
+         « Accepter ». Le bandeau publie son emprise réelle en JavaScript
+         (--mc-consent-emprise), on s'appuie dessus plutôt que sur une valeur
+         en dur qui serait fausse dès que le texte se replie autrement.
+         Vaut 0 quand il n'y a pas de bandeau. */
+      @media (max-width: 700px) {
+        .call-btn  { bottom: calc(24px + var(--mc-consent-emprise, 0px)); }
+        .insta-btn { bottom: calc(92px + var(--mc-consent-emprise, 0px)); }
+      }
     </style>
 
     <script>
