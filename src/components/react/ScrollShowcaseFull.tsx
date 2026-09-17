@@ -76,8 +76,8 @@ export default function ScrollShowcaseFull() {
             overflow: "hidden",
           }}>
             <div style={{ height: "100%", width: "100%", overflow: "hidden", borderRadius: "16px" }}>
-              <img
-                src="/images/galerie/photo-karsher.jpg"
+              <img width="1024" height="1024"
+                src="/images/galerie/photo-karsher.webp"
                 alt="Nettoyage professionnel avec Kärcher - Mobil Clean"
                 style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
               />

@@ -23,7 +23,13 @@ const ogImageURL = new URL(ogImage, Astro.site);
 // Données structurées Schema.org (LocalBusiness) — aide Google à comprendre
 // l'entreprise pour le référencement local (fiche, rich results).
 // NB : entreprise mobile (service à domicile) → zone desservie, pas d'adresse de rue.
-// Pas d'aggregateRating tant qu'il n'y a pas d'avis réels (ne rien inventer).
+// ⚠ NE PAS AJOUTER d'aggregateRating ici, même avec de vrais avis Google.
+// Google considère comme « self-serving » tout avis portant sur l'entreprise et
+// affiché sur son propre site — y compris via un widget tiers (widget avis
+// Google, Featurable, Facebook). Une page en LocalBusiness / Organization
+// devient alors inéligible à l'affichage des étoiles, et baliser ces avis
+// expose à une action manuelle. Les avis comptent là où ils sont déjà :
+// la fiche Google et le pack local. Réf. Google « Review snippet », déc. 2025.
 const schemaLD = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
