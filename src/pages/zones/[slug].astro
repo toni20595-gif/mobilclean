@@ -1,0 +1,502 @@
+---
+// ════════════════════════════════════════════════════════════════════════
+//  PAGE ZONE — une page par commune desservie
+//  ──────────────────────────────────────────────────────────────────────
+//  Génère /zones/mulhouse, /zones/illzach, etc.
+//  Structure volontairement DIFFÉRENTE des pages prestation : une page de
+//  zone doit répondre « est-ce qu'ils viennent chez moi, et comment ça se
+//  passe ici ? », pas redire la méthode de nettoyage. C'est aussi ce qui
+//  évite le contenu dupliqué entre les deux familles de pages.
+// ════════════════════════════════════════════════════════════════════════
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import { zones } from "../../data/zones";
+import { prestations } from "../../data/prestations";
+
+export function getStaticPaths() {
+  return zones.map((zone) => ({
+    params: { slug: zone.slug },
+    props: { zone },
+  }));
+}
+
+const { zone } = Astro.props;
+const url = new URL(`/zones/${zone.slug}`, Astro.site).href;
+
+// Les autres communes, pour le maillage latéral
+const autresZones = zones.filter((z) => z.slug !== zone.slug);
+
+// ── La page décrit la zone desservie par l'entreprise déclarée dans Layout
+const schemaPage = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "@id": `${url}#page`,
+  url,
+  name: zone.h1,
+  description: zone.reponseCourte,
+  about: { "@id": "https://mobilclean.fr/#business" },
+  mainEntity: {
+    "@type": "Service",
+    name: `Nettoyage à domicile à ${zone.ville}`,
+    description: zone.reponseCourte,
+    provider: { "@id": "https://mobilclean.fr/#business" },
+    areaServed: {
+      "@type": "City",
+      name: zone.ville,
+      address: {
+        "@type": "PostalAddress",
+        postalCode: zone.codePostal,
+        addressLocality: zone.ville,
+        addressRegion: "Grand Est",
+        addressCountry: "FR",
+      },
+    },
+    hasOfferCatalog: {
+      "@type": "OfferCatalog",
+      name: `Prestations disponibles à ${zone.ville}`,
+      itemListElement: prestations.map((p) => ({
+        "@type": "Offer",
+        itemOffered: { "@type": "Service", name: p.nom },
+        url: `https://mobilclean.fr/services/${p.slug}`,
+      })),
+    },
+  },
+};
+
+const schemaFilAriane = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Accueil", item: "https://mobilclean.fr/" },
+    { "@type": "ListItem", position: 2, name: "Zones d'intervention", item: "https://mobilclean.fr/zones" },
+    { "@type": "ListItem", position: 3, name: zone.ville, item: url },
+  ],
+};
+---
+
+<Layout title={zone.titreSeo} description={zone.metaDescription}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(schemaPage)} />
+    <script type="application/ld+json" set:html={JSON.stringify(schemaFilAriane)} />
+  </Fragment>
+  <Header />
+
+  <main>
+    <!-- ══ Fil d'Ariane ══ -->
+    <nav class="fil-ariane" aria-label="Fil d'Ariane">
+      <div class="container">
+        <ol>
+          <li><a href="/">Accueil</a></li>
+          <li><a href="/zones">Zones d'intervention</a></li>
+          <li aria-current="page">{zone.ville}</li>
+        </ol>
+      </div>
+    </nav>
+
+    <!-- ══ En-tête + bloc de réponse AEO ══ -->
+    <section class="zone-hero">
+      <div class="container">
+        <span class="tag">{zone.codePostal} · Haut-Rhin</span>
+        <h1>{zone.h1}</h1>
+        <p class="zone-reponse">{zone.reponseCourte}</p>
+
+        <div class="zone-actions">
+          <a href="/contact" class="btn-primary">Réserver un créneau</a>
+          <a href="tel:+33768445293" class="btn-tel">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.37a16 16 0 0 0 6 6l1.27-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
+            07 68 44 52 93
+          </a>
+        </div>
+
+        <dl class="zone-faits">
+          <div>
+            <dt>Distance</dt>
+            <dd>{zone.distance}</dd>
+          </div>
+          <div>
+            <dt>Horaires</dt>
+            <dd>7j/7, 9h30 – 21h</dd>
+          </div>
+          <div>
+            <dt>Créneaux</dt>
+            <dd>2h30, confirmés sous 24h</dd>
+          </div>
+          <div>
+            <dt>Devis</dt>
+            <dd>Gratuit, sans engagement</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- ══ Contexte local : le contenu propre à la commune ══ -->
+    <section class="zone-contexte">
+      <div class="container zone-contexte-inner">
+        <div class="contexte-texte reveal">
+          <h2>Nos interventions à {zone.ville}</h2>
+          <p>{zone.contexteLocal}</p>
+        </div>
+
+        <aside class="contexte-secteurs reveal">
+          <h3>Secteurs couverts</h3>
+          <ul>
+            {zone.secteurs.map((secteur) => (
+              <li>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                {secteur}
+              </li>
+            ))}
+          </ul>
+          <p class="secteurs-note">
+            Votre rue n'est pas listée ? Nous intervenons dans toute la commune —
+            <a href="tel:+33768445293">appelez-nous</a> pour confirmer.
+          </p>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ══ Points pratiques propres à la commune ══ -->
+    <section class="zone-pratique">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="tag">Bon à savoir</span>
+          <h2>Comment ça se passe à {zone.ville}</h2>
+        </div>
+
+        <div class="pratique-grid">
+          {zone.pratique.map((point) => (
+            <article class="pratique-carte reveal">
+              <h3>{point.titre}</h3>
+              <p>{point.texte}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ Toutes les prestations disponibles ici (maillage croisé) ══ -->
+    <section class="zone-prestations">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="tag">Nos prestations</span>
+          <h2>Ce que nous nettoyons à {zone.ville}</h2>
+          <p class="section-sub">
+            Toutes nos prestations sont disponibles sur la commune, au même
+            tarif qu'à Mulhouse.
+          </p>
+        </div>
+
+        <div class="presta-grid">
+          {prestations.map((p) => (
+            <a href={`/services/${p.slug}`} class="presta-carte reveal">
+              <img src={p.image} alt={p.imageAlt} width="400" height="240" loading="lazy" />
+              <div class="presta-carte-contenu">
+                <h3>{p.nom}</h3>
+                <span class="presta-carte-tarif">{p.tarif}</span>
+                <span class="presta-carte-fleche">
+                  Voir la prestation
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                  </svg>
+                </span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ Communes voisines ══ -->
+    <section class="zone-voisines">
+      <div class="container">
+        <h2>Nous intervenons aussi à</h2>
+        <ul class="voisines-liens">
+          {autresZones.map((z) => (
+            <li><a href={`/zones/${z.slug}`}>{z.ville}</a></li>
+          ))}
+        </ul>
+        <p class="voisines-note">
+          Notre zone couvre Mulhouse, son agglomération et le Haut-Rhin. Pour une
+          commune qui n'apparaît pas ici, appelez-nous : si nous pouvons nous
+          déplacer, nous vous le dirons tout de suite.
+        </p>
+      </div>
+    </section>
+
+    <!-- ══ CTA ══ -->
+    <section class="zone-cta">
+      <div class="container">
+        <h2>Un créneau à {zone.ville} ?</h2>
+        <p>
+          Choisissez vos disponibilités en ligne, nous confirmons sous 24h.
+          Devis gratuit et sans engagement.
+        </p>
+        <div class="zone-actions zone-actions-centre">
+          <a href="/contact" class="btn-teal">Réserver un créneau</a>
+          <a href="tel:+33768445293" class="btn-outline">07 68 44 52 93</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+
+</Layout>
+
+<style>
+  /* ── Fil d'Ariane ── */
+  .fil-ariane {
+    padding-top: 110px;
+    padding-bottom: 8px;
+    background: var(--fond);
+  }
+  .fil-ariane ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
+    font-size: 0.85rem;
+    color: var(--texte-2);
+  }
+  .fil-ariane li + li::before {
+    content: "›";
+    margin-right: 8px;
+    color: var(--gris);
+  }
+  .fil-ariane a { color: var(--texte-2); }
+  .fil-ariane a:hover { color: var(--bleu-royal); text-decoration: underline; }
+  .fil-ariane [aria-current="page"] { color: var(--bleu); font-weight: 600; }
+
+  /* ── En-tête ── */
+  .zone-hero {
+    padding: 32px 0 64px;
+    background: var(--fond);
+  }
+  .zone-hero h1 { color: var(--bleu); margin: 18px 0 20px; }
+  .zone-reponse {
+    font-size: clamp(1.05rem, 1.6vw, 1.2rem);
+    color: var(--texte-2);
+    line-height: 1.65;
+    max-width: 62ch;
+    padding-left: 18px;
+    border-left: 3px solid var(--teal);
+  }
+
+  .zone-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+    margin-top: 28px;
+  }
+  .zone-actions-centre { justify-content: center; }
+
+  .btn-tel {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 26px;
+    border: 2px solid var(--bleu);
+    color: var(--bleu);
+    font-weight: 600;
+    border-radius: var(--r-full);
+    transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease;
+  }
+  .btn-tel:hover {
+    background: var(--bleu);
+    color: var(--blanc);
+    transform: translateY(-2px);
+  }
+
+  .zone-faits {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 16px;
+    margin-top: 40px;
+  }
+  .zone-faits > div {
+    padding: 16px 20px;
+    background: var(--blanc);
+    border-radius: var(--r-md);
+    box-shadow: 0 2px 12px rgba(13, 48, 128, 0.05);
+  }
+  .zone-faits dt {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gris);
+    margin-bottom: 5px;
+  }
+  .zone-faits dd {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--bleu);
+    line-height: 1.4;
+  }
+
+  /* ── Titres de section ── */
+  .section-head {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 44px;
+    max-width: 620px;
+  }
+  .section-head .tag { align-self: flex-start; }
+  .section-head h2 { color: var(--bleu); }
+  .section-sub { color: var(--texte-2); }
+
+  /* ── Contexte local ── */
+  .zone-contexte { padding-block: var(--section-gap); }
+  .zone-contexte-inner {
+    display: grid;
+    grid-template-columns: 1.4fr 0.8fr;
+    gap: clamp(32px, 5vw, 60px);
+    align-items: start;
+  }
+  .contexte-texte h2 { color: var(--bleu); margin-bottom: 20px; }
+  .contexte-texte p {
+    color: var(--texte-2);
+    line-height: 1.75;
+    max-width: 68ch;
+  }
+
+  .contexte-secteurs {
+    padding: 28px;
+    background: var(--fond);
+    border-radius: var(--r-lg);
+  }
+  .contexte-secteurs h3 { color: var(--bleu); margin-bottom: 18px; }
+  .contexte-secteurs ul { list-style: none; display: grid; gap: 11px; }
+  .contexte-secteurs li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.95rem;
+    color: var(--texte-2);
+  }
+  .contexte-secteurs svg { color: var(--teal); flex-shrink: 0; margin-top: 5px; }
+  .secteurs-note {
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(13, 48, 128, 0.1);
+    font-size: 0.88rem;
+    color: var(--texte-2);
+  }
+  .secteurs-note a { color: var(--bleu-royal); font-weight: 600; }
+  .secteurs-note a:hover { text-decoration: underline; }
+
+  /* ── Points pratiques ── */
+  .zone-pratique { padding-block: var(--section-gap); background: var(--fond); }
+  .pratique-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+  }
+  .pratique-carte {
+    padding: 28px;
+    background: var(--blanc);
+    border-radius: var(--r-lg);
+    box-shadow: 0 4px 20px rgba(13, 48, 128, 0.06);
+  }
+  .pratique-carte h3 { color: var(--bleu); margin-bottom: 12px; }
+  .pratique-carte p { color: var(--texte-2); font-size: 0.97rem; }
+
+  /* ── Prestations disponibles ── */
+  .zone-prestations { padding-block: var(--section-gap); }
+  .presta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+  }
+  .presta-carte {
+    display: block;
+    background: var(--blanc);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(13, 48, 128, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .presta-carte:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(13, 48, 128, 0.14);
+  }
+  .presta-carte img { width: 100%; height: 150px; object-fit: cover; }
+  .presta-carte-contenu {
+    padding: 18px 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .presta-carte-contenu h3 { color: var(--bleu); font-size: 1.1rem; }
+  .presta-carte-tarif { font-size: 0.85rem; font-weight: 600; color: var(--teal); }
+  .presta-carte-fleche {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    font-size: 0.87rem;
+    font-weight: 600;
+    color: var(--bleu-royal);
+  }
+
+  /* ── Communes voisines ── */
+  .zone-voisines { padding-block: var(--section-gap); background: var(--fond); }
+  .zone-voisines h2 { color: var(--bleu); margin-bottom: 24px; }
+  .voisines-liens {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    list-style: none;
+  }
+  .voisines-liens a {
+    display: inline-block;
+    padding: 10px 20px;
+    background: var(--blanc);
+    color: var(--bleu);
+    font-size: 0.92rem;
+    font-weight: 500;
+    border-radius: var(--r-full);
+    box-shadow: 0 2px 10px rgba(13, 48, 128, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .voisines-liens a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(13, 48, 128, 0.12);
+  }
+  .voisines-note {
+    margin-top: 26px;
+    font-size: 0.93rem;
+    color: var(--texte-2);
+    max-width: 68ch;
+  }
+
+  /* ── CTA ── */
+  .zone-cta {
+    padding-block: var(--section-gap);
+    background: linear-gradient(135deg, var(--bleu) 0%, var(--bleu-royal) 100%);
+    text-align: center;
+  }
+  .zone-cta h2 { color: var(--blanc); margin-bottom: 16px; }
+  .zone-cta p {
+    color: rgba(255, 255, 255, 0.78);
+    max-width: 50ch;
+    margin: 0 auto 32px;
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 860px) {
+    .zone-contexte-inner { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 520px) {
+    .zone-actions { flex-direction: column; align-items: stretch; }
+    .zone-actions > * { justify-content: center; }
+  }
+</style>

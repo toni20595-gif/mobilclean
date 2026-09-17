@@ -59,6 +59,10 @@ import FormulesVoiture from "../components/FormulesVoiture.astro";
               <div class="service-info">
                 <h2>{service.titre}</h2>
                 <FormulesVoiture />
+                <div class="service-actions">
+                  <a href={service.page} class="btn-primary">Tout savoir sur cette prestation</a>
+                  <a href="/contact" class="service-lien-resa">Réserver un créneau</a>
+                </div>
               </div>
             ) : (
               <div class="service-info">
@@ -74,7 +78,10 @@ import FormulesVoiture from "../components/FormulesVoiture.astro";
                     </li>
                   ))}
                 </ul>
-                <a href="/contact" class="btn-primary">Réserver un créneau</a>
+                <div class="service-actions">
+                  <a href={service.page} class="btn-primary">Tout savoir sur cette prestation</a>
+                  <a href="/contact" class="service-lien-resa">Réserver un créneau</a>
+                </div>
               </div>
             )}
           </article>
@@ -86,6 +93,23 @@ import FormulesVoiture from "../components/FormulesVoiture.astro";
 </Layout>
 
 <style>
+  /* Liens vers les pages prestation dédiées */
+  .service-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+    margin-top: 8px;
+  }
+  .service-lien-resa {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--bleu-royal);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .service-lien-resa:hover { color: var(--teal); }
+
   .page-hero {
     position: relative;
     overflow: hidden;

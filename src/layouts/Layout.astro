@@ -114,6 +114,9 @@ const schemaLD = {
     <!-- Données structurées entreprise locale (SEO local / rich results) -->
     <script type="application/ld+json" set:html={JSON.stringify(schemaLD)} />
 
+    <!-- Balisages propres à chaque page (Service, FAQPage, fil d'Ariane...) -->
+    <slot name="head" />
+
     <!-- Suivi des conversions Google Ads (inactif tant que non configuré) -->
     <Analytics />
 

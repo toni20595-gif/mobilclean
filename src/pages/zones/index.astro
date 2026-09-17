@@ -1,0 +1,281 @@
+---
+// Page « hub » des zones : point d'entrée pour la requête « nettoyage à
+// domicile Haut-Rhin » et nœud de maillage vers chaque commune.
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import { zones } from "../../data/zones";
+import { prestations } from "../../data/prestations";
+
+const schemaFilAriane = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Accueil", item: "https://mobilclean.fr/" },
+    { "@type": "ListItem", position: 2, name: "Zones d'intervention", item: "https://mobilclean.fr/zones" },
+  ],
+};
+---
+
+<Layout
+  title="Zones d'intervention — Mulhouse et Haut-Rhin | Mobil Clean"
+  description="Mobil Clean se déplace à Mulhouse, dans son agglomération et dans tout le Haut-Rhin : Illzach, Riedisheim, Wittenheim, Kingersheim, Rixheim, Pfastatt, Brunstatt-Didenheim. Devis gratuit, 7j/7."
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(schemaFilAriane)} />
+  </Fragment>
+  <Header />
+
+  <main>
+    <nav class="fil-ariane" aria-label="Fil d'Ariane">
+      <div class="container">
+        <ol>
+          <li><a href="/">Accueil</a></li>
+          <li aria-current="page">Zones d'intervention</li>
+        </ol>
+      </div>
+    </nav>
+
+    <section class="zones-hero">
+      <div class="container">
+        <span class="tag">Zone d'intervention</span>
+        <h1>Nous venons chez vous, dans tout le Haut-Rhin</h1>
+        <p class="zones-reponse">
+          Mobil Clean est basé à Mulhouse et intervient à domicile dans toute
+          l'agglomération et le Haut-Rhin. Nettoyage de voiture, matelas,
+          canapé, tapis et fauteuil chez vous, sans rien déplacer. Sur
+          rendez-vous 7j/7 de 9h30 à 21h, devis gratuit au 07 68 44 52 93.
+        </p>
+      </div>
+    </section>
+
+    <section class="zones-liste-section">
+      <div class="container">
+        <div class="section-head reveal">
+          <h2>Les communes où nous intervenons le plus</h2>
+          <p class="section-sub">
+            Chaque page détaille les secteurs couverts et les points pratiques
+            propres à la commune.
+          </p>
+        </div>
+
+        <div class="zones-grid">
+          {zones.map((zone) => (
+            <a href={`/zones/${zone.slug}`} class="zone-carte reveal">
+              <div class="zone-carte-haut">
+                <h3>{zone.ville}</h3>
+                <span class="zone-cp">{zone.codePostal}</span>
+              </div>
+              <p class="zone-distance">{zone.distance}</p>
+              <ul class="zone-secteurs-apercu">
+                {zone.secteurs.slice(0, 3).map((s) => <li>{s}</li>)}
+                {zone.secteurs.length > 3 && <li class="zone-plus">+ {zone.secteurs.length - 3} autres secteurs</li>}
+              </ul>
+              <span class="zone-carte-fleche">
+                Voir la page
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </span>
+            </a>
+          ))}
+        </div>
+
+        <p class="zones-hors-liste">
+          Votre commune n'apparaît pas ? Nous couvrons l'ensemble du Haut-Rhin.
+          <a href="tel:+33768445293">Appelez-nous au 07 68 44 52 93</a> : si nous
+          pouvons nous déplacer, nous vous le dirons immédiatement.
+        </p>
+      </div>
+    </section>
+
+    <section class="zones-prestations">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="tag">Nos prestations</span>
+          <h2>Disponibles partout dans la zone</h2>
+        </div>
+        <ul class="zones-presta-liens">
+          {prestations.map((p) => (
+            <li>
+              <a href={`/services/${p.slug}`}>
+                <strong>{p.nom}</strong>
+                <span>{p.tarif}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <section class="zones-cta">
+      <div class="container">
+        <h2>Réservez votre créneau</h2>
+        <p>Créneaux de 2h30, confirmés sous 24h. Devis gratuit, sans engagement.</p>
+        <div class="zones-actions">
+          <a href="/contact" class="btn-teal">Réserver un créneau</a>
+          <a href="tel:+33768445293" class="btn-outline">07 68 44 52 93</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+
+</Layout>
+
+<style>
+  .fil-ariane {
+    padding-top: 110px;
+    padding-bottom: 8px;
+    background: var(--fond);
+  }
+  .fil-ariane ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
+    font-size: 0.85rem;
+    color: var(--texte-2);
+  }
+  .fil-ariane li + li::before {
+    content: "›";
+    margin-right: 8px;
+    color: var(--gris);
+  }
+  .fil-ariane a { color: var(--texte-2); }
+  .fil-ariane a:hover { color: var(--bleu-royal); text-decoration: underline; }
+  .fil-ariane [aria-current="page"] { color: var(--bleu); font-weight: 600; }
+
+  .zones-hero { padding: 32px 0 64px; background: var(--fond); }
+  .zones-hero h1 { color: var(--bleu); margin: 18px 0 20px; }
+  .zones-reponse {
+    font-size: clamp(1.05rem, 1.6vw, 1.2rem);
+    color: var(--texte-2);
+    line-height: 1.65;
+    max-width: 64ch;
+    padding-left: 18px;
+    border-left: 3px solid var(--teal);
+  }
+
+  .section-head {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 44px;
+    max-width: 620px;
+  }
+  .section-head .tag { align-self: flex-start; }
+  .section-head h2 { color: var(--bleu); }
+  .section-sub { color: var(--texte-2); }
+
+  .zones-liste-section { padding-block: var(--section-gap); }
+  .zones-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+    gap: 24px;
+  }
+  .zone-carte {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 26px;
+    background: var(--blanc);
+    border: 1px solid rgba(13, 48, 128, 0.08);
+    border-radius: var(--r-lg);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+  .zone-carte:hover {
+    transform: translateY(-4px);
+    border-color: var(--teal);
+    box-shadow: 0 12px 36px rgba(13, 48, 128, 0.12);
+  }
+  .zone-carte-haut {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .zone-carte-haut h3 { color: var(--bleu); }
+  .zone-cp {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--gris);
+    letter-spacing: 0.04em;
+  }
+  .zone-distance { font-size: 0.88rem; color: var(--teal); font-weight: 500; }
+  .zone-secteurs-apercu {
+    list-style: none;
+    display: grid;
+    gap: 5px;
+    font-size: 0.88rem;
+    color: var(--texte-2);
+  }
+  .zone-plus { color: var(--gris); font-style: italic; }
+  .zone-carte-fleche {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: auto;
+    padding-top: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--bleu-royal);
+  }
+
+  .zones-hors-liste {
+    margin-top: 36px;
+    padding: 22px 26px;
+    background: var(--teal-pale);
+    border-radius: var(--r-md);
+    font-size: 0.95rem;
+    color: var(--texte);
+  }
+  .zones-hors-liste a { color: var(--bleu); font-weight: 600; }
+  .zones-hors-liste a:hover { text-decoration: underline; }
+
+  .zones-prestations { padding-block: var(--section-gap); background: var(--fond); }
+  .zones-presta-liens {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 14px;
+    list-style: none;
+  }
+  .zones-presta-liens a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px 22px;
+    background: var(--blanc);
+    border-radius: var(--r-md);
+    box-shadow: 0 2px 12px rgba(13, 48, 128, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .zones-presta-liens a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(13, 48, 128, 0.12);
+  }
+  .zones-presta-liens strong { color: var(--bleu); font-weight: 600; }
+  .zones-presta-liens span { font-size: 0.85rem; color: var(--teal); font-weight: 600; }
+
+  .zones-cta {
+    padding-block: var(--section-gap);
+    background: linear-gradient(135deg, var(--bleu) 0%, var(--bleu-royal) 100%);
+    text-align: center;
+  }
+  .zones-cta h2 { color: var(--blanc); margin-bottom: 16px; }
+  .zones-cta p { color: rgba(255, 255, 255, 0.78); margin-bottom: 32px; }
+  .zones-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+  }
+
+  @media (max-width: 520px) {
+    .zones-actions { flex-direction: column; align-items: stretch; }
+    .zones-actions > * { justify-content: center; }
+  }
+</style>

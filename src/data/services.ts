@@ -1,6 +1,7 @@
 export const services = [
   {
     id: "voiture",
+    page: "/services/nettoyage-interieur-voiture",
     titre: "Voiture",
     description: "Nettoyage complet de l'habitacle : sièges, tableau de bord, moquettes et plastiques. Votre voiture retrouve l'eclat du neuf.",
     image: "/images/galerie/voiture-acceuil.webp",
@@ -13,6 +14,7 @@ export const services = [
   },
   {
     id: "matelas",
+    page: "/services/nettoyage-matelas",
     titre: "Matelas",
     description: "Nettoyage en profondeur avec traitement anti-acariens et desodorisation. Dormez dans un environnement sain et frais.",
     image: "/images/galerie/matelas-acceuil.webp",
@@ -22,6 +24,7 @@ export const services = [
   },
   {
     id: "canape",
+    page: "/services/nettoyage-canape",
     titre: "Canapé",
     description: "Nettoyage par injection-extraction pour tissus, velours, microfibre et cuir. Taches, odeurs et bactéries éliminées.",
     image: "/images/galerie/canape-apres-2.webp",
@@ -31,6 +34,7 @@ export const services = [
   },
   {
     id: "tapis",
+    page: "/services/nettoyage-tapis",
     titre: "Tapis",
     description: "Nettoyage en profondeur de vos tapis par injection-extraction haute pression. Poussière, taches, bactéries et acariens éliminés. Résultat frais et éclatant.",
     image: "/images/galerie/tapis-service.webp",
@@ -40,6 +44,7 @@ export const services = [
   },
   {
     id: "fauteuil",
+    page: "/services/nettoyage-fauteuil",
     titre: "Fauteuil",
     description: "Nettoyage complet de vos fauteuils quel que soit le tissu : velours, microfibre, cuir synthétique. Résultat propre, sans résidu, séchage rapide.",
     image: "/images/galerie/fauteuil-service.webp",
@@ -49,6 +54,7 @@ export const services = [
   },
   {
     id: "formule-multi",
+    page: "/services/nettoyage-multi-meubles",
     titre: "Formule Multi-Meubles",
     description: "Vous avez plusieurs meubles à nettoyer ? Profitez de notre formule sur-mesure : canapé, fauteuils, tapis, matelas — on s'adapte à votre intérieur et vous proposons un tarif groupé au devis.",
     image: "/images/galerie/salon.webp",

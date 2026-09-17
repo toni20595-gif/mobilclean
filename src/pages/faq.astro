@@ -1,0 +1,359 @@
+---
+// ════════════════════════════════════════════════════════════════════════
+//  FAQ GÉNÉRALE
+//  ──────────────────────────────────────────────────────────────────────
+//  Volontairement limitée aux questions TRANSVERSALES (déroulé, paiement,
+//  délais, garantie, zone). Les questions techniques propres à chaque
+//  prestation vivent sur les pages prestation : dupliquer les mêmes
+//  questions ici affaiblirait les deux pages au lieu de les renforcer.
+//
+//  Double objectif :
+//   • balisage FAQPage → éligible aux résultats enrichis ;
+//   • réponses courtes et factuelles → c'est ce format que ChatGPT,
+//     Perplexity et les réponses IA de Google reprennent et citent.
+//
+//  À VÉRIFIER PAR MOBIL CLEAN : les réponses sur le paiement, l'annulation
+//  et la garantie reprennent ce qui est déjà annoncé ailleurs sur le site.
+//  Si votre pratique réelle diffère, corrigez ici — une FAQ qui promet ce
+//  que vous ne faites pas se paie en avis négatifs.
+// ════════════════════════════════════════════════════════════════════════
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { prestations } from "../data/prestations";
+
+const faq = [
+  {
+    categorie: "Avant l'intervention",
+    questions: [
+      {
+        question: "Comment se passe une intervention à domicile ?",
+        reponse:
+          "Nous arrivons chez vous avec tout le matériel : machine d'injection-extraction, nettoyeur vapeur, produits. Nous faisons d'abord le tour des pièces à traiter avec vous pour repérer les taches, puis nous intervenons sur place. Rien ne sort de votre logement : ni le matelas, ni le canapé, ni le tapis.",
+      },
+      {
+        question: "Faut-il être présent pendant l'intervention ?",
+        reponse:
+          "Oui, au moins à l'arrivée et au départ. À l'arrivée pour valider ensemble ce qui est à traiter, au départ pour contrôler le résultat avec nous. Entre les deux, vous faites ce que vous voulez — vous n'avez pas à rester à côté.",
+      },
+      {
+        question: "Quel est le délai pour obtenir un rendez-vous ?",
+        reponse:
+          "Vous choisissez vos disponibilités en ligne et nous confirmons le créneau sous 24 heures. Il y a souvent de la place dans les 48 heures, surtout sur Mulhouse et les communes proches. Les créneaux du week-end et de soirée partent plus vite.",
+      },
+      {
+        question: "Le devis est-il payant ?",
+        reponse:
+          "Non. Le devis est gratuit et sans engagement. Vous connaissez le montant total avant que nous nous déplacions — pas de surprise à la fin de l'intervention.",
+      },
+      {
+        question: "Faut-il prévoir de l'eau ou de l'électricité ?",
+        reponse:
+          "Un accès à une prise électrique est le plus pratique. Si vous n'en avez pas — une voiture sur un parking, par exemple — dites-le nous à la réservation et nous adaptons l'intervention.",
+      },
+    ],
+  },
+  {
+    categorie: "Pendant et après",
+    questions: [
+      {
+        question: "Combien de temps dure une intervention ?",
+        reponse:
+          "Nos créneaux sont de 2h30. Un matelas seul prend environ une heure, un canapé une à deux heures selon la taille, un intérieur de voiture complet environ 2h30. Pour plusieurs meubles, comptez une demi-journée — la durée estimée vous est donnée au devis.",
+      },
+      {
+        question: "Combien de temps faut-il pour que ça sèche ?",
+        reponse:
+          "Quelques heures dans une pièce aérée. L'injection-extraction réaspire l'eau immédiatement : le textile est légèrement humide au toucher juste après notre passage, jamais détrempé. Pour un matelas, prenez un créneau en matinée pour être tranquille au coucher.",
+      },
+      {
+        question: "Vos produits sont-ils sans danger avec des enfants ou des animaux ?",
+        reponse:
+          "Nos produits sont choisis pour être utilisés dans des logements occupés, et la désodorisation est bio, sans parfum entêtant. Signalez-nous à la réservation toute allergie, ou la présence de jeunes enfants et d'animaux : nous adaptons les produits en conséquence.",
+      },
+      {
+        question: "Et si le résultat ne me convient pas ?",
+        reponse:
+          "Nous contrôlons le résultat avec vous avant de partir, c'est le moment de le dire. Notre engagement est simple : satisfaction garantie, ou nous revenons sans frais supplémentaires.",
+      },
+      {
+        question: "Toutes les taches partent-elles ?",
+        reponse:
+          "La grande majorité des taches courantes partent. Certaines taches très anciennes, ou qui ont déteint sur la fibre, peuvent laisser une ombre. Nous vous le disons au moment du devis, avant de commencer — pas après.",
+      },
+    ],
+  },
+  {
+    categorie: "Pratique",
+    questions: [
+      {
+        question: "Quelle est votre zone d'intervention ?",
+        reponse:
+          "Nous sommes basés à Mulhouse et intervenons dans l'agglomération et tout le Haut-Rhin : Illzach, Riedisheim, Wittenheim, Kingersheim, Rixheim, Pfastatt, Brunstatt-Didenheim et les communes alentour. Si la vôtre n'est pas listée, appelez-nous : nous vous dirons tout de suite si nous pouvons venir.",
+      },
+      {
+        question: "Quels sont vos horaires ?",
+        reponse:
+          "Nous intervenons sept jours sur sept, de 9h30 à 21h. Les créneaux en soirée permettent de caler un rendez-vous après le travail, et ceux du week-end sont les plus demandés.",
+      },
+      {
+        question: "Comment régler l'intervention ?",
+        reponse:
+          "Nous acceptons les espèces, la carte bancaire et le virement. Le règlement se fait à la fin de l'intervention, une fois le résultat validé avec vous.",
+      },
+      {
+        question: "Puis-je annuler ou déplacer mon rendez-vous ?",
+        reponse:
+          "Oui. Appelez-nous au 07 68 44 52 93 dès que vous le savez et nous trouvons un autre créneau. Plus vous prévenez tôt, plus il est facile de vous replacer rapidement.",
+      },
+      {
+        question: "Intervenez-vous pour les entreprises ?",
+        reponse:
+          "Oui : hôtels, garages, bureaux, locaux professionnels et flottes de véhicules, avec facturation professionnelle et possibilité de contrat d'entretien. Tout est détaillé sur notre page Entreprises.",
+      },
+      {
+        question: "Vendez-vous des produits d'entretien ?",
+        reponse:
+          "Oui, une sélection de produits d'entretien auto est disponible sur notre boutique en ligne : soin du cuir, nettoyant intérieur, nettoyant pneus et protection céramique, livrés en France et en Europe.",
+      },
+    ],
+  },
+];
+
+// Balisage FAQPage — les questions sont bien affichées sur la page,
+// condition posée par Google pour ce type de données structurées.
+const schemaFaq = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": "https://mobilclean.fr/faq#faq",
+  mainEntity: faq.flatMap((bloc) =>
+    bloc.questions.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer", text: item.reponse },
+    }))
+  ),
+};
+
+const schemaFilAriane = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Accueil", item: "https://mobilclean.fr/" },
+    { "@type": "ListItem", position: 2, name: "Questions fréquentes", item: "https://mobilclean.fr/faq" },
+  ],
+};
+---
+
+<Layout
+  title="Questions fréquentes — nettoyage à domicile | Mobil Clean"
+  description="Déroulé de l'intervention, délais, séchage, tarifs, paiement, zone d'intervention, garantie : toutes les réponses sur le nettoyage à domicile Mobil Clean à Mulhouse et dans le Haut-Rhin."
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(schemaFaq)} />
+    <script type="application/ld+json" set:html={JSON.stringify(schemaFilAriane)} />
+  </Fragment>
+  <Header />
+
+  <main>
+    <nav class="fil-ariane" aria-label="Fil d'Ariane">
+      <div class="container">
+        <ol>
+          <li><a href="/">Accueil</a></li>
+          <li aria-current="page">Questions fréquentes</li>
+        </ol>
+      </div>
+    </nav>
+
+    <section class="faq-hero">
+      <div class="container">
+        <span class="tag">Questions fréquentes</span>
+        <h1>Tout ce qu'on nous demande</h1>
+        <p class="faq-reponse">
+          Mobil Clean nettoie voitures, matelas, canapés, tapis et fauteuils à
+          domicile, à Mulhouse et dans le Haut-Rhin. Créneaux de 2h30 de 9h30 à
+          21h, sept jours sur sept, confirmés sous 24h. Devis gratuit et sans
+          engagement au 07 68 44 52 93.
+        </p>
+      </div>
+    </section>
+
+    <section class="faq-corps">
+      <div class="container">
+        {faq.map((bloc) => (
+          <div class="faq-bloc">
+            <h2>{bloc.categorie}</h2>
+            <div class="faq-liste">
+              {bloc.questions.map((item) => (
+                <details class="faq-item">
+                  <summary>
+                    <h3>{item.question}</h3>
+                    <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </summary>
+                  <p>{item.reponse}</p>
+                </details>
+              ))}
+            </div>
+          </div>
+        ))}
+
+        <div class="faq-renvois">
+          <h2>Questions par prestation</h2>
+          <p>
+            Chaque prestation a ses propres questions techniques — séchage,
+            textiles délicats, taches spécifiques :
+          </p>
+          <ul>
+            {prestations.map((p) => (
+              <li>
+                <a href={`/services/${p.slug}`}>
+                  {p.nom}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                  </svg>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="faq-cta">
+      <div class="container">
+        <h2>Votre question n'est pas là ?</h2>
+        <p>Appelez-nous, on répond directement. C'est plus rapide qu'un formulaire.</p>
+        <div class="faq-actions">
+          <a href="tel:+33768445293" class="btn-teal">07 68 44 52 93</a>
+          <a href="/contact" class="btn-outline">Réserver un créneau</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+
+</Layout>
+
+<style>
+  .fil-ariane {
+    padding-top: 110px;
+    padding-bottom: 8px;
+    background: var(--fond);
+  }
+  .fil-ariane ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
+    font-size: 0.85rem;
+    color: var(--texte-2);
+  }
+  .fil-ariane li + li::before {
+    content: "›";
+    margin-right: 8px;
+    color: var(--gris);
+  }
+  .fil-ariane a { color: var(--texte-2); }
+  .fil-ariane a:hover { color: var(--bleu-royal); text-decoration: underline; }
+  .fil-ariane [aria-current="page"] { color: var(--bleu); font-weight: 600; }
+
+  .faq-hero { padding: 32px 0 64px; background: var(--fond); }
+  .faq-hero h1 { color: var(--bleu); margin: 18px 0 20px; }
+  .faq-reponse {
+    font-size: clamp(1.05rem, 1.6vw, 1.2rem);
+    color: var(--texte-2);
+    line-height: 1.65;
+    max-width: 64ch;
+    padding-left: 18px;
+    border-left: 3px solid var(--teal);
+  }
+
+  .faq-corps { padding-block: var(--section-gap); }
+  .faq-bloc { margin-bottom: 56px; }
+  .faq-bloc h2 {
+    color: var(--bleu);
+    font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+    margin-bottom: 24px;
+  }
+  .faq-liste { display: grid; gap: 12px; }
+  .faq-item {
+    background: var(--fond);
+    border-radius: var(--r-md);
+    overflow: hidden;
+  }
+  .faq-item summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 24px;
+    cursor: pointer;
+    list-style: none;
+  }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item summary h3 {
+    font-size: clamp(1rem, 1.6vw, 1.12rem);
+    font-weight: 600;
+    color: var(--bleu);
+  }
+  .faq-chevron { color: var(--teal); flex-shrink: 0; transition: transform 0.25s ease; }
+  .faq-item[open] .faq-chevron { transform: rotate(180deg); }
+  .faq-item > p {
+    padding: 0 24px 22px;
+    color: var(--texte-2);
+    max-width: 80ch;
+  }
+
+  .faq-renvois {
+    padding: 32px;
+    background: var(--teal-pale);
+    border-radius: var(--r-lg);
+  }
+  .faq-renvois h2 { color: var(--bleu); font-size: clamp(1.3rem, 2.2vw, 1.7rem); margin-bottom: 12px; }
+  .faq-renvois > p { color: var(--texte); margin-bottom: 20px; max-width: 62ch; }
+  .faq-renvois ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    list-style: none;
+  }
+  .faq-renvois a {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 18px;
+    background: var(--blanc);
+    color: var(--bleu);
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: var(--r-full);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .faq-renvois a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(13, 48, 128, 0.14);
+  }
+
+  .faq-cta {
+    padding-block: var(--section-gap);
+    background: linear-gradient(135deg, var(--bleu) 0%, var(--bleu-royal) 100%);
+    text-align: center;
+  }
+  .faq-cta h2 { color: var(--blanc); margin-bottom: 16px; }
+  .faq-cta p { color: rgba(255, 255, 255, 0.78); margin-bottom: 32px; }
+  .faq-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+  }
+
+  @media (max-width: 520px) {
+    .faq-actions { flex-direction: column; align-items: stretch; }
+    .faq-actions > * { justify-content: center; }
+  }
+</style>

@@ -1,0 +1,711 @@
+---
+// ════════════════════════════════════════════════════════════════════════
+//  PAGE PRESTATION — une page par intention de recherche
+//  ──────────────────────────────────────────────────────────────────────
+//  Génère /services/nettoyage-matelas, /services/nettoyage-canape, etc.
+//  Chaque page porte :
+//   • un bloc de réponse de 40-60 mots en haut (ce que citent les IA) ;
+//   • le balisage Service, FAQPage et BreadcrumbList ;
+//   • les vraies photos avant/après, qui n'étaient affichées nulle part ;
+//   • un maillage vers les prestations liées et les zones desservies.
+// ════════════════════════════════════════════════════════════════════════
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import { prestations } from "../../data/prestations";
+import { zones } from "../../data/zones";
+
+export function getStaticPaths() {
+  return prestations.map((prestation) => ({
+    params: { slug: prestation.slug },
+    props: { prestation },
+  }));
+}
+
+const { prestation } = Astro.props;
+const url = new URL(`/services/${prestation.slug}`, Astro.site).href;
+
+// Prestations liées, pour le maillage interne en bas de page
+const liees = prestation.liees
+  .map((slug) => prestations.find((p) => p.slug === slug))
+  .filter((p) => p !== undefined);
+
+// ── Balisage Service, rattaché à l'entreprise déclarée dans Layout.astro
+const schemaService = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "@id": `${url}#service`,
+  name: prestation.nom,
+  serviceType: prestation.h1,
+  description: prestation.reponseCourte,
+  url,
+  provider: { "@id": "https://mobilclean.fr/#business" },
+  areaServed: [
+    { "@type": "City", name: "Mulhouse" },
+    { "@type": "AdministrativeArea", name: "Haut-Rhin" },
+    { "@type": "AdministrativeArea", name: "Alsace" },
+  ],
+  availableChannel: {
+    "@type": "ServiceChannel",
+    servicePhone: "+33768445293",
+    serviceUrl: "https://mobilclean.fr/contact",
+  },
+};
+
+// ── FAQPage : les questions sont réellement affichées sur la page,
+//    condition posée par Google pour ce balisage.
+const schemaFaq = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": `${url}#faq`,
+  mainEntity: prestation.faq.map((item) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: { "@type": "Answer", text: item.reponse },
+  })),
+};
+
+// ── Fil d'Ariane, affiché et balisé
+const schemaFilAriane = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Accueil", item: "https://mobilclean.fr/" },
+    { "@type": "ListItem", position: 2, name: "Prestations", item: "https://mobilclean.fr/services" },
+    { "@type": "ListItem", position: 3, name: prestation.nom, item: url },
+  ],
+};
+---
+
+<Layout
+  title={prestation.titreSeo}
+  description={prestation.metaDescription}
+  ogImage={prestation.image}
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(schemaService)} />
+    <script type="application/ld+json" set:html={JSON.stringify(schemaFaq)} />
+    <script type="application/ld+json" set:html={JSON.stringify(schemaFilAriane)} />
+  </Fragment>
+  <Header />
+
+  <main>
+    <!-- ══ Fil d'Ariane ══ -->
+    <nav class="fil-ariane" aria-label="Fil d'Ariane">
+      <div class="container">
+        <ol>
+          <li><a href="/">Accueil</a></li>
+          <li><a href="/services">Prestations</a></li>
+          <li aria-current="page">{prestation.nom}</li>
+        </ol>
+      </div>
+    </nav>
+
+    <!-- ══ En-tête : H1 + bloc de réponse court (socle AEO) ══ -->
+    <section class="presta-hero">
+      <div class="container presta-hero-inner">
+        <div class="presta-hero-texte">
+          <span class="tag">{prestation.nom}</span>
+          <h1>{prestation.h1}</h1>
+
+          <!-- Bloc de réponse : 40-60 mots, factuel. C'est ce fragment que
+               ChatGPT, Perplexity et les réponses IA de Google reprennent. -->
+          <p class="presta-reponse">{prestation.reponseCourte}</p>
+
+          <div class="presta-actions">
+            <a href="/contact" class="btn-primary">Réserver un créneau</a>
+            <a href="tel:+33768445293" class="btn-tel">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.37a16 16 0 0 0 6 6l1.27-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+              07 68 44 52 93
+            </a>
+          </div>
+        </div>
+
+        <div class="presta-hero-img">
+          <img
+            src={prestation.image}
+            alt={prestation.imageAlt}
+            width="800"
+            height="600"
+            fetchpriority="high"
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ Les faits, en clair : ce que les IA et les clients cherchent ══ -->
+    <section class="presta-faits">
+      <div class="container">
+        <dl class="faits-grid">
+          <div class="fait">
+            <dt>Tarif</dt>
+            <dd>{prestation.tarif}</dd>
+          </div>
+          <div class="fait">
+            <dt>Durée</dt>
+            <dd>{prestation.duree}</dd>
+          </div>
+          <div class="fait">
+            <dt>Où</dt>
+            <dd>Chez vous, à domicile</dd>
+          </div>
+          <div class="fait">
+            <dt>Zone</dt>
+            <dd>Mulhouse et Haut-Rhin</dd>
+          </div>
+          <div class="fait">
+            <dt>Horaires</dt>
+            <dd>7j/7, 9h30 – 21h</dd>
+          </div>
+          <div class="fait">
+            <dt>Devis</dt>
+            <dd>Gratuit, sans engagement</dd>
+          </div>
+        </dl>
+        <p class="faits-note">{prestation.tarifDetail}</p>
+      </div>
+    </section>
+
+    <!-- ══ Preuves avant / après ══ -->
+    {prestation.avantApres.length > 0 && (
+      <section class="presta-preuves">
+        <div class="container">
+          <div class="section-head reveal">
+            <span class="tag">Avant / après</span>
+            <h2>Des résultats, pas des promesses</h2>
+            <p class="section-sub">
+              Photos prises lors de nos interventions réelles en Alsace. Aucune
+              image d'illustration.
+            </p>
+          </div>
+
+          <div class="preuves-grid">
+            {prestation.avantApres.map((paire) => (
+              <figure class="preuve reveal">
+                <div class="preuve-duo">
+                  <div class="preuve-img">
+                    <img src={paire.avant} alt={`Avant : ${paire.legende}`} width="600" height="450" loading="lazy" />
+                    <span class="preuve-badge preuve-avant">Avant</span>
+                  </div>
+                  <div class="preuve-img">
+                    <img src={paire.apres} alt={`Après : ${paire.legende}`} width="600" height="450" loading="lazy" />
+                    <span class="preuve-badge preuve-apres">Après</span>
+                  </div>
+                </div>
+                <figcaption>{paire.legende}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+    <!-- ══ La méthode, étape par étape ══ -->
+    <section class="presta-methode">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="tag">Notre méthode</span>
+          <h2>Comment on procède</h2>
+          <p class="section-sub">
+            Le détail compte : c'est l'ordre des étapes qui fait la différence
+            entre un résultat qui tient et un résultat qui ressort au séchage.
+          </p>
+        </div>
+
+        <ol class="methode-liste">
+          {prestation.methode.map((etape, i) => (
+            <li class="methode-etape reveal">
+              <span class="etape-num">{i + 1}</span>
+              <div>
+                <h3>{etape.titre}</h3>
+                <p>{etape.texte}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <!-- ══ Inclus + cas typiques ══ -->
+    <section class="presta-double">
+      <div class="container presta-double-inner">
+        <div class="bloc-inclus reveal">
+          <h2>Ce qui est inclus</h2>
+          <ul class="liste-check">
+            {prestation.inclus.map((item) => (
+              <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="bloc-cas reveal">
+          <h2>Dans quels cas nous appeler</h2>
+          <ul class="liste-cas">
+            {prestation.casTypiques.map((cas) => <li>{cas}</li>)}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ FAQ — en <details> : lisible par les robots sans JavaScript ══ -->
+    <section class="presta-faq">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="tag">Questions fréquentes</span>
+          <h2>{prestation.nom} : vos questions</h2>
+        </div>
+
+        <div class="faq-liste">
+          {prestation.faq.map((item) => (
+            <details class="faq-item reveal">
+              <summary>
+                <h3>{item.question}</h3>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </summary>
+              <p>{item.reponse}</p>
+            </details>
+          ))}
+        </div>
+
+        <p class="faq-plus">
+          D'autres questions ? <a href="/faq">Voir toutes les questions fréquentes</a>
+          ou appelez-nous au <a href="tel:+33768445293">07 68 44 52 93</a>.
+        </p>
+      </div>
+    </section>
+
+    <!-- ══ Maillage : zones desservies ══ -->
+    <section class="presta-zones">
+      <div class="container">
+        <h2>Où nous intervenons</h2>
+        <p class="zones-intro">
+          Nous nous déplaçons à Mulhouse et dans tout le Haut-Rhin. Voici les
+          communes où nous intervenons le plus souvent :
+        </p>
+        <ul class="zones-liens">
+          {zones.map((zone) => (
+            <li><a href={`/zones/${zone.slug}`}>{prestation.nom} à {zone.ville}</a></li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <!-- ══ Maillage : prestations liées ══ -->
+    {liees.length > 0 && (
+      <section class="presta-liees">
+        <div class="container">
+          <h2>Souvent demandé en même temps</h2>
+          <div class="liees-grid">
+            {liees.map((p) => (
+              <a href={`/services/${p!.slug}`} class="liee-carte">
+                <img src={p!.image} alt={p!.imageAlt} width="400" height="260" loading="lazy" />
+                <div class="liee-contenu">
+                  <h3>{p!.nom}</h3>
+                  <span class="liee-tarif">{p!.tarif}</span>
+                  <span class="liee-fleche">
+                    Découvrir
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                  </span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+    <!-- ══ Appel à l'action final ══ -->
+    <section class="presta-cta">
+      <div class="container">
+        <h2>{prestation.nom} : on s'occupe de tout</h2>
+        <p>
+          Devis gratuit et sans engagement. On se déplace chez vous, 7j/7 de
+          9h30 à 21h, à Mulhouse et dans le Haut-Rhin.
+        </p>
+        <div class="presta-actions">
+          <a href="/contact" class="btn-teal">Réserver un créneau</a>
+          <a href="tel:+33768445293" class="btn-outline">07 68 44 52 93</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+
+</Layout>
+
+<style>
+  /* ── Fil d'Ariane ── */
+  .fil-ariane {
+    padding-top: 110px;
+    padding-bottom: 8px;
+    background: var(--fond);
+  }
+  .fil-ariane ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
+    font-size: 0.85rem;
+    color: var(--texte-2);
+  }
+  .fil-ariane li + li::before {
+    content: "›";
+    margin-right: 8px;
+    color: var(--gris);
+  }
+  .fil-ariane a { color: var(--texte-2); }
+  .fil-ariane a:hover { color: var(--bleu-royal); text-decoration: underline; }
+  .fil-ariane [aria-current="page"] { color: var(--bleu); font-weight: 600; }
+
+  /* ── En-tête ── */
+  .presta-hero {
+    padding: 32px 0 var(--section-gap);
+    background: var(--fond);
+  }
+  .presta-hero-inner {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: clamp(32px, 5vw, 64px);
+    align-items: center;
+  }
+  .presta-hero-texte { display: flex; flex-direction: column; gap: 20px; }
+  .presta-hero-texte .tag { align-self: flex-start; }
+  .presta-hero h1 { color: var(--bleu); }
+
+  .presta-reponse {
+    font-size: clamp(1.05rem, 1.6vw, 1.2rem);
+    color: var(--texte-2);
+    line-height: 1.65;
+    max-width: 60ch;
+    padding-left: 18px;
+    border-left: 3px solid var(--teal);
+  }
+
+  .presta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+    margin-top: 4px;
+  }
+  .btn-tel {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 26px;
+    border: 2px solid var(--bleu);
+    color: var(--bleu);
+    font-weight: 600;
+    border-radius: var(--r-full);
+    transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease;
+  }
+  .btn-tel:hover {
+    background: var(--bleu);
+    color: var(--blanc);
+    transform: translateY(-2px);
+  }
+
+  .presta-hero-img img {
+    width: 100%;
+    height: 100%;
+    max-height: 420px;
+    object-fit: cover;
+    border-radius: var(--r-lg);
+    box-shadow: 0 20px 60px var(--ombre);
+  }
+
+  /* ── Bandeau de faits ── */
+  .presta-faits {
+    padding-block: 48px;
+    background: var(--blanc);
+    border-bottom: 1px solid rgba(13, 48, 128, 0.08);
+  }
+  .faits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+  }
+  .fait {
+    padding: 18px 20px;
+    background: var(--fond);
+    border-radius: var(--r-md);
+  }
+  .fait dt {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gris);
+    margin-bottom: 6px;
+  }
+  .fait dd {
+    font-family: var(--font-titre);
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--bleu);
+    line-height: 1.3;
+  }
+  .faits-note {
+    margin-top: 22px;
+    font-size: 0.95rem;
+    color: var(--texte-2);
+    max-width: 75ch;
+  }
+
+  /* ── Titres de section (repris du reste du site) ── */
+  .section-head {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 48px;
+    max-width: 620px;
+  }
+  .section-head .tag { align-self: flex-start; }
+  .section-head h2 { color: var(--bleu); }
+  .section-sub { color: var(--texte-2); }
+
+  /* ── Avant / après ── */
+  .presta-preuves { padding-block: var(--section-gap); background: var(--fond); }
+  .preuves-grid {
+    display: grid;
+    gap: 40px;
+  }
+  .preuve-duo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .preuve-img { position: relative; }
+  .preuve-img img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: var(--r-md);
+  }
+  .preuve-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    padding: 5px 12px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: var(--r-full);
+    backdrop-filter: blur(6px);
+  }
+  .preuve-avant { background: rgba(13, 27, 62, 0.8); color: var(--blanc); }
+  .preuve-apres { background: var(--teal); color: var(--bleu); }
+  .preuve figcaption {
+    margin-top: 14px;
+    font-size: 0.92rem;
+    color: var(--texte-2);
+  }
+
+  /* ── Méthode ── */
+  .presta-methode { padding-block: var(--section-gap); }
+  .methode-liste {
+    list-style: none;
+    display: grid;
+    gap: 28px;
+    counter-reset: etape;
+  }
+  .methode-etape {
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    gap: 22px;
+    align-items: start;
+    padding: 26px;
+    background: var(--fond);
+    border-radius: var(--r-lg);
+  }
+  .etape-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    background: var(--bleu);
+    color: var(--blanc);
+    font-family: var(--font-titre);
+    font-size: 1.3rem;
+    font-weight: 700;
+    border-radius: var(--r-full);
+  }
+  .methode-etape h3 { color: var(--bleu); margin-bottom: 8px; }
+  .methode-etape p { color: var(--texte-2); }
+
+  /* ── Inclus + cas ── */
+  .presta-double { padding-block: var(--section-gap); background: var(--fond); }
+  .presta-double-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(32px, 5vw, 64px);
+  }
+  .presta-double h2 { color: var(--bleu); margin-bottom: 24px; font-size: clamp(1.5rem, 2.6vw, 2rem); }
+
+  .liste-check, .liste-cas { list-style: none; display: grid; gap: 14px; }
+  .liste-check li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    color: var(--texte-2);
+  }
+  .liste-check svg { color: var(--teal); flex-shrink: 0; margin-top: 5px; }
+
+  .liste-cas li {
+    position: relative;
+    padding-left: 22px;
+    color: var(--texte-2);
+  }
+  .liste-cas li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 11px;
+    width: 8px;
+    height: 8px;
+    background: var(--teal);
+    border-radius: 50%;
+  }
+
+  /* ── FAQ ── */
+  .presta-faq { padding-block: var(--section-gap); }
+  .faq-liste { display: grid; gap: 12px; }
+  .faq-item {
+    background: var(--fond);
+    border-radius: var(--r-md);
+    overflow: hidden;
+  }
+  .faq-item summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 24px;
+    cursor: pointer;
+    list-style: none;
+  }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item summary h3 {
+    font-size: clamp(1rem, 1.6vw, 1.15rem);
+    font-weight: 600;
+    color: var(--bleu);
+  }
+  .faq-chevron { color: var(--teal); flex-shrink: 0; transition: transform 0.25s ease; }
+  .faq-item[open] .faq-chevron { transform: rotate(180deg); }
+  .faq-item > p {
+    padding: 0 24px 22px;
+    color: var(--texte-2);
+    max-width: 78ch;
+  }
+  .faq-plus {
+    margin-top: 28px;
+    font-size: 0.95rem;
+    color: var(--texte-2);
+  }
+  .faq-plus a { color: var(--bleu-royal); font-weight: 600; }
+  .faq-plus a:hover { text-decoration: underline; }
+
+  /* ── Zones ── */
+  .presta-zones { padding-block: var(--section-gap); background: var(--fond); }
+  .presta-zones h2 { color: var(--bleu); margin-bottom: 14px; }
+  .zones-intro { color: var(--texte-2); max-width: 65ch; margin-bottom: 28px; }
+  .zones-liens {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    list-style: none;
+  }
+  .zones-liens a {
+    display: inline-block;
+    padding: 9px 18px;
+    background: var(--blanc);
+    color: var(--bleu);
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: var(--r-full);
+    box-shadow: 0 2px 10px rgba(13, 48, 128, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .zones-liens a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(13, 48, 128, 0.12);
+  }
+
+  /* ── Prestations liées ── */
+  .presta-liees { padding-block: var(--section-gap); }
+  .presta-liees h2 { color: var(--bleu); margin-bottom: 36px; }
+  .liees-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+  }
+  .liee-carte {
+    display: block;
+    background: var(--blanc);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(13, 48, 128, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .liee-carte:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(13, 48, 128, 0.14);
+  }
+  .liee-carte img { width: 100%; height: 170px; object-fit: cover; }
+  .liee-contenu { padding: 20px 22px 24px; display: flex; flex-direction: column; gap: 8px; }
+  .liee-contenu h3 { color: var(--bleu); }
+  .liee-tarif { font-size: 0.88rem; color: var(--teal); font-weight: 600; }
+  .liee-fleche {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--bleu-royal);
+  }
+
+  /* ── CTA final ── */
+  .presta-cta {
+    padding-block: var(--section-gap);
+    background: linear-gradient(135deg, var(--bleu) 0%, var(--bleu-royal) 100%);
+    text-align: center;
+  }
+  .presta-cta h2 { color: var(--blanc); margin-bottom: 16px; }
+  .presta-cta p {
+    color: rgba(255, 255, 255, 0.78);
+    max-width: 52ch;
+    margin: 0 auto 32px;
+  }
+  .presta-cta .presta-actions { justify-content: center; }
+
+  /* ── Mobile ── */
+  @media (max-width: 860px) {
+    .presta-hero-inner,
+    .presta-double-inner { grid-template-columns: 1fr; }
+    .presta-hero-img { order: -1; }
+    .presta-hero-img img { max-height: 280px; }
+  }
+  @media (max-width: 520px) {
+    .preuve-duo { gap: 8px; }
+    .methode-etape { grid-template-columns: 44px 1fr; gap: 16px; padding: 20px; }
+    .etape-num { width: 44px; height: 44px; font-size: 1.1rem; }
+    .presta-actions { flex-direction: column; align-items: stretch; }
+    .presta-actions > * { justify-content: center; }
+  }
+</style>

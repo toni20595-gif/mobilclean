@@ -1,7 +1,61 @@
-# Robots.txt — Mobil Clean
-# Autorise tous les moteurs de recherche à explorer le site
+# ════════════════════════════════════════════════════════════════════════
+#  Robots.txt — Mobil Clean
+# ════════════════════════════════════════════════════════════════════════
+
+# ── Moteurs de recherche classiques : accès complet ──
 User-agent: *
 Allow: /
 
-# Emplacement du plan du site (sitemap)
+# ── Robots d'IA : autorisés volontairement ──
+# Être cité par ChatGPT, Perplexity ou Claude quand quelqu'un demande
+# « qui nettoie les matelas à Mulhouse ? » suppose que ces robots puissent
+# lire le site. Les bloquer revient à disparaître de ces réponses.
+#
+# En échange, le contenu public du site peut être utilisé par ces services.
+# Pour une entreprise locale qui cherche de la visibilité, c'est un bon
+# échange. Si vous changez d'avis, remplacez « Allow: / » par
+# « Disallow: / » sous le robot concerné.
+#
+# À noter : l'apparition dans les réponses IA de Google (AI Overviews) est
+# pilotée par Googlebot, pas par Google-Extended. Google-Extended ne
+# concerne que l'entraînement de Gemini — le bloquer ne vous retire pas
+# des AI Overviews.
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# ── Plan du site ──
 Sitemap: https://mobilclean.fr/sitemap-index.xml
+
+# ── Résumé lisible par les IA (convention llms.txt) ──
+# https://mobilclean.fr/llms.txt
