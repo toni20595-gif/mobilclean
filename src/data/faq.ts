@@ -126,12 +126,6 @@ export const faq: BlocFaq[] = [
         reponse:
           "Oui : hôtels, garages, bureaux, locaux professionnels et flottes de véhicules, avec facturation professionnelle et possibilité de contrat d'entretien. Tout est détaillé sur notre page Entreprises.",
       },
-      {
-        question: "Vendez-vous des produits d'entretien ?",
-        motsCles: ["produit", "acheter", "vente", "boutique", "shampoing"],
-        reponse:
-          "Oui, une sélection de produits d'entretien auto est disponible sur notre boutique en ligne : soin du cuir, nettoyant intérieur, nettoyant pneus et protection céramique, livrés en France et en Europe.",
-      },
     ],
   },
 ];

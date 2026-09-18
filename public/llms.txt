@@ -57,7 +57,6 @@ confirmés au devis avant toute intervention.
 - [Questions fréquentes](https://mobilclean.fr/faq) : déroulé, délais, séchage, paiement, garantie
 - [Galerie avant/après](https://mobilclean.fr/galerie) : photos d'interventions réelles
 - [Entreprises](https://mobilclean.fr/entreprises) : hôtels, garages, bureaux, flottes de véhicules
-- [Boutique](https://mobilclean.fr/boutique) : produits d'entretien auto
 - [Contact et réservation](https://mobilclean.fr/contact) : choix des créneaux en ligne
 
 ## Méthodes employées
