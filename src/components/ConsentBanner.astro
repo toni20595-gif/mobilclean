@@ -70,10 +70,25 @@ const runtime = `
   var stored = null;
   try { stored = localStorage.getItem(KEY); } catch (err) {}
 
+  // Le bandeau occupe le bas de l'ecran sur mobile et recouvrait les boutons
+  // flottants (appel, Instagram, assistant) : le clic partait sur « Accepter ».
+  // Un decalage en dur serait faux des que le texte se replie autrement, donc
+  // le bandeau publie sa propre emprise et le CSS s'y adapte.
+  function publierEmprise() {
+    var haut = banner.hidden ? 0 : Math.ceil(window.innerHeight - banner.getBoundingClientRect().top);
+    document.documentElement.style.setProperty('--mc-consent-emprise', haut + 'px');
+  }
+
   if (!stored) {
     // Affiché après un court délai pour ne pas gêner le premier coup d'oeil.
-    setTimeout(function () { banner.hidden = false; }, 1200);
+    setTimeout(function () {
+      banner.hidden = false;
+      publierEmprise();
+    }, 1200);
   }
+
+  window.addEventListener('resize', publierEmprise);
+  if (typeof ResizeObserver === 'function') new ResizeObserver(publierEmprise).observe(banner);
 
   function choose(value) {
     try { localStorage.setItem(KEY, value); } catch (err) {}
@@ -86,6 +101,7 @@ const runtime = `
       });
     }
     banner.hidden = true;
+    publierEmprise();
   }
 
   var accept = document.getElementById('mc-consent-accept');

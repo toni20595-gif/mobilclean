@@ -23,18 +23,29 @@ function getMobilePos(index: number) {
   };
 }
 
+// Ordre inverse de l'affichage : le menu se déploie du bas vers le haut.
+// Doit rester aligné sur navLinks dans Header.astro.
 const links = [
   { href: "/contact", label: "Contact" },
   { href: "/entreprises", label: "Entreprises" },
-  { href: "/boutique", label: "Boutique" },
+  { href: "/faq", label: "FAQ" },
   { href: "/galerie", label: "Galerie" },
+  { href: "/zones", label: "Zones" },
   { href: "/services", label: "Prestations" },
   { href: "/", label: "Accueil" },
 ];
 
-export default function FluidMenu({ currentPath = "/" }: { currentPath?: string }) {
+export default function FluidMenu({
+  currentPath = "/",
+  fondClair = false,
+}: {
+  currentPath?: string;
+  /** Page dont le haut est clair : le bouton doit être sombre dès l'arrivée. */
+  fondClair?: boolean;
+}) {
   const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [defile, setDefile] = useState(false);
+  const scrolled = defile || fondClair;
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -45,7 +56,7 @@ export default function FluidMenu({ currentPath = "/" }: { currentPath?: string 
   }, []);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60);
+    const onScroll = () => setDefile(window.scrollY > 60);
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener("scroll", onScroll);

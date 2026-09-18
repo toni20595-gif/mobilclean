@@ -2,6 +2,7 @@
 import Analytics from "../components/Analytics.astro";
 import ConsentBanner from "../components/ConsentBanner.astro";
 import Provenance from "../components/Provenance.astro";
+import ChatBot from "../components/ChatBot.astro";
 
 interface Props {
   title: string;
@@ -23,7 +24,13 @@ const ogImageURL = new URL(ogImage, Astro.site);
 // Données structurées Schema.org (LocalBusiness) — aide Google à comprendre
 // l'entreprise pour le référencement local (fiche, rich results).
 // NB : entreprise mobile (service à domicile) → zone desservie, pas d'adresse de rue.
-// Pas d'aggregateRating tant qu'il n'y a pas d'avis réels (ne rien inventer).
+// ⚠ NE PAS AJOUTER d'aggregateRating ici, même avec de vrais avis Google.
+// Google considère comme « self-serving » tout avis portant sur l'entreprise et
+// affiché sur son propre site — y compris via un widget tiers (widget avis
+// Google, Featurable, Facebook). Une page en LocalBusiness / Organization
+// devient alors inéligible à l'affichage des étoiles, et baliser ces avis
+// expose à une action manuelle. Les avis comptent là où ils sont déjà :
+// la fiche Google et le pack local. Réf. Google « Review snippet », déc. 2025.
 const schemaLD = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
@@ -108,6 +115,9 @@ const schemaLD = {
     <!-- Données structurées entreprise locale (SEO local / rich results) -->
     <script type="application/ld+json" set:html={JSON.stringify(schemaLD)} />
 
+    <!-- Balisages propres à chaque page (Service, FAQPage, fil d'Ariane...) -->
+    <slot name="head" />
+
     <!-- Suivi des conversions Google Ads (inactif tant que non configuré) -->
     <Analytics />
 
@@ -116,6 +126,9 @@ const schemaLD = {
   </head>
   <body>
     <slot />
+
+    <!-- Assistant : répond depuis les données du site, sans serveur ni abonnement -->
+    <ChatBot />
 
     <!-- Bandeau cookies + déclencheurs de conversion -->
     <ConsentBanner />
@@ -200,6 +213,16 @@ const schemaLD = {
       .insta-btn:hover {
         transform: scale(1.12);
         box-shadow: 0 8px 32px rgba(214, 36, 159, 0.6);
+      }
+      /* Sur mobile, le bandeau cookies occupe le bas de l'écran et recouvrait
+         les boutons flottants : au test, le clic partait sur son bouton
+         « Accepter ». Le bandeau publie son emprise réelle en JavaScript
+         (--mc-consent-emprise), on s'appuie dessus plutôt que sur une valeur
+         en dur qui serait fausse dès que le texte se replie autrement.
+         Vaut 0 quand il n'y a pas de bandeau. */
+      @media (max-width: 700px) {
+        .call-btn  { bottom: calc(24px + var(--mc-consent-emprise, 0px)); }
+        .insta-btn { bottom: calc(92px + var(--mc-consent-emprise, 0px)); }
       }
     </style>
 

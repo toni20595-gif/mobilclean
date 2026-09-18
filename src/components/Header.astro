@@ -4,19 +4,28 @@ import FluidMenu from "./react/FluidMenu.tsx";
 const navLinks = [
   { href: "/", label: "Accueil" },
   { href: "/services", label: "Prestations" },
+  { href: "/zones", label: "Zones" },
+  { href: "/faq", label: "FAQ" },
   { href: "/galerie", label: "Galerie" },
-  { href: "/boutique", label: "Boutique" },
   { href: "/entreprises", label: "Entreprises" },
   { href: "/contact", label: "Contact" },
 ];
 
 const currentPath = Astro.url.pathname;
+
+// Les pages dont le haut est clair (prestations, zones, FAQ) ont besoin que
+// l'en-tête soit lisible AVANT tout défilement : sinon le menu et le numéro,
+// en blanc, disparaissent sur le fond clair. Constaté au test mobile.
+interface Props {
+  fondClair?: boolean;
+}
+const { fondClair = false } = Astro.props;
 ---
 
-<header class="site-header" id="site-header">
+<header class={`site-header ${fondClair ? "scrolled" : ""}`} id="site-header" data-fond-clair={fondClair ? "true" : null}>
   <div class="container header-inner">
     <a href="/" class="logo-link" aria-label="Mobil Clean - Accueil">
-      <img src="/logo.png" alt="Mobil Clean" class="logo-img" />
+      <img width="1024" height="559" src="/logo.png" alt="Mobil Clean" class="logo-img" />
     </a>
 
     <nav class="nav-desktop" aria-label="Navigation principale">
@@ -41,7 +50,7 @@ const currentPath = Astro.url.pathname;
     <a href="/contact" class="btn-primary nav-cta">Réserver</a>
 
     <div class="fluid-menu-wrapper">
-      <FluidMenu client:load currentPath={currentPath} />
+      <FluidMenu client:load currentPath={currentPath} fondClair={fondClair} />
     </div>
   </div>
 </header>
@@ -169,6 +178,6 @@ const currentPath = Astro.url.pathname;
 <script>
   const header = document.getElementById("site-header");
   window.addEventListener("scroll", () => {
-    header?.classList.toggle("scrolled", window.scrollY > 60);
+    header?.classList.toggle("scrolled", window.scrollY > 60 || header.dataset.fondClair === "true");
   });
 </script>

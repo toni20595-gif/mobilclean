@@ -1,0 +1,881 @@
+---
+// ════════════════════════════════════════════════════════════════════════
+//  ASSISTANT MOBIL CLEAN — conversationnel, sans serveur ni clé API
+//  ──────────────────────────────────────────────────────────────────────
+//  Pourquoi pas d'IA : le site est statique. Brancher un modèle demanderait
+//  une fonction serveur, une clé API et un coût mensuel. Sur une activité
+//  de proximité les questions sont très répétitives — tarif, zone, durée,
+//  séchage, réservation — donc une base construite depuis les données du
+//  site répond à l'essentiel, instantanément et gratuitement.
+//
+//  Ce qui fait « conversation » plutôt que « moteur de recherche » :
+//   • le bot se présente en deux messages courts, pas en un pavé ;
+//   • un indicateur de saisie avant chaque réponse ;
+//   • les réponses sont découpées en plusieurs bulles ;
+//   • il GARDE LE CONTEXTE : après « prix d'un matelas », la question
+//     « et combien de temps ? » est comprise comme portant sur le matelas ;
+//   • après chaque réponse il propose des suites logiques.
+//
+//  La base est générée AU BUILD depuis prestations.ts, zones.ts et faq.ts :
+//  corriger un tarif dans les données corrige le chatbot.
+//
+//  Quand il n'est pas sûr, il donne le numéro. Un faux renseignement coûte
+//  plus cher qu'un appel.
+// ════════════════════════════════════════════════════════════════════════
+import { prestations } from "../data/prestations";
+import { zones, secteurs, nbCommunes } from "../data/zones";
+import { faq } from "../data/faq";
+
+const TEL = "+33768445293";
+const TEL_AFFICHE = "07 68 44 52 93";
+
+type Entree = { q: string; r: string; cles: string[]; lien?: string; presta?: string };
+const base: Entree[] = [];
+
+// 1. FAQ générale
+for (const bloc of faq) {
+  for (const item of bloc.questions) {
+    base.push({
+      q: item.question,
+      r: item.reponse,
+      cles: [...(item.motsCles ?? []), bloc.categorie],
+      lien: "/faq",
+    });
+  }
+}
+
+// 2. Chaque prestation : présentation, tarif, durée, FAQ, méthode
+for (const p of prestations) {
+  base.push({
+    q: `${p.nom} : en quoi ça consiste ?`,
+    r: `${p.reponseCourte} Ce qui est inclus : ${p.inclus.join(", ").toLowerCase()}.`,
+    cles: [p.nom, p.slug.replace(/-/g, " "), "prestation", "consiste", "comprend", "inclus", ...p.appellations],
+    lien: `/services/${p.slug}`,
+    presta: p.slug,
+  });
+  base.push({
+    q: `Combien coûte le ${p.nom.toLowerCase()} ?`,
+    r: `${p.nom} : ${p.tarif}. ${p.tarifDetail}`,
+    cles: [p.nom, "prix", "tarif", "cout", "coute", "combien", "euro", "devis", "cher"],
+    lien: `/services/${p.slug}`,
+    presta: p.slug,
+  });
+  base.push({
+    q: `Combien de temps pour le ${p.nom.toLowerCase()} ?`,
+    r: `${p.nom} : ${p.duree}. La durée exacte vous est confirmée au devis, selon la taille et l'état.`,
+    cles: [p.nom, "duree", "temps", "long", "rapide", "heure"],
+    lien: `/services/${p.slug}`,
+    presta: p.slug,
+  });
+  for (const item of p.faq) {
+    base.push({
+      q: item.question,
+      r: item.reponse,
+      cles: [p.nom, p.slug.replace(/-/g, " ")],
+      lien: `/services/${p.slug}`,
+      presta: p.slug,
+    });
+  }
+  for (const etape of p.methode) {
+    base.push({
+      q: `${etape.titre} (${p.nom.toLowerCase()})`,
+      r: etape.texte,
+      cles: [etape.titre, p.nom, "methode", "comment", "technique", "procede"],
+      lien: `/services/${p.slug}`,
+      presta: p.slug,
+    });
+  }
+}
+
+// 3. Récapitulatif des tarifs
+base.push({
+  q: "Quels sont vos tarifs ?",
+  r:
+    "Nos tarifs de départ : " +
+    prestations.map((p) => `${p.nom.toLowerCase()} ${p.tarif.toLowerCase()}`).join(", ") +
+    ". Le prix final dépend de la taille et de l'état, et vous est confirmé au devis — gratuit et sans engagement.",
+  cles: ["tarif", "tarifs", "prix", "combien", "cout", "coute", "cher", "devis", "grille"],
+  lien: "/services",
+});
+
+const communes = [
+  ...zones.map((z) => ({ nom: z.ville, page: `/zones/${z.slug}`, distance: z.distance })),
+  ...secteurs.flatMap((s) =>
+    s.communes.map((c) => ({ nom: c, page: null as string | null, distance: null as string | null }))
+  ),
+];
+
+const donnees = {
+  base,
+  communes,
+  nbCommunes,
+  prestations: prestations.map((p) => ({
+    nom: p.nom,
+    slug: p.slug,
+    tarif: p.tarif,
+    duree: p.duree,
+    appellations: p.appellations,
+  })),
+  tel: TEL,
+  telAffiche: TEL_AFFICHE,
+};
+---
+
+<!-- ══ Bouton : icône + TEXTE. Une icône seule ne dit pas ce que c'est. ══ -->
+<button
+  class="cb-lanceur"
+  id="cb-lanceur"
+  type="button"
+  aria-label="Ouvrir l'assistant Mobil Clean"
+  aria-expanded="false"
+  aria-controls="cb-panneau"
+>
+  <span class="cb-lanceur-ico">
+    <!-- Étincelles : le repère visuel devenu standard pour un assistant -->
+    <svg class="cb-ico-ouvrir" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 2.2l1.6 4.3a4 4 0 0 0 2.4 2.4l4.3 1.6-4.3 1.6a4 4 0 0 0-2.4 2.4L12 18.8l-1.6-4.3a4 4 0 0 0-2.4-2.4L3.7 10.5l4.3-1.6a4 4 0 0 0 2.4-2.4L12 2.2z"/>
+      <path d="M19 15.5l.7 1.9a2 2 0 0 0 1.2 1.2l1.9.7-1.9.7a2 2 0 0 0-1.2 1.2l-.7 1.9-.7-1.9a2 2 0 0 0-1.2-1.2l-1.9-.7 1.9-.7a2 2 0 0 0 1.2-1.2l.7-1.9z" opacity=".75"/>
+    </svg>
+    <svg class="cb-ico-fermer" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true">
+      <path d="M18 6 6 18M6 6l12 12"/>
+    </svg>
+  </span>
+  <span class="cb-lanceur-txt">Une question&nbsp;?</span>
+</button>
+
+<!-- ══ Panneau de conversation ══ -->
+<div class="cb-panneau" id="cb-panneau" role="dialog" aria-modal="false" aria-label="Assistant Mobil Clean" hidden>
+  <header class="cb-entete">
+    <span class="cb-avatar cb-avatar-entete" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2.2l1.6 4.3a4 4 0 0 0 2.4 2.4l4.3 1.6-4.3 1.6a4 4 0 0 0-2.4 2.4L12 18.8l-1.6-4.3a4 4 0 0 0-2.4-2.4L3.7 10.5l4.3-1.6a4 4 0 0 0 2.4-2.4L12 2.2z"/>
+      </svg>
+    </span>
+    <div class="cb-entete-txt">
+      <strong>Assistant Mobil Clean</strong>
+      <span class="cb-statut"><i class="cb-pastille"></i>En ligne · répond tout de suite</span>
+    </div>
+    <button class="cb-fermer" id="cb-fermer" type="button" aria-label="Fermer la conversation">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <path d="M18 6 6 18M6 6l12 12"/>
+      </svg>
+    </button>
+  </header>
+
+  <div class="cb-fil" id="cb-fil" aria-live="polite" aria-atomic="false"></div>
+
+  <div class="cb-suggestions" id="cb-suggestions"></div>
+
+  <form class="cb-saisie" id="cb-form" autocomplete="off">
+    <label class="cb-sr" for="cb-input">Votre message</label>
+    <input type="text" id="cb-input" name="question" placeholder="Écrivez votre message…" maxlength="200" />
+    <button type="submit" aria-label="Envoyer le message">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+      </svg>
+    </button>
+  </form>
+</div>
+
+<script type="application/json" id="cb-donnees" set:html={JSON.stringify(donnees)} />
+
+<script is:inline>
+  (() => {
+    const el = (id) => document.getElementById(id);
+    const noeud = el("cb-donnees");
+    if (!noeud) return;
+
+    const D = JSON.parse(noeud.textContent);
+    const lanceur = el("cb-lanceur");
+    const panneau = el("cb-panneau");
+    const fil = el("cb-fil");
+    const zoneSugg = el("cb-suggestions");
+    const form = el("cb-form");
+    const input = el("cb-input");
+
+    const norm = (s) =>
+      s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
+        .replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
+
+    const VIDES = new Set(
+      ("le la les un une des du de d a au aux et ou est ce cette ces mon ma mes votre vos" +
+       " je tu il elle nous vous ils pour avec sans sur dans par que qui quoi quel quelle" +
+       " combien comment quand ou est il y a t on se sa son leur en plus moins tres" +
+       " bonjour bonsoir salut merci svp s'il plait vous pouvez peut etre faire fait").split(" ")
+    );
+
+    const racine = (m) => (m.length > 4 ? m.replace(/(aux|eaux|ions|ees|es|s|x)$/, "") : m);
+    const mots = (s) => norm(s).split(" ").filter((m) => m.length > 2 && !VIDES.has(m)).map(racine);
+
+    const index = D.base.map((e) => ({ ...e, tokens: new Set([...mots(e.q), ...e.cles.flatMap(mots)]) }));
+    const communesNorm = D.communes.map((c) => ({ ...c, n: norm(c.nom) }));
+    const HORS_ZONE = ["colmar", "saint louis", "st louis", "basel", "bale", "belfort", "selestat", "huningue", "ferrette"];
+
+    // ── MÉMOIRE DE CONVERSATION ──
+    // C'est ce qui distingue une conversation d'un moteur de recherche :
+    // après « prix d'un matelas ? », la question « et combien de temps ? »
+    // doit être comprise comme portant toujours sur le matelas.
+    const memoire = { presta: null, commune: null };
+
+    function detecterPresta(q) {
+      for (const p of D.prestations) {
+        if (q.includes(norm(p.nom))) return p;
+        for (const a of p.appellations) if (q.includes(norm(a))) return p;
+      }
+      if (/voiture|vehicule|auto|habitacle|siege|moquette|banquette|coffre/.test(q))
+        return D.prestations.find((p) => p.slug.includes("voiture"));
+      if (/matela|literie|lit\b|sommier/.test(q)) return D.prestations.find((p) => p.slug.includes("matelas"));
+      if (/canap|sofa|banquette salon/.test(q)) return D.prestations.find((p) => p.slug.includes("canape"));
+      if (/tapi|moquette/.test(q)) return D.prestations.find((p) => p.slug.includes("tapis"));
+      if (/fauteuil|chaise|assise/.test(q)) return D.prestations.find((p) => p.slug.includes("fauteuil"));
+      if (/salon|plusieurs|tout|ensemble|multi/.test(q)) return D.prestations.find((p) => p.slug.includes("multi"));
+      return null;
+    }
+
+    // ── Construit la réponse : plusieurs bulles + suites proposées ──
+    function repondre(question) {
+      const q = norm(question);
+      const tk = mots(question);
+      const a = (m) => m.test(q);
+
+      // La prestation citée, sinon celle dont on parlait déjà
+      const cite = detecterPresta(q);
+      if (cite) memoire.presta = cite;
+      const presta = cite || memoire.presta;
+
+      const suites = (p) =>
+        p
+          ? [`Combien de temps pour un ${p.nom.toLowerCase()} ?`, "Ça sèche en combien de temps ?", "Je veux réserver"]
+          : ["Quels sont vos tarifs ?", "Vous venez dans ma commune ?", "Je veux réserver"];
+
+      // SÉCHAGE — avant le tarif : « sèche en combien de temps » contient « combien »
+      if (a(/\b(sech|seche|secher|sechage|humide|mouill|trempe)\w*\b/)) {
+        return {
+          bulles: [
+            "Quelques heures dans une pièce aérée, pas plus.",
+            "L'injection-extraction réaspire l'eau tout de suite : le textile est juste un peu humide au toucher, jamais détrempé. Pour un matelas, prenez plutôt un créneau le matin — vous dormez dessus le soir même.",
+          ],
+          lien: "/faq",
+          libelleLien: "Toutes les questions",
+          suites: ["Je veux réserver", "Quels sont vos tarifs ?", "Toutes les taches partent ?"],
+        };
+      }
+
+      // DURÉE — également avant le tarif
+      if (a(/\b(durees?|longtemps|minutes?)\b/) || a(/combien de temp|temp (faut|prend)/)) {
+        if (presta) {
+          return {
+            bulles: [
+              // « Environ 1h par matelas » + « pour un matelas » = redondant
+              `Pour un ${presta.nom.toLowerCase()}, comptez ${presta.duree.toLowerCase().replace(/\s+par\s+\w+$/, "")}.`,
+              "La durée exacte vous est confirmée au devis, selon la taille et l'état.",
+            ],
+            lien: `/services/${presta.slug}`,
+            libelleLien: `Voir ${presta.nom.toLowerCase()}`,
+            suites: [`Combien coûte un ${presta.nom.toLowerCase()} ?`, "Je veux réserver", "Vous venez dans ma commune ?"],
+          };
+        }
+        return {
+          bulles: [
+            "Nos créneaux durent 2h30.",
+            "Un matelas seul prend environ une heure, un canapé une à deux heures, un intérieur de voiture complet environ 2h30. Pour plusieurs meubles, comptez une demi-journée.",
+          ],
+          lien: "/faq",
+          libelleLien: "Toutes les questions",
+          suites: suites(null),
+        };
+      }
+
+      // TARIF
+      // Attention aux pluriels : \btarif\b ne matche PAS « tarifs », le \b
+      // bute sur le « s ». C'est ce qui faisait échouer la suggestion
+      // « Quels sont vos tarifs ? », pourtant proposée par le bot lui-même.
+      if (a(/\b(prix|tarifs?|couts?|coute|combien|cher|budget|euros?|devis)\b/)) {
+        if (presta) {
+          const e = index.find((x) => x.q.startsWith("Combien coûte") && x.presta === presta.slug);
+          return {
+            bulles: [`${presta.nom} : ${presta.tarif}.`, e ? e.r.replace(/^[^.]+\.\s*/, "") : "Le devis est gratuit et sans engagement."],
+            lien: `/services/${presta.slug}`,
+            libelleLien: `Voir ${presta.nom.toLowerCase()}`,
+            suites: [`Combien de temps pour un ${presta.nom.toLowerCase()} ?`, "Je veux réserver", "Vous venez dans ma commune ?"],
+          };
+        }
+        return {
+          bulles: [
+            "Voici nos tarifs de départ :",
+            D.prestations.map((x) => `• ${x.nom} — ${x.tarif.toLowerCase()}`).join("\n") +
+              "\n\nLe prix final dépend de la taille et de l'état. Le devis est gratuit et sans engagement.",
+          ],
+          lien: "/services",
+          libelleLien: "Voir les prestations",
+          suites: ["Combien coûte un matelas ?", "Combien coûte un canapé ?", "Je veux réserver"],
+        };
+      }
+
+      // HORAIRES
+      if (a(/\b(horaires?|heures?|ouvert|ferme|dimanche|samedi|weekend|week end|soirs?|soiree|matin|jours?|7j|bossez|travaillez)\b/)) {
+        return {
+          bulles: [
+            "On travaille 7 jours sur 7, de 9h30 à 21h — dimanche compris.",
+            "Les créneaux du soir et du week-end partent vite, réservez quelques jours à l'avance si vous avez une contrainte.",
+          ],
+          lien: "/contact",
+          libelleLien: "Voir les créneaux",
+          suites: ["Je veux réserver", "Quels sont vos tarifs ?", "Vous venez dans ma commune ?"],
+        };
+      }
+
+      // PAIEMENT
+      if (a(/\b(payer|paye|paiements?|regle|regler|cartes?|cb|especes?|liquide|virements?|cheques?|factures?)\b/)) {
+        return {
+          bulles: [
+            "Espèces, carte bancaire ou virement, comme vous préférez.",
+            "Le règlement se fait à la fin, une fois que vous avez validé le résultat avec nous. Facturation professionnelle possible pour les entreprises.",
+          ],
+          lien: "/faq",
+          libelleLien: "Toutes les questions",
+          suites: suites(presta),
+        };
+      }
+
+      // ZONE — commune reconnue
+      const trouvee = communesNorm.find((c) => q.includes(c.n) && c.n.length > 3);
+      if (trouvee) {
+        memoire.commune = trouvee;
+        if (trouvee.page) {
+          return {
+            bulles: [
+              `Oui, on vient à ${trouvee.nom}.`,
+              `${trouvee.distance ? trouvee.distance + ". " : ""}Toutes nos prestations y sont disponibles, au même tarif qu'ailleurs.`,
+            ],
+            lien: trouvee.page,
+            libelleLien: `Voir la page ${trouvee.nom}`,
+            suites: ["Je veux réserver", "Quels sont vos tarifs ?", "Quels sont vos horaires ?"],
+          };
+        }
+        return {
+          bulles: [
+            `Oui, ${trouvee.nom} est dans notre zone.`,
+            `On couvre ${D.nbCommunes} communes dans un rayon d'environ 30 km autour de Wittenheim et Mulhouse.`,
+          ],
+          lien: "/zones",
+          libelleLien: "Voir toutes les communes",
+          suites: ["Je veux réserver", "Quels sont vos tarifs ?", "Quels sont vos horaires ?"],
+        };
+      }
+
+      // Ville connue juste au-delà du rayon
+      if (HORS_ZONE.some((v) => q.includes(v))) {
+        return {
+          bulles: [
+            "Là, c'est juste au-delà de notre rayon habituel d'environ 30 km.",
+            `On s'y déplace parfois quand il y a plusieurs pièces à traiter. Le plus simple est d'appeler le ${D.telAffiche} — on vous répond franchement.`,
+          ],
+          lien: `tel:${D.tel}`,
+          libelleLien: `Appeler le ${D.telAffiche}`,
+          suites: ["Voir toutes les communes", "Quels sont vos tarifs ?"],
+        };
+      }
+
+      // ZONE générique
+      if (a(/\b(zones?|secteurs?|deplac|intervenez|venez|loin|km|kilometres?|communes?|villes?)\b/)) {
+        return {
+          bulles: [
+            `On se déplace dans un rayon d'environ 30 km autour de Wittenheim et Mulhouse, soit ${D.nbCommunes} communes du Haut-Rhin.`,
+            "Dites-moi le nom de votre commune, je vous confirme tout de suite.",
+          ],
+          lien: "/zones",
+          libelleLien: "Voir toutes les communes",
+          suites: ["Mulhouse", "Wittenheim", "Cernay"],
+        };
+      }
+
+      // ANNULATION — avant réservation, sinon confusion
+      if (a(/\b(annul|report|decal|change|modifi)\w*\b/)) {
+        return {
+          bulles: [
+            "Pas de souci.",
+            `Appelez le ${D.telAffiche} dès que vous le savez et on trouve un autre créneau. Plus vous prévenez tôt, plus c'est simple de vous replacer vite.`,
+          ],
+          lien: `tel:${D.tel}`,
+          libelleLien: `Appeler le ${D.telAffiche}`,
+          suites: ["Quels sont vos horaires ?", "Quels sont vos tarifs ?"],
+        };
+      }
+
+      // RÉSERVATION
+      if (a(/\b(reserv|rendez|rdv|dispo|creneau|prendre|commander|booking|inscri)\w*\b/)) {
+        return {
+          bulles: [
+            "Vous choisissez vos disponibilités en ligne, on vous confirme le créneau sous 24 heures.",
+            `Les créneaux durent 2h30, de 9h30 à 21h, 7j/7. Si vous préférez aller droit au but, appelez le ${D.telAffiche}.`,
+          ],
+          lien: "/contact",
+          libelleLien: "Réserver un créneau",
+          suites: ["Quels sont vos tarifs ?", "Vous venez dans ma commune ?", "Quels sont vos horaires ?"],
+        };
+      }
+
+      // ENTREPRISES
+      if (a(/\b(entrepris|professionn|societ|hotel|garage|bureau|flotte|camping|locati)\w*\b/)) {
+        return {
+          bulles: [
+            "Oui, on travaille aussi pour les pros.",
+            "Hôtels, garages, bureaux, locaux et flottes de véhicules, avec facturation professionnelle et possibilité de contrat d'entretien.",
+          ],
+          lien: "/entreprises",
+          libelleLien: "Voir l'offre Entreprises",
+          suites: ["Je veux réserver", "Quels sont vos tarifs ?"],
+        };
+      }
+
+      // Recherche par recouvrement de mots
+      let meilleur = null, meilleurScore = 0;
+      for (const e of index) {
+        let score = 0;
+        for (const m of tk) {
+          if (e.tokens.has(m)) score += 2;
+          else for (const t of e.tokens) {
+            if (t.length > 3 && m.length > 3 && (t.startsWith(m.slice(0, 4)) || m.startsWith(t.slice(0, 4)))) { score += 1; break; }
+          }
+        }
+        // La prestation en cours de discussion départage les ex aequo
+        if (presta && e.presta === presta.slug) score += 1;
+        if (score > meilleurScore) { meilleurScore = score; meilleur = e; }
+      }
+
+      const seuil = tk.length <= 2 ? 2 : 3;
+      if (meilleur && meilleurScore >= seuil) {
+        // Découpe en deux bulles à la première phrase, pour éviter le pavé
+        const m = meilleur.r.match(/^(.{0,150}?[.!?])\s+(.+)$/s);
+        return {
+          bulles: m ? [m[1], m[2]] : [meilleur.r],
+          lien: meilleur.lien,
+          libelleLien: "En savoir plus",
+          suites: suites(presta),
+        };
+      }
+
+      return {
+        bulles: [
+          "Là je préfère ne pas vous répondre à côté.",
+          `Appelez le ${D.telAffiche}, on répond directement — c'est plus rapide et plus sûr.`,
+        ],
+        lien: `tel:${D.tel}`,
+        libelleLien: `Appeler le ${D.telAffiche}`,
+        suites: ["Quels sont vos tarifs ?", "Vous venez dans ma commune ?", "Je veux réserver"],
+      };
+    }
+
+    // ── Rendu du fil ──
+    const AVATAR =
+      '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2l1.6 4.3a4 4 0 0 0 2.4 2.4l4.3 1.6-4.3 1.6a4 4 0 0 0-2.4 2.4L12 18.8l-1.6-4.3a4 4 0 0 0-2.4-2.4L3.7 10.5l4.3-1.6a4 4 0 0 0 2.4-2.4L12 2.2z"/></svg>';
+
+    function bulle(role, texte, lien, libelleLien) {
+      const ligne = document.createElement("div");
+      ligne.className = `cb-ligne cb-ligne-${role}`;
+      if (role === "bot") {
+        const av = document.createElement("span");
+        av.className = "cb-avatar";
+        av.setAttribute("aria-hidden", "true");
+        av.innerHTML = AVATAR;
+        ligne.appendChild(av);
+      }
+      const corps = document.createElement("div");
+      corps.className = "cb-bulle";
+      const p = document.createElement("p");
+      p.textContent = texte;
+      corps.appendChild(p);
+      if (lien) {
+        const a = document.createElement("a");
+        a.href = lien;
+        a.className = "cb-lien";
+        a.textContent = libelleLien || "En savoir plus";
+        corps.appendChild(a);
+      }
+      ligne.appendChild(corps);
+      fil.appendChild(ligne);
+      fil.scrollTop = fil.scrollHeight;
+      return ligne;
+    }
+
+    function saisieEnCours() {
+      const ligne = document.createElement("div");
+      ligne.className = "cb-ligne cb-ligne-bot cb-saisie-bot";
+      ligne.innerHTML =
+        `<span class="cb-avatar" aria-hidden="true">${AVATAR}</span>` +
+        '<div class="cb-bulle cb-points"><i></i><i></i><i></i></div>';
+      fil.appendChild(ligne);
+      fil.scrollTop = fil.scrollHeight;
+      return ligne;
+    }
+
+    function afficherSuites(liste) {
+      zoneSugg.innerHTML = "";
+      // Les suggestions prennent de la hauteur : on redescend après leur
+      // rendu, sinon la dernière réponse reste coupée.
+      requestAnimationFrame(() => { fil.scrollTop = fil.scrollHeight; });
+      for (const s of liste) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "cb-sugg";
+        b.textContent = s;
+        b.addEventListener("click", () => envoyer(s));
+        zoneSugg.appendChild(b);
+      }
+    }
+
+    // Enchaîne les bulles du bot avec un délai, comme quelqu'un qui écrit
+    function repondreProgressivement(r) {
+      zoneSugg.innerHTML = "";
+      const points = saisieEnCours();
+      const delai = Math.min(1100, 380 + r.bulles[0].length * 9);
+      setTimeout(() => {
+        points.remove();
+        bulle("bot", r.bulles[0], r.bulles.length === 1 ? r.lien : null, r.libelleLien);
+        if (r.bulles.length > 1) {
+          const points2 = saisieEnCours();
+          setTimeout(() => {
+            points2.remove();
+            bulle("bot", r.bulles[1], r.lien, r.libelleLien);
+            afficherSuites(r.suites);
+          }, Math.min(1100, 300 + r.bulles[1].length * 7));
+        } else {
+          afficherSuites(r.suites);
+        }
+      }, delai);
+    }
+
+    function envoyer(question) {
+      const q = question.trim();
+      if (!q) return;
+      bulle("user", q);
+      input.value = "";
+      repondreProgressivement(repondre(q));
+    }
+
+    let ouvert = false;
+    function basculer(forcer) {
+      ouvert = forcer !== undefined ? forcer : !ouvert;
+      panneau.hidden = !ouvert;
+      lanceur.classList.toggle("cb-lanceur-ouvert", ouvert);
+      lanceur.setAttribute("aria-expanded", String(ouvert));
+      if (ouvert) {
+        if (!fil.children.length) {
+          // Accueil en deux temps : ça pose tout de suite le ton « conversation »
+          const p1 = saisieEnCours();
+          setTimeout(() => {
+            p1.remove();
+            bulle("bot", "Bonjour 👋 Je suis l'assistant de Mobil Clean.");
+            const p2 = saisieEnCours();
+            setTimeout(() => {
+              p2.remove();
+              bulle("bot", "Je peux vous renseigner sur nos tarifs, nos prestations, notre zone ou la prise de rendez-vous. Qu'est-ce qui vous amène ?");
+              afficherSuites([
+                "Quels sont vos tarifs ?",
+                "Vous venez dans ma commune ?",
+                "Nettoyage de matelas",
+                "Je veux réserver",
+              ]);
+            }, 700);
+          }, 450);
+        }
+        if (window.innerWidth > 560) input.focus();
+      }
+    }
+
+    // Le lanceur masquait le bouton « Réserver un créneau » dès l'arrivée sur
+    // les pages prestation (constaté en capture mobile). Il apparaît donc une
+    // fois que le visiteur a commencé à lire — ou au bout de quelques
+    // secondes, pour les pages courtes où l'on ne défile pas.
+    let apparu = false;
+    function faireApparaitre() {
+      if (apparu) return;
+      apparu = true;
+      lanceur.classList.add("cb-lanceur-visible");
+      window.removeEventListener("scroll", surDefilement);
+    }
+    function surDefilement() {
+      if (window.scrollY > 240) faireApparaitre();
+    }
+    window.addEventListener("scroll", surDefilement, { passive: true });
+    setTimeout(faireApparaitre, 6000);
+    surDefilement();
+
+    lanceur.addEventListener("click", () => basculer());
+    el("cb-fermer").addEventListener("click", () => basculer(false));
+    form.addEventListener("submit", (e) => { e.preventDefault(); envoyer(input.value); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && ouvert) basculer(false); });
+  })();
+</script>
+
+<!--
+  is:global est NÉCESSAIRE ici : les bulles, l'avatar et l'indicateur de
+  saisie sont créés à l'exécution par document.createElement(). Ils ne
+  portent donc pas l'attribut de scope qu'Astro ajoute au balisage statique,
+  et un <style> scopé ne les atteindrait jamais — le panneau s'affichait sans
+  aucun style. Tous les sélecteurs sont préfixés « cb- » : pas de fuite.
+-->
+<style is:global>
+  .cb-sr {
+    position: absolute; width: 1px; height: 1px;
+    overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+  }
+
+  /* ── Lanceur : icône + texte, à gauche pour ne pas gêner le bouton d'appel ── */
+  .cb-lanceur {
+    position: fixed;
+    bottom: 28px;
+    left: 28px;
+    z-index: 999;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 20px 11px 13px;
+    background: var(--bleu);
+    color: var(--blanc);
+    font-family: var(--font-corps);
+    font-size: 0.92rem;
+    font-weight: 600;
+    border-radius: var(--r-full);
+    box-shadow: 0 6px 24px rgba(13, 48, 128, 0.35);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  /* Masqué tant que le visiteur n'a pas commencé à lire : le premier écran
+     appartient au bouton « Réserver ». */
+  .cb-lanceur {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(12px);
+    transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s;
+  }
+  .cb-lanceur-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  .cb-lanceur-visible:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 32px rgba(13, 48, 128, 0.48);
+  }
+  .cb-lanceur-ico {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px; height: 30px;
+    background: var(--teal);
+    color: var(--bleu);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .cb-ico-fermer { display: none; }
+  .cb-lanceur-ouvert .cb-ico-ouvrir { display: none; }
+  .cb-lanceur-ouvert .cb-ico-fermer { display: block; }
+  .cb-lanceur-ouvert .cb-lanceur-txt { display: none; }
+  .cb-lanceur-ouvert { padding: 11px 13px; }
+
+  /* ── Panneau ── */
+  .cb-panneau {
+    position: fixed;
+    bottom: 92px;
+    left: 28px;
+    /* Au-dessus du bandeau cookies (9998) : sinon, sur mobile, le bandeau
+       recouvre les suggestions et le champ de saisie, et la conversation
+       devient inutilisable. Vérifié au test : les boutons étaient bloqués. */
+    z-index: 9999;
+    width: min(390px, calc(100vw - 40px));
+    height: min(580px, calc(100vh - 150px));
+    display: flex;
+    flex-direction: column;
+    background: var(--blanc);
+    border-radius: var(--r-lg);
+    box-shadow: 0 24px 70px rgba(13, 48, 128, 0.28);
+    overflow: hidden;
+  }
+  .cb-panneau[hidden] { display: none; }
+
+  .cb-entete {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, var(--bleu) 0%, var(--bleu-royal) 100%);
+    color: var(--blanc);
+    flex-shrink: 0;
+  }
+  .cb-avatar-entete {
+    width: 34px; height: 34px;
+    background: var(--teal);
+    color: var(--bleu);
+  }
+  .cb-entete-txt { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+  .cb-entete strong { font-family: var(--font-titre); font-size: 0.95rem; }
+  .cb-statut {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 0.72rem; color: rgba(255, 255, 255, 0.8);
+  }
+  .cb-pastille {
+    width: 7px; height: 7px;
+    background: var(--teal);
+    border-radius: 50%;
+    box-shadow: 0 0 0 0 rgba(0, 200, 150, 0.6);
+    animation: cbPulse 2.2s infinite;
+  }
+  @keyframes cbPulse {
+    0% { box-shadow: 0 0 0 0 rgba(0, 200, 150, 0.6); }
+    70% { box-shadow: 0 0 0 7px rgba(0, 200, 150, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 200, 150, 0); }
+  }
+  .cb-fermer { color: var(--blanc); opacity: 0.75; display: flex; flex-shrink: 0; }
+  .cb-fermer:hover { opacity: 1; }
+
+  /* ── Fil de conversation ── */
+  .cb-fil {
+    flex: 1;
+    overflow-y: auto;
+    padding: 18px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: var(--fond);
+  }
+  .cb-ligne { display: flex; align-items: flex-end; gap: 8px; max-width: 90%; }
+  .cb-ligne-bot { align-self: flex-start; }
+  .cb-ligne-user { align-self: flex-end; }
+
+  .cb-avatar {
+    display: flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px;
+    background: var(--bleu);
+    color: var(--teal);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Le fond est porté par la bulle et non par le <p> : sinon le lien
+     « En savoir plus », qui est un frère du paragraphe, s'affiche en dehors
+     du cadre blanc. Constaté à la capture d'écran. */
+  .cb-bulle {
+    padding: 11px 15px;
+    border-radius: var(--r-md);
+  }
+  .cb-bulle p {
+    /* Les réponses en liste (tarifs) contiennent des \n : sans ceci, tout
+       se retrouve sur une seule ligne et la bulle devient un pavé. */
+    white-space: pre-line;
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+  .cb-ligne-bot .cb-bulle {
+    background: var(--blanc);
+    color: var(--texte);
+    border-bottom-left-radius: 5px;
+    box-shadow: 0 2px 10px rgba(13, 48, 128, 0.07);
+  }
+  .cb-ligne-user .cb-bulle {
+    background: var(--bleu);
+    color: var(--blanc);
+    border-bottom-right-radius: 5px;
+  }
+  .cb-lien {
+    display: inline-block;
+    margin: 8px 0 0;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--bleu-royal);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .cb-lien:hover { color: var(--teal); }
+
+  /* ── Indicateur de saisie ── */
+  .cb-points {
+    display: flex; align-items: center; gap: 4px;
+    padding: 5px 2px;
+    background: var(--blanc);
+    border-radius: var(--r-md);
+    border-bottom-left-radius: 5px;
+    box-shadow: 0 2px 10px rgba(13, 48, 128, 0.07);
+  }
+  .cb-points i {
+    width: 6px; height: 6px;
+    background: var(--gris);
+    border-radius: 50%;
+    animation: cbPoint 1.3s infinite ease-in-out;
+  }
+  .cb-points i:nth-child(2) { animation-delay: 0.18s; }
+  .cb-points i:nth-child(3) { animation-delay: 0.36s; }
+  @keyframes cbPoint {
+    0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+    30% { opacity: 1; transform: translateY(-3px); }
+  }
+
+  /* ── Suites proposées ── */
+  .cb-suggestions {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 0 16px 12px;
+    background: var(--fond);
+    flex-shrink: 0;
+  }
+  .cb-suggestions:empty { display: none; }
+  .cb-sugg {
+    padding: 7px 13px;
+    background: var(--blanc);
+    color: var(--bleu);
+    font-family: var(--font-corps);
+    font-size: 0.78rem;
+    font-weight: 500;
+    border: 1px solid rgba(13, 48, 128, 0.14);
+    border-radius: var(--r-full);
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+  .cb-sugg:hover { border-color: var(--teal); transform: translateY(-1px); }
+
+  /* ── Saisie ── */
+  .cb-saisie {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 14px;
+    border-top: 1px solid rgba(13, 48, 128, 0.1);
+    background: var(--blanc);
+    flex-shrink: 0;
+  }
+  .cb-saisie input {
+    flex: 1;
+    padding: 11px 14px;
+    font-family: var(--font-corps);
+    font-size: 0.88rem;
+    color: var(--texte);
+    background: var(--fond);
+    border: 1px solid transparent;
+    border-radius: var(--r-full);
+    outline: none;
+  }
+  .cb-saisie input:focus { border-color: var(--teal); }
+  .cb-saisie button {
+    flex-shrink: 0;
+    width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--teal);
+    color: var(--bleu);
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+  }
+  .cb-saisie button:hover { transform: scale(1.08); }
+
+  @media (max-width: 560px) {
+    /* Même contrainte que les boutons d'appel et Instagram : on se place
+       au-dessus du bandeau cookies tant qu'il est affiché. */
+    .cb-lanceur { bottom: calc(22px + var(--mc-consent-emprise, 0px)); left: 16px; padding: 10px 17px 10px 11px; font-size: 0.86rem; }
+    .cb-lanceur-ico { width: 27px; height: 27px; }
+    .cb-panneau {
+      left: 10px; right: 10px; width: auto;
+      bottom: 80px;
+      height: calc(100vh - 110px);
+      max-height: 560px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cb-lanceur, .cb-sugg, .cb-saisie button { transition: none; }
+    .cb-points i, .cb-pastille { animation: none; }
+  }
+</style>

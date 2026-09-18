@@ -1,4 +1,6 @@
 ---
+import { prestations } from "../data/prestations";
+import { zones } from "../data/zones";
 const annee = new Date().getFullYear();
 ---
 
@@ -27,8 +29,9 @@ const annee = new Date().getFullYear();
       <ul>
         <li><a href="/">Accueil</a></li>
         <li><a href="/services">Prestations</a></li>
+        <li><a href="/zones">Zones d'intervention</a></li>
         <li><a href="/galerie">Galerie avant/après</a></li>
-        <li><a href="/boutique">Boutique produits</a></li>
+        <li><a href="/faq">Questions fréquentes</a></li>
         <li><a href="/entreprises">Devis Entreprises</a></li>
         <li><a href="/contact">Contact & Réservation</a></li>
       </ul>
@@ -37,13 +40,19 @@ const annee = new Date().getFullYear();
     <div class="footer-links">
       <h4>Services</h4>
       <ul>
-        <li><a href="/services#voiture">Nettoyage voiture</a></li>
-        <li><a href="/services#matelas">Nettoyage matelas</a></li>
-        <li><a href="/services#canape">Nettoyage canapé</a></li>
-        <li><a href="/services#tapis">Nettoyage tapis</a></li>
-        <li><a href="/services#fauteuil">Nettoyage fauteuil</a></li>
-        <li><a href="/services#formule-multi">Formule multi-meubles</a></li>
+        {prestations.map((p) => (
+          <li><a href={`/services/${p.slug}`}>{p.nom}</a></li>
+        ))}
         <li><a href="/entreprises">Devis Entreprises</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-links">
+      <h4>Zones</h4>
+      <ul>
+        {zones.map((z) => (
+          <li><a href={`/zones/${z.slug}`}>{z.ville}</a></li>
+        ))}
       </ul>
     </div>
 
@@ -88,7 +97,7 @@ const annee = new Date().getFullYear();
 
   .footer-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1.5fr;
+    grid-template-columns: 1.7fr 1fr 1.1fr 1fr 1.3fr;
     gap: 48px;
     padding-top: 64px;
     padding-bottom: 48px;
@@ -176,6 +185,10 @@ const annee = new Date().getFullYear();
   @media (max-width: 900px) {
     .footer-grid { grid-template-columns: 1fr 1fr; }
     .footer-brand { grid-column: 1 / -1; }
+  }
+  @media (max-width: 1060px) and (min-width: 861px) {
+    .footer-grid { grid-template-columns: 1.6fr 1fr 1fr; }
+    .footer-contact { grid-column: 2 / -1; }
   }
   @media (max-width: 560px) {
     .footer-grid { grid-template-columns: 1fr; }

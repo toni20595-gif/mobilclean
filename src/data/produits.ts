@@ -45,7 +45,7 @@ export const produits: Produit[] = [
     prix: 29.99,
     prixAffiche: "29,99 €",
     contenance: "100 ml",
-    image: "/images/boutique/cuir.jpg",
+    image: "/images/boutique/cuir.webp",
     alt: "Flacon de soin nourrissant pour cuir automobile, 100 ml",
     points: [
       "Huiles nourrissantes naturelles : lanoline, tournesol",
@@ -71,7 +71,7 @@ export const produits: Produit[] = [
     prix: 20.0,
     prixAffiche: "20,00 €",
     contenance: "100 ml",
-    image: "/images/boutique/interieur.jpg",
+    image: "/images/boutique/interieur.webp",
     alt: "Spray nettoyant pour intérieur de voiture, 100 ml",
     points: [
       "Tissu, plastique, vinyle, moquette",
@@ -93,7 +93,7 @@ export const produits: Produit[] = [
     prix: 19.99,
     prixAffiche: "19,99 €",
     contenance: "120 ml",
-    image: "/images/boutique/pneus.jpg",
+    image: "/images/boutique/pneus.webp",
     alt: "Spray nettoyant pour pneus de voiture, 120 ml",
     points: [
       "Convient à tous types de pneus",
@@ -115,7 +115,7 @@ export const produits: Produit[] = [
     prix: 19.99,
     prixAffiche: "19,99 €",
     contenance: "120 ml",
-    image: "/images/boutique/ceramique.jpg",
+    image: "/images/boutique/ceramique.webp",
     alt: "Spray de protection céramique au graphène pour carrosserie, 120 ml",
     points: [
       "Formule graphène + dioxyde de silicium (SiO₂)",

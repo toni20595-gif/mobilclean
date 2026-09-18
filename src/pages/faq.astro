@@ -1,0 +1,262 @@
+---
+// ════════════════════════════════════════════════════════════════════════
+//  FAQ GÉNÉRALE
+//  ──────────────────────────────────────────────────────────────────────
+//  Volontairement limitée aux questions TRANSVERSALES (déroulé, paiement,
+//  délais, garantie, zone). Les questions techniques propres à chaque
+//  prestation vivent sur les pages prestation : dupliquer les mêmes
+//  questions ici affaiblirait les deux pages au lieu de les renforcer.
+//
+//  Double objectif :
+//   • balisage FAQPage → éligible aux résultats enrichis ;
+//   • réponses courtes et factuelles → c'est ce format que ChatGPT,
+//     Perplexity et les réponses IA de Google reprennent et citent.
+//
+//  À VÉRIFIER PAR MOBIL CLEAN : les réponses sur le paiement, l'annulation
+//  et la garantie reprennent ce qui est déjà annoncé ailleurs sur le site.
+//  Si votre pratique réelle diffère, corrigez ici — une FAQ qui promet ce
+//  que vous ne faites pas se paie en avis négatifs.
+// ════════════════════════════════════════════════════════════════════════
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { prestations } from "../data/prestations";
+import { faq } from "../data/faq";
+
+// Balisage FAQPage — les questions sont bien affichées sur la page,
+// condition posée par Google pour ce type de données structurées.
+const schemaFaq = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": "https://mobilclean.fr/faq#faq",
+  mainEntity: faq.flatMap((bloc) =>
+    bloc.questions.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer", text: item.reponse },
+    }))
+  ),
+};
+
+const schemaFilAriane = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Accueil", item: "https://mobilclean.fr/" },
+    { "@type": "ListItem", position: 2, name: "Questions fréquentes", item: "https://mobilclean.fr/faq" },
+  ],
+};
+---
+
+<Layout
+  title="Questions fréquentes — nettoyage à domicile | Mobil Clean"
+  description="Déroulé de l'intervention, délais, séchage, tarifs, paiement, zone d'intervention, garantie : toutes les réponses sur le nettoyage à domicile Mobil Clean à Mulhouse et dans le Haut-Rhin."
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(schemaFaq)} />
+    <script type="application/ld+json" set:html={JSON.stringify(schemaFilAriane)} />
+  </Fragment>
+  <Header fondClair />
+
+  <main>
+    <nav class="fil-ariane" aria-label="Fil d'Ariane">
+      <div class="container">
+        <ol>
+          <li><a href="/">Accueil</a></li>
+          <li aria-current="page">Questions fréquentes</li>
+        </ol>
+      </div>
+    </nav>
+
+    <section class="faq-hero">
+      <div class="container">
+        <span class="tag">Questions fréquentes</span>
+        <h1>Tout ce qu'on nous demande</h1>
+        <p class="faq-reponse">
+          Mobil Clean nettoie voitures, matelas, canapés, tapis et fauteuils à
+          domicile, à Mulhouse et dans le Haut-Rhin. Créneaux de 2h30 de 9h30 à
+          21h, sept jours sur sept, confirmés sous 24h. Devis gratuit et sans
+          engagement au 07 68 44 52 93.
+        </p>
+      </div>
+    </section>
+
+    <section class="faq-corps">
+      <div class="container">
+        {faq.map((bloc) => (
+          <div class="faq-bloc">
+            <h2>{bloc.categorie}</h2>
+            <div class="faq-liste">
+              {bloc.questions.map((item) => (
+                <details class="faq-item">
+                  <summary>
+                    <h3>{item.question}</h3>
+                    <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </summary>
+                  <p>{item.reponse}</p>
+                </details>
+              ))}
+            </div>
+          </div>
+        ))}
+
+        <div class="faq-renvois">
+          <h2>Questions par prestation</h2>
+          <p>
+            Chaque prestation a ses propres questions techniques — séchage,
+            textiles délicats, taches spécifiques :
+          </p>
+          <ul>
+            {prestations.map((p) => (
+              <li>
+                <a href={`/services/${p.slug}`}>
+                  {p.nom}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                  </svg>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="faq-cta">
+      <div class="container">
+        <h2>Votre question n'est pas là ?</h2>
+        <p>Appelez-nous, on répond directement. C'est plus rapide qu'un formulaire.</p>
+        <div class="faq-actions">
+          <a href="tel:+33768445293" class="btn-teal">07 68 44 52 93</a>
+          <a href="/contact" class="btn-outline">Réserver un créneau</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+
+</Layout>
+
+<style>
+  .fil-ariane {
+    padding-top: 110px;
+    padding-bottom: 8px;
+    background: var(--fond);
+  }
+  .fil-ariane ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
+    font-size: 0.85rem;
+    color: var(--texte-2);
+  }
+  .fil-ariane li + li::before {
+    content: "›";
+    margin-right: 8px;
+    color: var(--gris);
+  }
+  .fil-ariane a { color: var(--texte-2); }
+  .fil-ariane a:hover { color: var(--bleu-royal); text-decoration: underline; }
+  .fil-ariane [aria-current="page"] { color: var(--bleu); font-weight: 600; }
+
+  .faq-hero { padding: 32px 0 64px; background: var(--fond); }
+  .faq-hero h1 { color: var(--bleu); margin: 18px 0 20px; }
+  .faq-reponse {
+    font-size: clamp(1.05rem, 1.6vw, 1.2rem);
+    color: var(--texte-2);
+    line-height: 1.65;
+    max-width: 64ch;
+    padding-left: 18px;
+    border-left: 3px solid var(--teal);
+  }
+
+  .faq-corps { padding-block: var(--section-gap); }
+  .faq-bloc { margin-bottom: 56px; }
+  .faq-bloc h2 {
+    color: var(--bleu);
+    font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+    margin-bottom: 24px;
+  }
+  .faq-liste { display: grid; gap: 12px; }
+  .faq-item {
+    background: var(--fond);
+    border-radius: var(--r-md);
+    overflow: hidden;
+  }
+  .faq-item summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 24px;
+    cursor: pointer;
+    list-style: none;
+  }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item summary h3 {
+    font-size: clamp(1rem, 1.6vw, 1.12rem);
+    font-weight: 600;
+    color: var(--bleu);
+  }
+  .faq-chevron { color: var(--teal); flex-shrink: 0; transition: transform 0.25s ease; }
+  .faq-item[open] .faq-chevron { transform: rotate(180deg); }
+  .faq-item > p {
+    padding: 0 24px 22px;
+    color: var(--texte-2);
+    max-width: 80ch;
+  }
+
+  .faq-renvois {
+    padding: 32px;
+    background: var(--teal-pale);
+    border-radius: var(--r-lg);
+  }
+  .faq-renvois h2 { color: var(--bleu); font-size: clamp(1.3rem, 2.2vw, 1.7rem); margin-bottom: 12px; }
+  .faq-renvois > p { color: var(--texte); margin-bottom: 20px; max-width: 62ch; }
+  .faq-renvois ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    list-style: none;
+  }
+  .faq-renvois a {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 18px;
+    background: var(--blanc);
+    color: var(--bleu);
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: var(--r-full);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .faq-renvois a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(13, 48, 128, 0.14);
+  }
+
+  .faq-cta {
+    padding-block: var(--section-gap);
+    background: linear-gradient(135deg, var(--bleu) 0%, var(--bleu-royal) 100%);
+    text-align: center;
+  }
+  .faq-cta h2 { color: var(--blanc); margin-bottom: 16px; }
+  .faq-cta p { color: rgba(255, 255, 255, 0.78); margin-bottom: 32px; }
+  .faq-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+  }
+
+  @media (max-width: 520px) {
+    .faq-actions { flex-direction: column; align-items: stretch; }
+    .faq-actions > * { justify-content: center; }
+  }
+</style>
