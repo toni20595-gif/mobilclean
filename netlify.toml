@@ -5,6 +5,21 @@
 [build.environment]
   NODE_VERSION = "20"
 
+# La page /boutique a ete supprimee le 2026-09-18. Google l'avait indexee
+# depuis le 02/08 : on renvoie les anciens liens vers l'accueil au lieu
+# d'afficher une 404. Ces regles doivent rester AVANT le catch-all /*.
+[[redirects]]
+  from = "/boutique"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/boutique/*"
+  to = "/"
+  status = 301
+  force = true
+
 [[redirects]]
   from = "/*"
   to = "/404.html"
