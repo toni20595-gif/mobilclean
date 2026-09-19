@@ -53,7 +53,7 @@ export const zones: Zone[] = [
     h1: "Nettoyage à domicile à Mulhouse",
     reponseCourte:
       "Mobil Clean est basé à Mulhouse et intervient dans tous les quartiers de la ville, du Rebberg à Bourtzwiller. Nettoyage de voiture, matelas, canapé, tapis et fauteuil directement chez vous, sur rendez-vous 7j/7 de 9h30 à 21h. Devis gratuit au 07 68 44 52 93.",
-    distance: "Notre ville de base — déplacement gratuit",
+    distance: "Notre ville de base",
     secteurs: [
       "Centre-ville et Fonderie",
       "Rebberg",
@@ -85,9 +85,9 @@ export const zones: Zone[] = [
           "Créneaux de 2h30, de 9h30 à 21h, sept jours sur sept. Les créneaux en soirée et le week-end partent vite : réservez quelques jours à l'avance si vous avez une contrainte d'horaire.",
       },
       {
-        titre: "Déplacement gratuit",
+        titre: "Frais de déplacement",
         texte:
-          "Mulhouse étant notre ville de base, le déplacement est offert : vous ne payez que la prestation. Le montant vous est confirmé au devis, avant que nous nous déplacions.",
+          "Un forfait de quelques euros couvre le déplacement, calculé selon la distance depuis notre dépôt. Le montant vous est confirmé au devis, avant que nous nous déplacions — pas de surprise à la fin.",
       },
     ],
   },

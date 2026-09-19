@@ -28,3 +28,15 @@ npm-debug.log*
 *.ntvs*
 *.njsproj
 *.sln
+
+# Copie de travail generee par google-apps-script/deploiement/deployer.sh
+# (contient le jeton secret injecte -> ne doit jamais etre versionnee)
+google-apps-script/deploiement/Code.gs
+google-apps-script/deploiement/.clasp.json
+# Copie rapatriee par "clasp pull" (doublon de Code.gs)
+google-apps-script/deploiement/Code.js
+
+# Scripts Vapi : la cle vit dans ~/.mobilclean-agent, jamais dans le depot
+
+# Copie du prompt generee par construire-lea.cjs
+agent-telephonique/vapi/prompt-final.txt
